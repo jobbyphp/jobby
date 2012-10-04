@@ -66,30 +66,30 @@ class Jobby
         return $platform;
     }
 
-	private function _toCode($fn)
-	{
+    private function _toCode($fn)
+    {
         // From http://www.htmlist.com/development/extending-php-5-3-closures-with-serialization-and-reflection/
-		$reflection = new \ReflectionFunction($fn);
+        $reflection = new \ReflectionFunction($fn);
 
-		// Open file and seek to the first line of the closure
-		$file = new \SplFileObject($reflection->getFileName());
-		$file->seek($reflection->getStartLine() - 1);
+        // Open file and seek to the first line of the closure
+        $file = new \SplFileObject($reflection->getFileName());
+        $file->seek($reflection->getStartLine() - 1);
 
-		// Retrieve all of the lines that contain code for the closure
-		$code = '';
-		while ($file->key() < $reflection->getEndLine())
-		{
-			$code .= $file->current();
-			$file->next();
-		}
+        // Retrieve all of the lines that contain code for the closure
+        $code = '';
+        while ($file->key() < $reflection->getEndLine())
+        {
+            $code .= $file->current();
+            $file->next();
+        }
 
-		// Only keep the code defining that closure
-		$begin = strpos($code, 'function');
-		$end = strrpos($code, '}');
-		$code = substr($code, $begin, $end - $begin + 1);
+        // Only keep the code defining that closure
+        $begin = strpos($code, 'function');
+        $end = strrpos($code, '}');
+        $code = substr($code, $begin, $end - $begin + 1);
 
-		return $code;
-	}
+        return $code;
+    }
 
     public function setConfig($config)
     {
