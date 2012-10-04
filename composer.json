@@ -12,6 +12,8 @@
     }
   },
   "scripts": {
-    "post-package-install": "Jobby::install"
+    "post-package-install": [
+      "Jobby::install"
+    ]
   }
 }
