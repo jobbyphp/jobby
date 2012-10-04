@@ -173,7 +173,14 @@ EOF;
     }
 }
 
-require(dirname(dirname(__DIR__)) . '/vendor/autoload.php');
+if (file_exists('vendor/autoload.php'))
+{
+    require('vendor/autoload.php');
+}
+else
+{
+    require(dirname(dirname(__DIR__)) . '/vendor/autoload.php');
+}
 
 spl_autoload_register(function ($class) {
     $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
