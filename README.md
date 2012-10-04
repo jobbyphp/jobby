@@ -94,3 +94,6 @@ $jobby->add('ClosureExample', array(
 $jobby->run();
 ```
 
+### Credits ###
+
+Developed before, but since inspired by [`whenever`](<https://github.com/javan/whenever>).
