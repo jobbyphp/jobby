@@ -14,8 +14,11 @@ handle logging, locking, error emails and more.
 
   `* * * * * cd /path/to/project && php jobby.php 1>> /dev/null 2>&1`
 
-After `jobby` installs, it will create a starter `jobby.php` file in your
-project root.
+After `jobby` installs, ~~it will create a starter `jobby.php` file in your
+project root.~~ I cannot seem to get this working in `composer`, so you will
+have to copy the file manually.
+
+  `% cp vendor/hellogerard/jobby/resources/jobby.php .`
 
 ## Usage ##
 
