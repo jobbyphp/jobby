@@ -152,25 +152,5 @@ class Jobby
             }
         }
     }
-
-    // For Composer install
-    public static function install($event)
-    {
-        $src = dirname(dirname(__DIR__)) . '/resources/jobby.php';
-        $dst = getcwd();
-
-        if ((copy($src, $dst)) === false)
-        {
-            echo "\n";
-            echo "Could not copy jobby.php.\n";
-            echo "You can still manually copy $src to $dst.";
-            echo "\n";
-            return;
-        }
-
-        echo "\n";
-        echo "Created jobby.php.";
-        echo "\n";
-    }
 }
 

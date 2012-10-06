@@ -10,10 +10,5 @@
     "psr-0": {
       "Jobby": "src/"
     }
-  },
-  "scripts": {
-    "post-package-install": [
-      "Jobby::install"
-    ]
   }
 }
