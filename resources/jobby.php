@@ -18,7 +18,9 @@ $jobby->add('CommandExample', array(
 ));
 
 $jobby->add('ClosureExample', array(
-    'command' => function() { echo "a function!\n"; },
+    'command' => function() {
+        echo "I'm a function!\n";
+    },
     'schedule' => '* * * * *',
     'output' => 'logs/closure.log',
     'enabled' => true,

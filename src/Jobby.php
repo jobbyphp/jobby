@@ -88,7 +88,7 @@ class Jobby
         $end = strrpos($code, '}');
         $code = substr($code, $begin, $end - $begin + 1);
 
-        return $code;
+        return str_replace(array("\r\n", "\n"), '', $code);
     }
 
     public function setConfig($config)

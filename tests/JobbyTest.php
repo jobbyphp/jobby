@@ -29,7 +29,9 @@ class JobbyTest extends PHPUnit_Framework_TestCase
     {
         $jobby = new \Jobby();
         $jobby->add('HelloWorld', array(
-            'command' => function() { echo "A function!"; },
+            'command' => function() {
+                echo "A function!";
+            },
             'schedule' => '* * * * *',
             'output' => 'helloworld.log',
         ));

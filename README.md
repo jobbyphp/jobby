@@ -83,7 +83,9 @@ $jobby->add('CommandExample', array(
 
 $jobby->add('ClosureExample', array(
     // Commands can be PHP closures
-    'command' => function() { echo "a function!\n"; },
+    'command' => function() {
+        echo "I'm a function!\n";
+    },
 
     // This function will run every other hour
     'schedule' => '0 */2 * * *',
