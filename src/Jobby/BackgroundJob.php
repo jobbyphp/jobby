@@ -123,7 +123,7 @@ EOF;
             if (file_exists($lockfile))
             {
                 $now = date($config['dateFormat'], $_SERVER['REQUEST_TIME']);
-                file_put_contents($logfile, "$now: Lock file found in $lockfile. Skipping.", FILE_APPEND);
+                file_put_contents($logfile, "$now: Lock file found in $lockfile. Skipping.\n", FILE_APPEND);
                 return;
             }
 
