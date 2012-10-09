@@ -109,7 +109,7 @@ EOF;
             $lockfile = "$tmp/{$config['environment']}-$job.lck";
         }
 
-        $cp = new CronParser($config['schedule']);
+        $cron = \Cron\CronExpression::factory($config['schedule']);
 
         // If 1) job is enabled
         //    2) and, we are on specified host
@@ -117,7 +117,7 @@ EOF;
         // then, start execution.
         if (   $config['enabled']
             && strcasecmp($config['runOnHost'], $this->_host()) == 0
-            && $cp->shouldRun())
+            && $cron->isDue())
         {
             // Check for lock file
             if (file_exists($lockfile))

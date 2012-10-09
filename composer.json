@@ -4,6 +4,7 @@
   "license": "MIT",
   "description": "Manage all your cron jobs without modifying crontab. Handles locking, logging, error emails, and more.",
   "require": {
+    "mtdowling/cron-expression": "1.0.x",
     "swiftmailer/swiftmailer": "4.2.x"
   },
   "autoload": {

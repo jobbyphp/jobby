@@ -22,12 +22,14 @@ After `jobby` installs, you can copy an example jobby file to the project root.
 
 ### Features ###
 
-- Use ordinary crontab schedule syntax (keywords not supported at this time!)
+- Maintain one master crontab job.
+- Jobs run via PHP, so you can run them under any programmatic conditions.
+- Use ordinary crontab schedule syntax (powered by the excellent [`cron-expression`](<https://github.com/mtdowling/cron-expression>)).
 - Run only one copy of a job at a given time.
 - Send email whenever a job exits with an error status. 
 - Run job as another user, if crontab user has `sudo` privileges.
 - Run only on certain hostnames (handy in webfarms).
-- Theoretical Windows support (but not ever ran)
+- Theoretical Windows support (but not ever tested)
 
 ### Currently Supported Options ###
 

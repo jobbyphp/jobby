@@ -1,6 +1,47 @@
 {
-    "hash": "2f07096125ee1699bc4c8d14c8b0806e",
+    "hash": "92e78b0fbb6526a7508cc7483d901428",
     "packages": [
+        {
+            "name": "mtdowling/cron-expression",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mtdowling/cron-expression",
+                "reference": "8e6e6f7a2fcfc3c60148b45349a7badc1ec1662d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/mtdowling/cron-expression/zipball/8e6e6f7a2fcfc3c60148b45349a7badc1ec1662d",
+                "reference": "8e6e6f7a2fcfc3c60148b45349a7badc1ec1662d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2"
+            },
+            "time": "1345756469",
+            "type": "library",
+            "installation-source": "source",
+            "autoload": {
+                "psr-0": {
+                    "Cron": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Dowling",
+                    "email": "mtdowling@gmail.com",
+                    "homepage": "https://github.com/mtdowling"
+                }
+            ],
+            "description": "CRON for PHP: Calculate the next or previous run date and determine if a CRON expression is due",
+            "keywords": [
+                "cron",
+                "schedule"
+            ]
+        },
         {
             "name": "swiftmailer/swiftmailer",
             "version": "v4.2.1",
@@ -18,7 +59,7 @@
             "require": {
                 "php": ">=5.2.4"
             },
-            "time": "2012-07-13 20:46:37",
+            "time": "2012-07-13 16:46:37",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -56,7 +97,7 @@
 
     ],
     "minimum-stability": "stable",
-    "stability-flags": [
-
-    ]
+    "stability-flags": {
+        "mtdowling/cron-expression": 20
+    }
 }
