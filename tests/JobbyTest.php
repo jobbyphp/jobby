@@ -7,6 +7,17 @@ class JobbyTest extends PHPUnit_Framework_TestCase
         @unlink('helloworld.log');
     }
 
+    /**
+     *
+     */
+    public function tearDown()
+    {
+        @unlink('helloworld.log');
+    }
+
+    /**
+     *
+     */
     public function testShell()
     {
         $jobby = new \Jobby();
@@ -21,8 +32,6 @@ class JobbyTest extends PHPUnit_Framework_TestCase
         sleep(2);
 
         $this->assertEquals('Hello World!', file_get_contents('helloworld.log'));
-
-        @unlink('helloworld.log');
     }
 
     public function testClosure()
@@ -41,8 +50,6 @@ class JobbyTest extends PHPUnit_Framework_TestCase
         sleep(2);
 
         $this->assertEquals('A function!', file_get_contents('helloworld.log'));
-
-        @unlink('helloworld.log');
     }
 }
 
