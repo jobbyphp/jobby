@@ -1,11 +1,34 @@
 <?php
 
+/**
+ *
+ */
 class Jobby
 {
+    /**
+     * @var array
+     */
     private $_config;
+
+    /**
+     * @var array
+     */
     private $_jobs;
 
-    public function __construct($config = null)
+    /**
+     * @var int
+     */
+    const UNIX = 0;
+
+    /**
+     * @var int
+     */
+    const WINDOWS = 1;
+
+    /**
+     * @param array $config
+     */
+    public function __construct(array $config = array())
     {
         $this->_config = array(
             'recipients' => null,
@@ -23,49 +46,53 @@ class Jobby
             'debug' => false,
         );
 
-        if ($config !== null)
-        {
+        if ($config !== null) {
             $this->_config = array_merge($this->_config, $config);
         }
 
         $this->_jobs = array();
     }
 
+    /**
+     * @return string
+     */
     private function _host()
     {
-        if (($host = gethostname()) === false)
-        {
+        if (($host = gethostname()) === false) {
             $host = php_uname('n');
         }
 
         return $host;
     }
 
+    /**
+     * @return string
+     */
     private function _env()
     {
-        $env = null;
-        if (getenv('APPLICATION_ENV'))
-        {
-            $env = getenv('APPLICATION_ENV');
+        if (getenv('APPLICATION_ENV')) {
+            return getenv('APPLICATION_ENV');
+        } else {
+            return null;
         }
-
-        return $env;
     }
 
-    const UNIX = 0;
-    const WINDOWS = 1;
-
+    /**
+     * @return int
+     */
     private function _platform()
     {
-        $platform = self::UNIX;
-        if (strncasecmp(PHP_OS, "Win", 3) == 0)
-        {
-            $platform = self::WINDOWS;
+        if (strncasecmp(PHP_OS, "Win", 3) == 0) {
+            return self::WINDOWS;
+        } else {
+            return self::UNIX;
         }
-
-        return $platform;
     }
 
+    /**
+     * @param closure $fn
+     * @return string
+     */
     private function _toCode($fn)
     {
         // From http://www.htmlist.com/development/extending-php-5-3-closures-with-serialization-and-reflection/
@@ -77,8 +104,7 @@ class Jobby
 
         // Retrieve all of the lines that contain code for the closure
         $code = '';
-        while ($file->key() < $reflection->getEndLine())
-        {
+        while ($file->key() < $reflection->getEndLine()) {
             $code .= $file->current();
             $file->next();
         }
@@ -91,22 +117,27 @@ class Jobby
         return str_replace(array("\r\n", "\n"), '', $code);
     }
 
-    public function setConfig($config)
+    /**
+     * @param array
+     */
+    public function setConfig(array $config)
     {
         $this->_config = array_merge($this->_config, $config);
     }
 
-    public function add($job, $config)
+    /**
+     * @param string $job
+     * @param array $config
+     */
+    public function add($job, array $config)
     {
         // 'command' is required
-        if (empty($config['command']))
-        {
+        if (empty($config['command'])) {
             throw new \Jobby\Exception("'command' is required for '$job' job");
         }
 
         // 'schedule' is required
-        if (empty($config['schedule']))
-        {
+        if (empty($config['schedule'])) {
             throw new \Jobby\Exception("'schedule' is required for '$job' job");
         }
 
@@ -115,19 +146,21 @@ class Jobby
         $this->_jobs[$job] = $config;
     }
 
+    /**
+     *
+     */
     public function run()
     {
-        $script = __DIR__ . DIRECTORY_SEPARATOR . 'Jobby' . DIRECTORY_SEPARATOR . 'BackgroundJob.php';
+        $script = __DIR__ . DIRECTORY_SEPARATOR
+            . 'Jobby' . DIRECTORY_SEPARATOR
+            . 'BackgroundJob.php';
 
-        foreach ($this->_jobs as $job => $config)
-        {
+        foreach ($this->_jobs as $job => $config) {
             $debug = $config['debug'];
 
-            if ($config['command'] instanceof Closure)
-            {
+            if ($config['command'] instanceof Closure) {
                 // Convert closures to its source code as a string so that we
                 // can send it on the command line.
-                
                 $config['command'] = $this->_toCode($config['command']);
             }
 
@@ -136,21 +169,16 @@ class Jobby
 
             // Run in background (non-blocking). From
             // http://us3.php.net/manual/en/function.exec.php#43834
-            if ($this->_platform() === self::WINDOWS)
-            {
+            if ($this->_platform() === self::WINDOWS) {
                 pclose(popen("start \"blah\" /B \"php.exe\" $command", "r"));
-            }
-            else
-            {
+            } else {
                 $output = '/dev/null';
-                if ($debug)
-                {
+                if ($debug) {
                     $output = 'debug.log';
                 }
 
-                exec("php $command 1> $output 2>&1 &");   
+                exec("php $command 1> $output 2>&1 &");
             }
         }
     }
 }
-

@@ -1,60 +1,72 @@
 <?php
-
 namespace Jobby;
 
+/**
+ *
+ */
 class BackgroundJob
 {
+    /**
+     * @var int
+     */
+    const UNIX = 0;
+
+    /**
+     * @var int
+     */
+    const WINDOWS = 1;
+
+    /**
+     * @return string
+     */
     private function _tmpdir()
     {
-        if (function_exists('sys_get_temp_dir'))
-        {
+        if (function_exists('sys_get_temp_dir')) {
             $tmp = sys_get_temp_dir();
-        }
-        else if (! empty($_SERVER['TMP']))
-        {
+        } else if (!empty($_SERVER['TMP'])) {
             $tmp = $_SERVER['TMP'];
-        }
-        else if (! empty($_SERVER['TEMP']))
-        {
+        } else if (!empty($_SERVER['TEMP'])) {
             $tmp = $_SERVER['TEMP'];
-        }
-        else if (! empty($_SERVER['TMPDIR']))
-        {
+        } else if (!empty($_SERVER['TMPDIR'])) {
             $tmp = $_SERVER['TMPDIR'];
-        }
-        else
-        {
+        } else {
             $tmp = getcwd();
         }
 
         return $tmp;
     }
 
+    /**
+     * @return string
+     */
     private function _host()
     {
-        if (($host = gethostname()) === false)
-        {
+        $host = gethostname();
+        if ($host === false) {
             $host = php_uname('n');
         }
 
         return $host;
     }
 
-    const UNIX = 0;
-    const WINDOWS = 1;
-
+    /**
+     * @return int
+     */
     private function _platform()
     {
-        $platform = self::UNIX;
-        if (strncasecmp(PHP_OS, "Win", 3) == 0)
-        {
-            $platform = self::WINDOWS;
+        if (strncasecmp(PHP_OS, "Win", 3) == 0) {
+            return self::WINDOWS;
+        } else {
+            return self::UNIX;
         }
-
-        return $platform;
     }
 
-    private function _mail($job, $retval, $config)
+    /**
+     * @param string $job
+     * @param int $retval
+     * @param array $config
+     */
+    private function _mail($job, $retval, array $config)
     {
         $host = $this->_host();
         $body = <<<EOF
@@ -73,14 +85,11 @@ EOF;
         $mail->setSender("jobby@$host");
         $mail->setBody($body);
 
-        if ($config['mailer'] == 'smtp')
-        {
+        if ($config['mailer'] == 'smtp') {
             $transport = \Swift_SmtpTransport::newInstance($config['smtpHost'], $config['smtpPort']);
             $transport->setUsername($config['smtpUsername']);
             $transport->setPassword($config['smtpPassword']);
-        }
-        else
-        {
+        } else {
             $transport = \Swift_SendmailTransport::newInstance();
         }
 
@@ -88,24 +97,26 @@ EOF;
         $mailer->send($mail);
     }
 
-    public function run($job, $config)
+    /**
+     * @param string $job
+     * @param array $config
+     */
+    public function run($job, array $config)
     {
         // Check for logfile
         $logfile = '/dev/null';
-        if ($config['output'] !== null)
-        {
+        if ($config['output'] !== null) {
             $logfile = $config['output'];
             $logs = dirname($logfile);
-            if (! file_exists($logs))
-            {
+
+            if (!file_exists($logs)) {
                 mkdir($logs, 0777, true);
             }
         }
 
         $tmp = $this->_tmpdir();
         $lockfile = "$tmp/$job.lck";
-        if (! empty($config['environment']))
-        {
+        if (!empty($config['environment'])) {
             $lockfile = "$tmp/{$config['environment']}-$job.lck";
         }
 
@@ -115,13 +126,10 @@ EOF;
         //    2) and, we are on specified host
         //    3) and, job is scheduled to run
         // then, start execution.
-        if (   $config['enabled']
-            && strcasecmp($config['runOnHost'], $this->_host()) == 0
-            && $cron->isDue())
-        {
+        $isHostAllowed = (strcasecmp($config['runOnHost'], $this->_host()) == 0);
+        if ($config['enabled'] && $isHostAllowed && $cron->isDue()) {
             // Check for lock file
-            if (file_exists($lockfile))
-            {
+            if (file_exists($lockfile)) {
                 $now = date($config['dateFormat'], $_SERVER['REQUEST_TIME']);
                 file_put_contents($logfile, "$now: Lock file found in $lockfile. Skipping.\n", FILE_APPEND);
                 return;
@@ -132,8 +140,7 @@ EOF;
 
             $command = $config['command'];
 
-            if (preg_match('/^function\(.*\).*}$/', $command))
-            {
+            if (preg_match('/^function\(.*\).*}$/', $command)) {
                 // If job is an anonymous function string, eval it to get the
                 // closure, and run the closure.
                 eval('$command = ' . $command . ';');
@@ -142,19 +149,19 @@ EOF;
                 $retval = (bool) $command();
                 file_put_contents($logfile, ob_get_contents(), FILE_APPEND);
                 ob_end_clean();
-            }
-            else
-            {
+            } else {
                 // Else job is a string to run on the command line.
 
                 // If job should run as another user, we must be on *nix and
                 // must have sudo privileges.
-                $useSudo = '';
-                if (   ! empty($config['runAs'])
-                    && $this->_platform() !== self::WINDOWS
-                    && posix_getuid() === 0)
-                {
+                $hasRunAs = !empty($config["runAs"]);
+                $isRoot = (posix_getuid() === 0);
+                $isUnix = ($this->_platform() === self::UNIX);
+
+                if ($hasRunAs && $isUnix && $isRoot) {
                     $useSudo = "sudo -u {$config['runAs']}";
+                } else {
+                    $useSudo = "";
                 }
 
                 // Start execution. Run in foreground (will block).
@@ -165,20 +172,16 @@ EOF;
             unlink($lockfile);
 
             // Mail log file if error
-            if ((bool) $retval && ! empty($config['recipients']))
-            {
+            if ((bool) $retval && ! empty($config['recipients'])) {
                 $this->_mail($job, $retval, $config);
             }
         }
     }
 }
 
-if (file_exists('vendor/autoload.php'))
-{
+if (file_exists('vendor/autoload.php')) {
     require('vendor/autoload.php');
-}
-else
-{
+} else {
     require(dirname(dirname(__DIR__)) . '/vendor/autoload.php');
 }
 
