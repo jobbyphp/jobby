@@ -1,7 +1,13 @@
 <?php
 
+/**
+ *
+ */
 class JobbyTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     *
+     */
     public function setUp()
     {
         @unlink('helloworld.log');
@@ -34,6 +40,9 @@ class JobbyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Hello World!', file_get_contents('helloworld.log'));
     }
 
+    /**
+     *
+     */
     public function testClosure()
     {
         $jobby = new \Jobby();
@@ -52,4 +61,3 @@ class JobbyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('A function!', file_get_contents('helloworld.log'));
     }
 }
-
