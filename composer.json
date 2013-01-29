@@ -7,6 +7,9 @@
     "mtdowling/cron-expression": "1.0.x",
     "swiftmailer/swiftmailer": "4.2.x"
   },
+  "require-dev": {
+    "phpunit/phpunit": "3.7.*"
+  },
   "autoload": {
     "psr-0": {
       "Jobby": "src/"
