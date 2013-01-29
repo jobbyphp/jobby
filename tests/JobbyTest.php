@@ -35,7 +35,7 @@ class JobbyTest extends PHPUnit_Framework_TestCase
         $jobby->run();
 
         // Job runs asynchronously, so wait a bit
-        sleep(2);
+        sleep(1);
 
         $this->assertEquals('Hello World!', file_get_contents('helloworld.log'));
     }
@@ -56,7 +56,7 @@ class JobbyTest extends PHPUnit_Framework_TestCase
         $jobby->run();
 
         // Job runs asynchronously, so wait a bit
-        sleep(2);
+        sleep(1);
 
         $this->assertEquals('A function!', file_get_contents('helloworld.log'));
     }
