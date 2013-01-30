@@ -1,195 +1,257 @@
 <?php
 namespace Jobby;
 
+use Jobby\Helper;
+
 /**
  *
  */
 class BackgroundJob
 {
     /**
-     * @var int
+     * @var Helper
      */
-    const UNIX = 0;
+    private $_helper;
 
     /**
-     * @var int
+     * @var string
      */
-    const WINDOWS = 1;
+    private $_job;
 
     /**
-     * @return string
+     * @var string
      */
-    private function _tmpdir()
+    private $_tmpDir;
+
+    /**
+     * @var array
+     */
+    private $_config;
+
+    /**
+     * @param string $job
+     * @param array $config
+     */
+    public function __construct($job, array $config)
     {
-        if (function_exists('sys_get_temp_dir')) {
-            $tmp = sys_get_temp_dir();
-        } else if (!empty($_SERVER['TMP'])) {
-            $tmp = $_SERVER['TMP'];
-        } else if (!empty($_SERVER['TEMP'])) {
-            $tmp = $_SERVER['TEMP'];
-        } else if (!empty($_SERVER['TMPDIR'])) {
-            $tmp = $_SERVER['TMPDIR'];
-        } else {
-            $tmp = getcwd();
+        $this->_job = $job;
+        $this->_config = $config;
+        $this->_tmpDir = $this->_getHelper()->getTempDir();
+    }
+
+    /**
+     *
+     */
+    public function run()
+    {
+        if (!$this->_shouldRun()) {
+            return;
         }
 
-        return $tmp;
+        if (!$this->_aquireLock()) {
+            return;
+        }
+
+        if ($this->_isFunction()) {
+            $retval = $this->_runFunction();
+        } else {
+            $retval = $this->_runFile();
+        }
+
+        $this->_releaseLock();
+
+        if ((bool) $retval) {
+            $this->_mail($retval);
+        }
+    }
+
+    /**
+     * @return Helper
+     */
+    private function _getHelper()
+    {
+        if ($this->_helper === null) {
+            $this->_helper = new Helper();
+        }
+
+        return $this->_helper;
+    }
+
+    /**
+     * @param int $retval
+     */
+    private function _mail($retval)
+    {
+        if (empty($this->_config['recipients'])) {
+            return;
+        }
+
+        $this->_getHelper()->sendMail(
+            $this->_job,
+            $this->_config,
+            $retval
+        );
     }
 
     /**
      * @return string
      */
-    private function _host()
+    private function _getLogfile()
     {
-        $host = gethostname();
-        if ($host === false) {
-            $host = php_uname('n');
+        if ($this->_config['output'] === null) {
+            return "/dev/null";
         }
 
-        return $host;
+        $logfile = $this->_config['output'];
+
+        $logs = dirname($logfile);
+        if (!file_exists($logs)) {
+            mkdir($logs, 0777, true);
+        }
+
+        return $logfile;
+    }
+
+    /**
+     * @return string
+     */
+    private function _getLockFile()
+    {
+        $tmp = $this->_tmpDir;
+        $job = $this->_job;
+
+        if (!empty($this->_config['environment'])) {
+            $env = $this->_config['environment'];
+            return "$tmp/$env-$job.lck";
+        } else {
+            return "$tmp/$job.lck";
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    private function _aquireLock()
+    {
+        $lockfile = $this->_getLockFile();
+
+        if (file_exists($lockfile)) {
+            $this->_log("Lock file found in $lockfile. Skipping.");
+            return false;
+        }
+
+        touch($lockfile);
+        return true;
+    }
+
+    /**
+     *
+     */
+    private function _releaseLock()
+    {
+        $lockfile = $this->_getLockFile();
+        unlink($lockfile);
+    }
+
+    /**
+     * @return bool
+     */
+    private function _shouldRun()
+    {
+        if (!$this->_config['enabled']) {
+            return false;
+        }
+
+        $cron = \Cron\CronExpression::factory($this->_config['schedule']);
+        if (!$cron->isDue()) {
+            return false;
+        }
+
+        $host = $this->_getHelper()->getHost();
+        if (strcasecmp($this->_config['runOnHost'], $host) != 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $message
+     */
+    private function _log($message)
+    {
+        $now = date($this->_config['dateFormat'], $_SERVER['REQUEST_TIME']);
+        $logfile = $this->_getLogfile();
+
+        file_put_contents($logfile, "$now: $message\n", FILE_APPEND);
+    }
+
+    /**
+     * @return bool
+     */
+    private function _isFunction()
+    {
+        return preg_match('/^function\(.*\).*}$/', $this->_config['command']);
     }
 
     /**
      * @return int
      */
-    private function _platform()
+    private function _runFunction()
     {
-        if (strncasecmp(PHP_OS, "Win", 3) == 0) {
-            return self::WINDOWS;
-        } else {
-            return self::UNIX;
-        }
+        // If job is an anonymous function string, eval it to get the
+        // closure, and run the closure.
+        eval('$command = ' . $this->_config['command'] . ';');
+
+        ob_start();
+        $retval = (bool) $command();
+        file_put_contents($this->_getLogfile(), ob_get_contents(), FILE_APPEND);
+        ob_end_clean();
+
+        return $retval;
     }
 
     /**
-     * @param string $job
-     * @param int $retval
-     * @param array $config
+     * @return int
      */
-    private function _mail($job, $retval, array $config)
+    private function _runFile()
     {
-        $host = $this->_host();
-        $body = <<<EOF
-'$job' exited with status of $retval.
+        // If job should run as another user, we must be on *nix and
+        // must have sudo privileges.
+        $hasRunAs = !empty($this->_config["runAs"]);
+        $isRoot = (posix_getuid() === 0);
+        $isUnix = ($this->_getHelper()->getPlatform() === Helper::UNIX);
 
-You can find its output in {$config['output']} on $host.
-
-Best,
-jobby@$host
-EOF;
-
-        $mail = \Swift_Message::newInstance();
-        $mail->setTo(explode(',', $config['recipients']));
-        $mail->setSubject("[$host] '$job' exited with status of $retval");
-        $mail->setFrom(array("jobby@$host" => 'jobby'));
-        $mail->setSender("jobby@$host");
-        $mail->setBody($body);
-
-        if ($config['mailer'] == 'smtp') {
-            $transport = \Swift_SmtpTransport::newInstance($config['smtpHost'], $config['smtpPort']);
-            $transport->setUsername($config['smtpUsername']);
-            $transport->setPassword($config['smtpPassword']);
+        if ($hasRunAs && $isUnix && $isRoot) {
+            $useSudo = "sudo -u {$this->_config['runAs']}";
         } else {
-            $transport = \Swift_SendmailTransport::newInstance();
+            $useSudo = "";
         }
 
-        $mailer = \Swift_Mailer::newInstance($transport);
-        $mailer->send($mail);
-    }
+        // Start execution. Run in foreground (will block).
+        $command = $this->_config['command'];
+        $logfile = $this->_getLogfile();
+        exec("$useSudo $command 1>> $logfile 2>&1", $dummy, $retval);
 
-    /**
-     * @param string $job
-     * @param array $config
-     */
-    public function run($job, array $config)
-    {
-        // Check for logfile
-        $logfile = '/dev/null';
-        if ($config['output'] !== null) {
-            $logfile = $config['output'];
-            $logs = dirname($logfile);
-
-            if (!file_exists($logs)) {
-                mkdir($logs, 0777, true);
-            }
-        }
-
-        $tmp = $this->_tmpdir();
-        $lockfile = "$tmp/$job.lck";
-        if (!empty($config['environment'])) {
-            $lockfile = "$tmp/{$config['environment']}-$job.lck";
-        }
-
-        $cron = \Cron\CronExpression::factory($config['schedule']);
-
-        // If 1) job is enabled
-        //    2) and, we are on specified host
-        //    3) and, job is scheduled to run
-        // then, start execution.
-        $isHostAllowed = (strcasecmp($config['runOnHost'], $this->_host()) == 0);
-        if ($config['enabled'] && $isHostAllowed && $cron->isDue()) {
-            // Check for lock file
-            if (file_exists($lockfile)) {
-                $now = date($config['dateFormat'], $_SERVER['REQUEST_TIME']);
-                file_put_contents($logfile, "$now: Lock file found in $lockfile. Skipping.\n", FILE_APPEND);
-                return;
-            }
-
-            // Create lock file
-            touch($lockfile);
-
-            $command = $config['command'];
-
-            if (preg_match('/^function\(.*\).*}$/', $command)) {
-                // If job is an anonymous function string, eval it to get the
-                // closure, and run the closure.
-                eval('$command = ' . $command . ';');
-
-                ob_start();
-                $retval = (bool) $command();
-                file_put_contents($logfile, ob_get_contents(), FILE_APPEND);
-                ob_end_clean();
-            } else {
-                // Else job is a string to run on the command line.
-
-                // If job should run as another user, we must be on *nix and
-                // must have sudo privileges.
-                $hasRunAs = !empty($config["runAs"]);
-                $isRoot = (posix_getuid() === 0);
-                $isUnix = ($this->_platform() === self::UNIX);
-
-                if ($hasRunAs && $isUnix && $isRoot) {
-                    $useSudo = "sudo -u {$config['runAs']}";
-                } else {
-                    $useSudo = "";
-                }
-
-                // Start execution. Run in foreground (will block).
-                exec("$useSudo $command 1>> $logfile 2>&1", $dummy, $retval);
-            }
-
-            // Remove lock file
-            unlink($lockfile);
-
-            // Mail log file if error
-            if ((bool) $retval && ! empty($config['recipients'])) {
-                $this->_mail($job, $retval, $config);
-            }
-        }
+        return $retval;
     }
 }
 
-if (file_exists('vendor/autoload.php')) {
-    require('vendor/autoload.php');
-} else {
-    require(dirname(dirname(__DIR__)) . '/vendor/autoload.php');
+// run this file, if executed directly
+// @see: http://stackoverflow.com/questions/2413991/php-equivalent-of-pythons-name-main
+if (!debug_backtrace()) {
+    if (file_exists('vendor/autoload.php')) {
+        require('vendor/autoload.php');
+    } else {
+        require(dirname(dirname(__DIR__)) . '/vendor/autoload.php');
+    }
+
+    spl_autoload_register(function ($class) {
+        $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+        require(dirname(__DIR__) . "/{$class}.php");
+    });
+
+    parse_str($argv[2], $config);
+    $job = new BackgroundJob($argv[1], $config);
+    $job->run();
 }
-
-spl_autoload_register(function ($class) {
-    $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
-    require(dirname(__DIR__) . "/{$class}.php");
-});
-
-$job = new BackgroundJob();
-parse_str($argv[2], $config);
-$job->run($argv[1], $config);
