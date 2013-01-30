@@ -10,6 +10,25 @@ use Jobby\Helper;
 class HelperTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @var Helper
+     */
+    private $helper;
+
+    /**
+     * @var string
+     */
+    private $tmpDir;
+
+    /**
+     *
+     */
+    public function setUp()
+    {
+        $this->helper = new Helper();
+        $this->tmpDir = $this->helper->getTempDir();
+    }
+
+    /**
      *
      */
     public function tearDown()
@@ -25,8 +44,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testEscape($input, $expected)
     {
-        $helper = new Helper();
-        $actual = $helper->escape($input);
+        $actual = $this->helper->escape($input);
         $this->assertEquals($expected, $actual);
     }
 
@@ -50,8 +68,9 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testClosureToString()
     {
-        $helper = new Helper();
-        $actual = $helper->closureToString(function ($args) { return "bar"; });
+        $actual = $this->helper->closureToString(
+            function ($args) { return "bar"; }
+        );
 
         $expected = 'function ($args) { return "bar"; }';
         $this->assertEquals($expected, $actual);
@@ -62,9 +81,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetPlatform()
     {
-        $helper = new Helper();
-        $actual = $helper->getPlatform();
-
+        $actual = $this->helper->getPlatform();
         $this->assertContains($actual, array(Helper::UNIX, Helper::WINDOWS));
     }
 
@@ -79,6 +96,59 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     /**
      *
      */
+    public function testAquireAndReleaseLock()
+    {
+        $lockFile = $this->tmpDir . "/test.lock";
+
+        $this->helper->aquireLock($lockFile);
+        $this->helper->releaseLock($lockFile);
+        $this->helper->aquireLock($lockFile);
+        $this->helper->releaseLock($lockFile);
+    }
+
+    /**
+     *
+     */
+    public function testReleaseNonExistin()
+    {
+        $lockFile = $this->tmpDir . "/test.lock";
+
+        $this->setExpectedException("Jobby\Exception");
+        $this->helper->releaseLock($lockFile);
+    }
+
+    /**
+     *
+     */
+    public function testExceptionIfAquireFails()
+    {
+        $lockFile = $this->tmpDir . "/test.lock";
+
+        $fh = fopen($lockFile, "r+");
+        $this->assertTrue(is_resource($fh));
+
+        $res = flock($fh, LOCK_EX | LOCK_NB);
+        $this->assertTrue($res);
+
+        $this->setExpectedException("Jobby\Exception");
+        $this->helper->aquireLock($lockFile);
+    }
+
+    /**
+     *
+     */
+    public function testAquireLockShouldFailOnSecondTry()
+    {
+        $lockFile = $this->tmpDir . "/test.lock";
+        $this->helper->aquireLock($lockFile);
+
+        $this->setExpectedException("Jobby\Exception");
+        $this->helper->aquireLock($lockFile);
+    }
+
+    /**
+     *
+     */
     public function testGetTempDir()
     {
         $valid = array(sys_get_temp_dir(), getcwd());
@@ -88,9 +158,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
             }
         }
 
-        $helper = new Helper();
-        $actual = $helper->getTempDir();
-
+        $actual = $this->helper->getTempDir();
         $this->assertContains($actual, $valid);
     }
 
@@ -101,9 +169,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER["APPLICATION_ENV"] = "foo";
 
-        $helper = new Helper();
-        $actual = $helper->getApplicationEnv();
-
+        $actual = $this->helper->getApplicationEnv();
         $this->assertEquals("foo", $actual);
     }
 
@@ -112,9 +178,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetApplicationEnvShouldBeNullIfUndefined()
     {
-        $helper = new Helper();
-        $actual = $helper->getApplicationEnv();
-
+        $actual = $this->helper->getApplicationEnv();
         $this->assertNull($actual);
     }
 
@@ -123,9 +187,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetHostname()
     {
-        $helper = new Helper();
-        $actual = $helper->getHost();
-
+        $actual = $this->helper->getHost();
         $this->assertContains($actual, array(gethostname(), php_uname("n")));
     }
 }

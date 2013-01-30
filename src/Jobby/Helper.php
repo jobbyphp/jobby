@@ -66,7 +66,7 @@ EOF;
     public function aquireLock($lockfile)
     {
         if (array_key_exists($lockfile, $this->lockHandles)) {
-            return;
+            throw new Exception("Lock already aquired.\nLockfile: $lockfile");
         }
 
         if (!file_exists($lockfile) && !touch($lockfile)) {
@@ -97,14 +97,14 @@ EOF;
     public function releaseLock($lockfile)
     {
         if (!array_key_exists($lockfile, $this->lockHandles)) {
-            return;
+            throw new Exception("Lock NOT hold - bug?\nLockfile: $lockfile");
         }
 
         if ($this->lockHandles[$lockfile]) {
             flock($this->lockHandles[$lockfile], LOCK_UN);
         }
 
-        unset($this->lockHandle);
+        unset($this->lockHandles[$lockfile]);
     }
 
     /**

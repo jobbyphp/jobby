@@ -27,7 +27,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->logFile = __DIR__ . "/_files/helloworld.log";
+        $this->logFile = __DIR__ . "/_files/JobbyTest.log";
         @unlink($this->logFile);
     }
 
@@ -107,25 +107,26 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     /**
      *
      */
-    public function testClosureNotReturnTrue()
+    public function testShouldRunAllJobsAdded()
     {
-        $jobby = new Jobby();
-        $jobby->add('HelloWorldClosure', array(
-            'command' => function() {
-                return false;
-            },
-            'schedule' => '* * * * *',
+        $jobby = new Jobby(array(
             'output' => $this->logFile
+        ));
+        $jobby->add('job-1', array(
+            'schedule' => '* * * * *',
+            'command' => function() { echo "job-1"; return true; }
+        ));
+        $jobby->add('job-2', array(
+            'schedule' => '* * * * *',
+            'command' => function() { echo "job-2"; return true; }
         ));
         $jobby->run();
 
         // Job runs asynchronously, so wait a bit
         sleep(1);
 
-        $this->assertContains(
-            'ERROR: Closure did not return true.',
-            $this->getLogContent()
-        );
+        $this->assertContains('job-1', $this->getLogContent());
+        $this->assertContains('job-2', $this->getLogContent());
     }
 
     /**
