@@ -17,6 +17,11 @@ class Helper
     const WINDOWS = 1;
 
     /**
+     * @var array
+     */
+    private $lockHandles = array();
+
+    /**
      * @param string $job
      * @param array $config
      * @param string $message
@@ -53,6 +58,53 @@ EOF;
 
         $mailer = \Swift_Mailer::newInstance($transport);
         $mailer->send($mail);
+    }
+
+    /**
+     *
+     */
+    public function aquireLock($lockfile)
+    {
+        if (array_key_exists($lockfile, $this->lockHandles)) {
+            return;
+        }
+
+        if (!file_exists($lockfile) && !touch($lockfile)) {
+            throw new Exception("Unable to create file.\nFile: $lockfile");
+        }
+
+        $fh = fopen($lockfile, "r+");
+        if ($fh === false) {
+            throw new Exception("Unable to open file.\nFile: $lockfile");
+        }
+
+        $attempts = 5;
+        while ($attempts > 0) {
+            if (flock($fh, LOCK_EX | LOCK_NB)) {
+                $this->lockHandles[$lockfile] = $fh;
+                return;
+            }
+            usleep(250);
+            --$attempts;
+        }
+
+        throw new Exception("Job is still locked.\nLockfile: $lockfile");
+    }
+
+    /**
+     * @param string $lockfile
+     */
+    public function releaseLock($lockfile)
+    {
+        if (!array_key_exists($lockfile, $this->lockHandles)) {
+            return;
+        }
+
+        if ($this->lockHandles[$lockfile]) {
+            flock($this->lockHandles[$lockfile], LOCK_UN);
+        }
+
+        unset($this->lockHandle);
     }
 
     /**

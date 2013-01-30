@@ -32,11 +32,6 @@ class BackgroundJob
     private $config;
 
     /**
-     * @var resource
-     */
-    private $lockHandle;
-
-    /**
      * @param string $job
      * @param array $config
      */
@@ -58,8 +53,10 @@ class BackgroundJob
             return;
         }
 
+        $lockfile = $this->getLockFile();
+
         try {
-            $this->aquireLock();
+            $this->helper->aquireLock($lockfile);
 
             if ($this->isFunction()) {
                 $this->runFunction();
@@ -71,7 +68,7 @@ class BackgroundJob
             $this->mail($e->getMessage());
         }
 
-        $this->releaseLock();
+        $this->helper->releaseLock($lockfile);
     }
 
     /**
@@ -122,45 +119,6 @@ class BackgroundJob
             return "$tmp/$env-$job.lck";
         } else {
             return "$tmp/$job.lck";
-        }
-    }
-
-    /**
-     *
-     */
-    private function aquireLock()
-    {
-        $lockfile = $this->getLockFile();
-
-        if (!file_exists($lockfile) && !touch($lockfile)) {
-            throw new Exception("Unable to create file.\nFile: $lockfile");
-        }
-
-        $this->lockHandle = fopen($lockfile, "r+");
-        if ($this->lockHandle === false) {
-            throw new Exception("Unable to open file.\nFile: $lockfile");
-        }
-
-        $attempts = 5;
-        while ($attempts > 0) {
-            if (flock($this->lockHandle, LOCK_EX | LOCK_NB)) {
-                return;
-            }
-            usleep(250);
-            --$attempts;
-        }
-
-        throw new Exception("Job is still locked.\nLockfile: $lockfile");
-    }
-
-    /**
-     *
-     */
-    private function releaseLock()
-    {
-        if ($this->lockHandle) {
-            flock($this->lockHandle, LOCK_UN);
-            $this->lockHandle = null;
         }
     }
 
