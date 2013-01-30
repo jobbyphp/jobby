@@ -3,7 +3,7 @@
 namespace Jobby;
 
 use Jobby\Helper;
-use Jobb\Exception;
+use Jobby\Exception;
 
 /**
  *
@@ -56,7 +56,7 @@ class Jobby
     /**
      * @return array
      */
-    private function getDefaultConfig()
+    public function getDefaultConfig()
     {
         return array(
             'recipients' => null,
@@ -81,6 +81,14 @@ class Jobby
     public function setConfig(array $config)
     {
         $this->config = array_merge($this->config, $config);
+    }
+
+    /**
+     * @return array
+     */
+    public function getConfig()
+    {
+        return $this->config;
     }
 
     /**

@@ -10,11 +10,25 @@ use Jobby\Jobby;
 class JobbyTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @var string
+     */
+    private $logFile;
+
+    /**
+     * @return string
+     */
+    private function getLogContent()
+    {
+        return file_get_contents($this->logFile);
+    }
+
+    /**
      *
      */
     public function setUp()
     {
-        @unlink('helloworld.log');
+        $this->logFile = __DIR__ . "/_files/helloworld.log";
+        @unlink($this->logFile);
     }
 
     /**
@@ -22,7 +36,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        @unlink('helloworld.log');
+        @unlink($this->logFile);
     }
 
     /**
@@ -34,14 +48,14 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         $jobby->add('HelloWorldShell', array(
             'command' => 'php ' . __DIR__ . '/_files/helloworld.php',
             'schedule' => '* * * * *',
-            'output' => 'helloworld.log'
+            'output' => $this->logFile
         ));
         $jobby->run();
 
         // Job runs asynchronously, so wait a bit
         sleep(1);
 
-        $this->assertEquals('Hello World!', file_get_contents('helloworld.log'));
+        $this->assertEquals('Hello World!', $this->getLogContent());
     }
 
     /**
@@ -55,13 +69,112 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
                 echo "A function!";
             },
             'schedule' => '* * * * *',
-            'output' => 'helloworld.log',
+            'output' => $this->logFile
         ));
         $jobby->run();
 
         // Job runs asynchronously, so wait a bit
         sleep(1);
 
-        $this->assertEquals('A function!', file_get_contents('helloworld.log'));
+        $this->assertEquals('A function!', $this->getLogContent());
+    }
+
+    /**
+     * This is the same test as testClosure but (!) we use the default 
+     * options to set the output file.
+     */
+    public function testDefaultOptionsShouldBeMerged()
+    {
+        $jobby = new Jobby(array('output' => $this->logFile));
+        $jobby->add('HelloWorldClosure', array(
+            'command' => function() {
+                echo "A function!";
+            },
+            'schedule' => '* * * * *'
+        ));
+        $jobby->run();
+
+        // Job runs asynchronously, so wait a bit
+        sleep(1);
+
+        $this->assertEquals('A function!', $this->getLogContent());
+    }
+
+    /**
+     *
+     */
+    public function testDefaultOptions()
+    {
+        $jobby = new Jobby();
+        $opts = $jobby->getDefaultConfig();
+
+        $this->assertNull($opts["recipients"]);
+        $this->assertEquals("sendmail", $opts["mailer"]);
+        $this->assertNull($opts["runAs"]);
+        $this->assertNUll($opts["output"]);
+        $this->assertEquals("Y-m-d H:i:s", $opts["dateFormat"]);
+        $this->assertTrue($opts["enabled"]);
+        $this->assertFalse($opts["debug"]);
+    }
+
+    /**
+     *
+     */
+    public function testSetConfig()
+    {
+        $jobby = new Jobby();
+        $oldCfg = $jobby->getConfig();
+
+        $jobby->setConfig(array("dateFormat" => "foo bar"));
+        $newCfg = $jobby->getConfig();
+
+        $this->assertEquals(count($oldCfg), count($newCfg));
+        $this->assertEquals("foo bar", $newCfg["dateFormat"]);
+    }
+
+    /**
+     *
+     */
+    public function testExceptionOnMissingJobOptionCommand()
+    {
+        $jobby = new Jobby();
+
+        $this->setExpectedException("Jobby\Exception");
+        $jobby->add('should fail', array(
+            'schedule' => '* * * * *'
+        ));
+    }
+
+    /**
+     *
+     */
+    public function testExceptionOnMissingJobOptionSchedule()
+    {
+        $jobby = new Jobby();
+
+        $this->setExpectedException("Jobby\Exception");
+        $jobby->add('should fail', array(
+            'command' => function() {}
+        ));
+    }
+
+    /**
+     *
+     */
+    public function testShouldRunJobsAsync()
+    {
+        $jobby = new Jobby();
+        $jobby->add('HelloWorldClosure', array(
+            'command' => function () {
+                sleep(2);
+            },
+            'schedule' => '* * * * *'
+        ));
+
+        $timeStart = microtime();
+        $jobby->run();
+        $duration = microtime() - $timeStart;
+
+        $this->assertLessThan(0.5, $duration);
     }
 }
