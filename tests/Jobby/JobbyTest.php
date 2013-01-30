@@ -74,10 +74,8 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         // Job runs asynchronously, so wait a bit
         sleep(1);
 
-        $this->assertContains(
-            "invalid-command: command not found",
-            $this->getLogContent()
-        );
+        $this->assertContains("invalid-command", $this->getLogContent());
+        $this->assertContains("not found", $this->getLogContent());
         $this->assertContains(
             "ERROR: Job exited with status '127'",
             $this->getLogContent()
