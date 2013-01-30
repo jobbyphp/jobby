@@ -65,7 +65,7 @@ schedule     | none                                | Yes      | Crontab schedule
 
 require(__DIR__ . '/vendor/autoload.php');
 
-$jobby = new Jobby();
+$jobby = new \Jobby\Jobby();
 
 // Every job has a name
 $jobby->add('CommandExample', array(
