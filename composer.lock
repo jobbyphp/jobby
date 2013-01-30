@@ -1,31 +1,31 @@
 {
-    "hash": "92e78b0fbb6526a7508cc7483d901428",
+    "hash": "a9ff011c31ff3e54bab569574d247245",
     "packages": [
         {
             "name": "mtdowling/cron-expression",
-            "version": "dev-master",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mtdowling/cron-expression",
-                "reference": "8e6e6f7a2fcfc3c60148b45349a7badc1ec1662d"
+                "reference": "v1.0.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/mtdowling/cron-expression/zipball/8e6e6f7a2fcfc3c60148b45349a7badc1ec1662d",
-                "reference": "8e6e6f7a2fcfc3c60148b45349a7badc1ec1662d",
+                "url": "https://github.com/mtdowling/cron-expression/zipball/v1.0.0",
+                "reference": "v1.0.0",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.2"
             },
-            "time": "1345756469",
+            "time": "2012-07-15 14:19:48",
             "type": "library",
-            "installation-source": "source",
             "autoload": {
                 "psr-0": {
                     "Cron": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -44,34 +44,34 @@
         },
         {
             "name": "swiftmailer/swiftmailer",
-            "version": "v4.2.1",
+            "version": "v4.2.2",
             "source": {
                 "type": "git",
                 "url": "git://github.com/swiftmailer/swiftmailer.git",
-                "reference": "v4.2.1"
+                "reference": "v4.2.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/swiftmailer/swiftmailer/zipball/v4.2.1",
-                "reference": "v4.2.1",
+                "url": "https://github.com/swiftmailer/swiftmailer/zipball/v4.2.2",
+                "reference": "v4.2.2",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.2.4"
             },
-            "time": "2012-07-13 16:46:37",
+            "time": "2012-10-25 01:30:40",
             "type": "library",
             "extra": {
                 "branch-alias": {
                     "dev-master": "4.2-dev"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "files": [
                     "lib/swift_required.php"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "LGPL"
             ],
@@ -97,7 +97,7 @@
 
     ],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "mtdowling/cron-expression": 20
-    }
+    "stability-flags": [
+
+    ]
 }
