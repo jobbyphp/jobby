@@ -90,8 +90,8 @@ EOF;
      */
     public function getApplicationEnv()
     {
-        if (getenv('APPLICATION_ENV')) {
-            return getenv('APPLICATION_ENV');
+        if (isset($_SERVER['APPLICATION_ENV'])) {
+            return $_SERVER['APPLICATION_ENV'];
         } else {
             return null;
         }
