@@ -61,12 +61,39 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     /**
      *
      */
+    public function testShellInvalidCommand()
+    {
+        $jobby = new Jobby();
+        $jobby->add('HelloWorldShell', array(
+            'command' => 'invalid-command',
+            'schedule' => '* * * * *',
+            'output' => $this->logFile
+        ));
+        $jobby->run();
+
+        // Job runs asynchronously, so wait a bit
+        sleep(1);
+
+        $this->assertContains(
+            "invalid-command: command not found",
+            $this->getLogContent()
+        );
+        $this->assertContains(
+            "ERROR: Job exited with status '127'",
+            $this->getLogContent()
+        );
+    }
+
+    /**
+     *
+     */
     public function testClosure()
     {
         $jobby = new Jobby();
         $jobby->add('HelloWorldClosure', array(
             'command' => function() {
                 echo "A function!";
+                return true;
             },
             'schedule' => '* * * * *',
             'output' => $this->logFile
@@ -80,7 +107,31 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This is the same test as testClosure but (!) we use the default 
+     *
+     */
+    public function testClosureNotReturnTrue()
+    {
+        $jobby = new Jobby();
+        $jobby->add('HelloWorldClosure', array(
+            'command' => function() {
+                return false;
+            },
+            'schedule' => '* * * * *',
+            'output' => $this->logFile
+        ));
+        $jobby->run();
+
+        // Job runs asynchronously, so wait a bit
+        sleep(1);
+
+        $this->assertContains(
+            'ERROR: Closure did not return true.',
+            $this->getLogContent()
+        );
+    }
+
+    /**
+     * This is the same test as testClosure but (!) we use the default
      * options to set the output file.
      */
     public function testDefaultOptionsShouldBeMerged()
@@ -89,6 +140,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         $jobby->add('HelloWorldClosure', array(
             'command' => function() {
                 echo "A function!";
+                return true;
             },
             'schedule' => '* * * * *'
         ));
@@ -167,6 +219,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         $jobby->add('HelloWorldClosure', array(
             'command' => function () {
                 sleep(2);
+                return true;
             },
             'schedule' => '* * * * *'
         ));

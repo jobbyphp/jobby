@@ -19,13 +19,13 @@ class Helper
     /**
      * @param string $job
      * @param array $config
-     * @param int $retval
+     * @param string $message
      */
-    public function sendMail($job, array $config, $retval)
+    public function sendMail($job, array $config, $message)
     {
         $host = $this->getHost();
         $body = <<<EOF
-'$job' exited with status of $retval.
+$message
 
 You can find its output in {$config['output']} on $host.
 
@@ -35,13 +35,16 @@ EOF;
 
         $mail = \Swift_Message::newInstance();
         $mail->setTo(explode(',', $config['recipients']));
-        $mail->setSubject("[$host] '{$job}' exited with status of $retval");
+        $mail->setSubject("[$host] '{$job}' needs some attention!");
         $mail->setFrom(array("jobby@$host" => 'jobby'));
         $mail->setSender("jobby@$host");
         $mail->setBody($body);
 
         if ($config['mailer'] == 'smtp') {
-            $transport = \Swift_SmtpTransport::newInstance($config['smtpHost'], $config['smtpPort']);
+            $transport = \Swift_SmtpTransport::newInstance(
+                $config['smtpHost'],
+                $config['smtpPort']
+            );
             $transport->setUsername($config['smtpUsername']);
             $transport->setPassword($config['smtpPassword']);
         } else {

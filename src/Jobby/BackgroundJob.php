@@ -3,6 +3,7 @@
 namespace Jobby;
 
 use Jobby\Helper;
+use Jobby\Exception;
 use Cron\CronExpression;
 
 /**
@@ -31,6 +32,11 @@ class BackgroundJob
     private $config;
 
     /**
+     * @var resource
+     */
+    private $lockHandle;
+
+    /**
      * @param string $job
      * @param array $config
      */
@@ -52,27 +58,26 @@ class BackgroundJob
             return;
         }
 
-        if (!$this->aquireLock()) {
-            return;
-        }
+        try {
+            $this->aquireLock();
 
-        if ($this->isFunction()) {
-            $retval = $this->runFunction();
-        } else {
-            $retval = $this->runFile();
+            if ($this->isFunction()) {
+                $this->runFunction();
+            } else {
+                $this->runFile();
+            }
+        } catch (Exception $e) {
+            $this->log("ERROR: " . $e->getMessage());
+            $this->mail($e->getMessage());
         }
 
         $this->releaseLock();
-
-        if ((bool) $retval) {
-            $this->mail($retval);
-        }
     }
 
     /**
-     * @param int $retval
+     * @param string $message
      */
-    private function mail($retval)
+    private function mail($message)
     {
         if (empty($this->config['recipients'])) {
             return;
@@ -81,7 +86,7 @@ class BackgroundJob
         $this->helper->sendMail(
             $this->job,
             $this->config,
-            $retval
+            $message
         );
     }
 
@@ -109,11 +114,11 @@ class BackgroundJob
      */
     private function getLockFile()
     {
-        $tmp = $this->helper->escape($this->tmpDir);
+        $tmp = $this->tmpDir;
         $job = $this->helper->escape($this->job);
 
         if (!empty($this->config['environment'])) {
-            $env = $this->config['environment'];
+            $env = $this->helper->escape($this->config['environment']);
             return "$tmp/$env-$job.lck";
         } else {
             return "$tmp/$job.lck";
@@ -121,19 +126,31 @@ class BackgroundJob
     }
 
     /**
-     * @return bool
+     *
      */
     private function aquireLock()
     {
         $lockfile = $this->getLockFile();
 
-        if (file_exists($lockfile)) {
-            $this->log("Lock file found in $lockfile. Skipping.");
-            return false;
+        if (!file_exists($lockfile) && !touch($lockfile)) {
+            throw new Exception("Unable to create file.\nFile: $lockfile");
         }
 
-        touch($lockfile);
-        return true;
+        $this->lockHandle = fopen($lockfile, "r+");
+        if ($this->lockHandle === false) {
+            throw new Exception("Unable to open file.\nFile: $lockfile");
+        }
+
+        $attempts = 5;
+        while ($attempts > 0) {
+            if (flock($this->lockHandle, LOCK_EX | LOCK_NB)) {
+                return;
+            }
+            usleep(250);
+            --$attempts;
+        }
+
+        throw new Exception("Job is still locked.\nLockfile: $lockfile");
     }
 
     /**
@@ -141,8 +158,10 @@ class BackgroundJob
      */
     private function releaseLock()
     {
-        $lockfile = $this->getLockFile();
-        unlink($lockfile);
+        if ($this->lockHandle) {
+            flock($this->lockHandle, LOCK_UN);
+            $this->lockHandle = null;
+        }
     }
 
     /**
@@ -175,7 +194,7 @@ class BackgroundJob
         $now = date($this->config['dateFormat'], $_SERVER['REQUEST_TIME']);
         $logfile = $this->getLogfile();
 
-        file_put_contents($logfile, "$now: $message\n", FILE_APPEND);
+        file_put_contents($logfile, "[$now] $message\n", FILE_APPEND);
     }
 
     /**
@@ -187,7 +206,7 @@ class BackgroundJob
     }
 
     /**
-     * @return int
+     *
      */
     private function runFunction()
     {
@@ -196,15 +215,22 @@ class BackgroundJob
         eval('$command = ' . $this->config['command'] . ';');
 
         ob_start();
-        $retval = (bool) $command();
-        file_put_contents($this->getLogfile(), ob_get_contents(), FILE_APPEND);
+        $retval = $command();
+        $content = ob_get_contents();
+        file_put_contents($this->getLogfile(), $content, FILE_APPEND);
         ob_end_clean();
+
+        if ($retval !== true) {
+            throw new Exception(
+                "Closure did not return true.\n" . var_export($retval)
+            );
+        }
 
         return $retval;
     }
 
     /**
-     * @return int
+     *
      */
     private function runFile()
     {
@@ -225,7 +251,9 @@ class BackgroundJob
         $logfile = $this->getLogfile();
         exec("$useSudo $command 1>> $logfile 2>&1", $dummy, $retval);
 
-        return $retval;
+        if ($retval !== 0) {
+            throw new Exception("Job exited with status '$retval'.");
+        }
     }
 }
 
