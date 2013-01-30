@@ -109,8 +109,8 @@ class BackgroundJob
      */
     private function getLockFile()
     {
-        $tmp = $this->tmpDir;
-        $job = $this->job;
+        $tmp = $this->helper->escape($this->tmpDir);
+        $job = $this->helper->escape($this->job);
 
         if (!empty($this->config['environment'])) {
             $env = $this->config['environment'];

@@ -136,4 +136,18 @@ EOF;
 
         return str_replace(array("\r\n", "\n"), '', $code);
     }
+
+    /**
+     * @param string $input
+     * @return string
+     */
+    public function escape($input)
+    {
+        $input = strtolower($input);
+        $input = preg_replace("/[^a-z0-9_.\- ]+/", "", $input);
+        $input = trim($input);
+        $input = str_replace(" ", "_", $input);
+        $input = preg_replace("/_{2,}/", "_", $input);
+        return $input;
+    }
 }
