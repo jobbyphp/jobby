@@ -1,7 +1,9 @@
 <?php
+
 namespace Jobby;
 
 use Jobby\Helper;
+use Cron\CronExpression;
 
 /**
  *
@@ -152,7 +154,7 @@ class BackgroundJob
             return false;
         }
 
-        $cron = \Cron\CronExpression::factory($this->config['schedule']);
+        $cron = CronExpression::factory($this->config['schedule']);
         if (!$cron->isDue()) {
             return false;
         }

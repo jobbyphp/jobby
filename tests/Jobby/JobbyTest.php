@@ -1,9 +1,13 @@
 <?php
 
+namespace Jobby\Tests;
+
+use Jobby\Jobby;
+
 /**
  *
  */
-class JobbyTest extends PHPUnit_Framework_TestCase
+class JobbyTest extends \PHPUnit_Framework_TestCase
 {
     /**
      *
@@ -26,9 +30,9 @@ class JobbyTest extends PHPUnit_Framework_TestCase
      */
     public function testShell()
     {
-        $jobby = new \Jobby();
-        $jobby->add('HelloWorld', array(
-            'command' => 'php ' . __DIR__ . '/helloworld.php',
+        $jobby = new Jobby();
+        $jobby->add('HelloWorldShell', array(
+            'command' => 'php ' . __DIR__ . '/_files/helloworld.php',
             'schedule' => '* * * * *',
             'output' => 'helloworld.log'
         ));
@@ -45,8 +49,8 @@ class JobbyTest extends PHPUnit_Framework_TestCase
      */
     public function testClosure()
     {
-        $jobby = new \Jobby();
-        $jobby->add('HelloWorld', array(
+        $jobby = new Jobby();
+        $jobby->add('HelloWorldClosure', array(
             'command' => function() {
                 echo "A function!";
             },

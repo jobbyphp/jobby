@@ -1,6 +1,9 @@
 <?php
 
+namespace Jobby;
+
 use Jobby\Helper;
+use Jobb\Exception;
 
 /**
  *
@@ -23,7 +26,7 @@ class Jobby
     private $jobs = array();
 
     /**
-     * @var Jobby\Helper
+     * @var Helper
      */
     private $helper;
 
@@ -35,18 +38,16 @@ class Jobby
         $this->setConfig($this->getDefaultConfig());
         $this->setConfig($config);
 
-        $this->script = __DIR__ . DIRECTORY_SEPARATOR
-            . 'Jobby' . DIRECTORY_SEPARATOR
-            . 'BackgroundJob.php';
+        $this->script = __DIR__ . DIRECTORY_SEPARATOR . 'BackgroundJob.php';
     }
 
     /**
-     * @return Jobby\Helper
+     * @return Helper
      */
     private function getHelper()
     {
         if ($this->helper === null) {
-            $this->helper = new Jobby\Helper();
+            $this->helper = new Helper();
         }
 
         return $this->helper;
@@ -90,7 +91,7 @@ class Jobby
     {
         foreach (array("command", "schedule") as $field) {
             if (empty($config[$field])) {
-                throw new \Jobby\Exception("'$field' is required for '$job' job");
+                throw new Exception("'$field' is required for '$job' job");
             }
         }
 
@@ -104,7 +105,7 @@ class Jobby
     public function run()
     {
         foreach ($this->jobs as $job => $config) {
-            if ($this->getHelper()->getPlatform() === Jobby\Helper::WINDOWS) {
+            if ($this->getHelper()->getPlatform() === Helper::WINDOWS) {
                 $this->runWindows($job, $config);
             } else {
                 $this->runUnix($job, $config);
@@ -150,7 +151,7 @@ class Jobby
     {
         // Convert closures to its source code as a string so that we
         // can send it on the command line.
-        if ($config['command'] instanceof Closure) {
+        if ($config['command'] instanceof \Closure) {
             $config['command'] = $this->getHelper()
                 ->closureToString($config['command']);
         }

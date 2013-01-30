@@ -1,5 +1,0 @@
-<phpunit bootstrap="bootstrap.php" strict="true">
-  <testsuite>
-    <directory suffix="Test.php">.</directory>
-  </testsuite>
-</phpunit>
