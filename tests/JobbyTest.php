@@ -30,7 +30,7 @@ class JobbyTest extends PHPUnit_Framework_TestCase
         $jobby->add('HelloWorld', array(
             'command' => 'php ' . __DIR__ . '/helloworld.php',
             'schedule' => '* * * * *',
-            'output' => 'helloworld.log',
+            'output' => 'helloworld.log'
         ));
         $jobby->run();
 

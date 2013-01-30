@@ -10,32 +10,32 @@ class Jobby
     /**
      * @var array
      */
-    private $_config = array();
+    private $config = array();
 
     /**
      * @var string
      */
-    private $_script;
+    private $script;
 
     /**
      * @var array
      */
-    private $_jobs = array();
+    private $jobs = array();
 
     /**
      * @var Jobby\Helper
      */
-    private $_helper;
+    private $helper;
 
     /**
      * @param array $config
      */
     public function __construct(array $config = array())
     {
-        $this->setConfig($this->_getDefaultConfig());
+        $this->setConfig($this->getDefaultConfig());
         $this->setConfig($config);
 
-        $this->_script = __DIR__ . DIRECTORY_SEPARATOR
+        $this->script = __DIR__ . DIRECTORY_SEPARATOR
             . 'Jobby' . DIRECTORY_SEPARATOR
             . 'BackgroundJob.php';
     }
@@ -45,17 +45,17 @@ class Jobby
      */
     private function getHelper()
     {
-        if ($this->_helper === null) {
-            $this->_helper = new Jobby\Helper();
+        if ($this->helper === null) {
+            $this->helper = new Jobby\Helper();
         }
 
-        return $this->_helper;
+        return $this->helper;
     }
 
     /**
      * @return array
      */
-    private function _getDefaultConfig()
+    private function getDefaultConfig()
     {
         return array(
             'recipients' => null,
@@ -79,7 +79,7 @@ class Jobby
      */
     public function setConfig(array $config)
     {
-        $this->_config = array_merge($this->_config, $config);
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
@@ -94,8 +94,8 @@ class Jobby
             }
         }
 
-        $config = array_merge($this->_config, $config);
-        $this->_jobs[$job] = $config;
+        $config = array_merge($this->config, $config);
+        $this->jobs[$job] = $config;
     }
 
     /**
@@ -103,11 +103,11 @@ class Jobby
      */
     public function run()
     {
-        foreach ($this->_jobs as $job => $config) {
+        foreach ($this->jobs as $job => $config) {
             if ($this->getHelper()->getPlatform() === Jobby\Helper::WINDOWS) {
-                $this->_runWindows($job, $config);
+                $this->runWindows($job, $config);
             } else {
-                $this->_runUnix($job, $config);
+                $this->runUnix($job, $config);
             }
         }
     }
@@ -116,7 +116,7 @@ class Jobby
      * @param string $job
      * @param array $config
      */
-    private function _runUnix($job, array $config)
+    private function runUnix($job, array $config)
     {
         if ($config['debug']) {
             $output = 'debug.log';
@@ -124,7 +124,7 @@ class Jobby
             $output = '/dev/null';
         }
 
-        $command = $this->_getExecutableCommand($job, $config);
+        $command = $this->getExecutableCommand($job, $config);
         exec("php $command 1> $output 2>&1 &");
     }
 
@@ -132,12 +132,12 @@ class Jobby
      * @param string $job
      * @param array $config
      */
-    private function _runWindows($job, array $config)
+    private function runWindows($job, array $config)
     {
         // Run in background (non-blocking). From
         // http://us3.php.net/manual/en/function.exec.php#43834
 
-        $command = $this->_getExecutableCommand($job, $config);
+        $command = $this->getExecutableCommand($job, $config);
         pclose(popen("start \"blah\" /B \"php.exe\" $command", "r"));
     }
 
@@ -146,7 +146,7 @@ class Jobby
      * @param array $config
      * @return string
      */
-    private function _getExecutableCommand($job, array $config)
+    private function getExecutableCommand($job, array $config)
     {
         // Convert closures to its source code as a string so that we
         // can send it on the command line.
@@ -156,6 +156,6 @@ class Jobby
         }
 
         $configQuery = http_build_query($config);
-        return "\"$this->_script\" \"$job\" \"$configQuery\"";
+        return "\"$this->script\" \"$job\" \"$configQuery\"";
     }
 }
