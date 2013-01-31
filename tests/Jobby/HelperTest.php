@@ -230,5 +230,6 @@ class HelperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($email, current(array_keys($mail->getFrom())));
         $this->assertEquals($email, current(array_keys($mail->getSender())));
         $this->assertContains($config["output"], $mail->getBody());
+        $this->assertContains("message", $mail->getBody());
     }
 }
