@@ -5,7 +5,7 @@ namespace Jobby\Tests;
 use Jobby\Helper;
 
 /**
- *
+ * @covers Jobby\Helper
  */
 class HelperTest extends \PHPUnit_Framework_TestCase
 {
@@ -64,7 +64,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::closureToString
      */
     public function testClosureToString()
     {
@@ -77,7 +77,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::getPlatform
      */
     public function testGetPlatform()
     {
@@ -86,7 +86,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::getPlatform
      */
     public function testPlatformConstants()
     {
@@ -94,7 +94,8 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::aquireLock
+     * @covers Jobby\Helper::releaseLock
      */
     public function testAquireAndReleaseLock()
     {
@@ -107,7 +108,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::releaseLock
      */
     public function testReleaseNonExistin()
     {
@@ -118,7 +119,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::aquireLock
      */
     public function testExceptionIfAquireFails()
     {
@@ -135,7 +136,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::aquireLock
      */
     public function testAquireLockShouldFailOnSecondTry()
     {
@@ -147,7 +148,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::getTempDir
      */
     public function testGetTempDir()
     {
@@ -163,7 +164,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::getApplicationEnv
      */
     public function testGetApplicationEnv()
     {
@@ -174,7 +175,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::getApplicationEnv
      */
     public function testGetApplicationEnvShouldBeNullIfUndefined()
     {
@@ -183,7 +184,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Helper::getHost
      */
     public function testGetHostname()
     {

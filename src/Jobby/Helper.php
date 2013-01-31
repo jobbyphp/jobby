@@ -112,6 +112,7 @@ EOF;
      */
     public function getTempDir()
     {
+        // @codeCoverageIgnoreStart
         if (function_exists('sys_get_temp_dir')) {
             $tmp = sys_get_temp_dir();
         } else if (!empty($_SERVER['TMP'])) {
@@ -123,6 +124,7 @@ EOF;
         } else {
             $tmp = getcwd();
         }
+        // @codeCoverageIgnoreEnd
 
         return $tmp;
     }
@@ -132,12 +134,7 @@ EOF;
      */
     public function getHost()
     {
-        $host = gethostname();
-        if ($host === false) {
-            $host = php_uname('n');
-        }
-
-        return $host;
+        return php_uname('n');
     }
 
     /**
@@ -158,7 +155,9 @@ EOF;
     public function getPlatform()
     {
         if (strncasecmp(PHP_OS, "Win", 3) == 0) {
+            // @codeCoverageIgnoreStart
             return self::WINDOWS;
+            // @codeCoverageIgnoreEnd
         } else {
             return self::UNIX;
         }

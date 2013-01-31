@@ -5,7 +5,7 @@ namespace Jobby\Tests;
 use Jobby\Jobby;
 
 /**
- *
+ * @covers Jobby\Jobby
  */
 class JobbyTest extends \PHPUnit_Framework_TestCase
 {
@@ -40,7 +40,8 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Jobby::add
+     * @covers Jobby\Jobby::run
      */
     public function testShell()
     {
@@ -59,31 +60,8 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
-     */
-    public function testShellInvalidCommand()
-    {
-        $jobby = new Jobby();
-        $jobby->add('HelloWorldShell', array(
-            'command' => 'invalid-command',
-            'schedule' => '* * * * *',
-            'output' => $this->logFile
-        ));
-        $jobby->run();
-
-        // Job runs asynchronously, so wait a bit
-        sleep(1);
-
-        $this->assertContains("invalid-command", $this->getLogContent());
-        $this->assertContains("not found", $this->getLogContent());
-        $this->assertContains(
-            "ERROR: Job exited with status '127'",
-            $this->getLogContent()
-        );
-    }
-
-    /**
-     *
+     * @covers Jobby\Jobby::add
+     * @covers Jobby\Jobby::run
      */
     public function testClosure()
     {
@@ -105,7 +83,8 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Jobby::add
+     * @covers Jobby\Jobby::run
      */
     public function testShouldRunAllJobsAdded()
     {
@@ -152,7 +131,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Jobby::getDefaultConfig
      */
     public function testDefaultOptions()
     {
@@ -162,14 +141,15 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($opts["recipients"]);
         $this->assertEquals("sendmail", $opts["mailer"]);
         $this->assertNull($opts["runAs"]);
-        $this->assertNUll($opts["output"]);
+        $this->assertNull($opts["output"]);
         $this->assertEquals("Y-m-d H:i:s", $opts["dateFormat"]);
         $this->assertTrue($opts["enabled"]);
         $this->assertFalse($opts["debug"]);
     }
 
     /**
-     *
+     * @covers Jobby\Jobby::setConfig
+     * @covers Jobby\Jobby::getConfig
      */
     public function testSetConfig()
     {
@@ -184,7 +164,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Jobby::add
      */
     public function testExceptionOnMissingJobOptionCommand()
     {
@@ -197,7 +177,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Jobby::add
      */
     public function testExceptionOnMissingJobOptionSchedule()
     {
@@ -210,14 +190,15 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
+     * @covers Jobby\Jobby::run
+     * @covers Jobby\Jobby::runWindows
+     * @covers Jobby\Jobby::runUnix
      */
     public function testShouldRunJobsAsync()
     {
         $jobby = new Jobby();
         $jobby->add('HelloWorldClosure', array(
             'command' => function () {
-                sleep(2);
                 return true;
             },
             'schedule' => '* * * * *'

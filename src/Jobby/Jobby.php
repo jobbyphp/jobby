@@ -137,6 +137,7 @@ class Jobby
         exec("php $command 1> $output 2>&1 &");
     }
 
+    // @codeCoverageIgnoreStart
     /**
      * @param string $job
      * @param array $config
@@ -149,6 +150,7 @@ class Jobby
         $command = $this->getExecutableCommand($job, $config);
         pclose(popen("start \"blah\" /B \"php.exe\" $command", "r"));
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * @param string $job

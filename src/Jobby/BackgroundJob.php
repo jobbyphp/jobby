@@ -34,13 +34,17 @@ class BackgroundJob
     /**
      * @param string $job
      * @param array $config
+     * @param Helper $helper
      */
-    public function __construct($job, array $config)
+    public function __construct($job, array $config, Helper $helper = null)
     {
         $this->job = $job;
         $this->config = $config;
+        $this->helper = $helper;
 
-        $this->helper = new Helper();
+        if ($this->helper === null) {
+            $this->helper = new Helper();
+        }
         $this->tmpDir = $this->helper->getTempDir();
     }
 
@@ -180,11 +184,9 @@ class BackgroundJob
 
         if ($retval !== true) {
             throw new Exception(
-                "Closure did not return true.\n" . var_export($retval)
+                "Closure did not return true.\n" . print_r($retval, true)
             );
         }
-
-        return $retval;
     }
 
     /**
@@ -217,6 +219,7 @@ class BackgroundJob
 
 // run this file, if executed directly
 // @see: http://stackoverflow.com/questions/2413991/php-equivalent-of-pythons-name-main
+// @codeCoverageIgnoreStart
 if (!debug_backtrace()) {
     if (file_exists('vendor/autoload.php')) {
         require('vendor/autoload.php');
@@ -233,3 +236,4 @@ if (!debug_backtrace()) {
     $job = new BackgroundJob($argv[1], $config);
     $job->run();
 }
+// @codeCoverageIgnoreEnd
