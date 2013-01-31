@@ -228,4 +228,49 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
             $helper
         );
     }
+
+    /**
+     * @covers Jobby\BackgroundJob::checkMaxRuntime
+     */
+    public function testCheckMaxRuntime()
+    {
+        $helper = $this->getMock("Jobby\Helper", array("getLockLifetime"));
+        $helper->expects($this->once())
+            ->method("getLockLifetime")
+            ->will($this->returnValue(0));
+
+        $this->runJob(
+            array(
+                "command" => "true",
+                "maxRuntime" => 1
+            ),
+            $helper
+        );
+
+        $this->assertEquals("", $this->getLogContent());
+    }
+
+    /**
+     * @covers Jobby\BackgroundJob::checkMaxRuntime
+     */
+    public function testCheckMaxRuntimeShouldFailIsExceeded()
+    {
+        $helper = $this->getMock("Jobby\Helper", array("getLockLifetime"));
+        $helper->expects($this->once())
+            ->method("getLockLifetime")
+            ->will($this->returnValue(2));
+
+        $this->runJob(
+            array(
+                "command" => "true",
+                "maxRuntime" => 1
+            ),
+            $helper
+        );
+
+        $this->assertContains(
+            "MaxRuntime of 1 secs exceeded! Current runtime: 2 secs",
+            $this->getLogContent()
+        );
+    }
 }
