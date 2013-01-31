@@ -61,6 +61,7 @@ class Jobby
         return array(
             'recipients' => null,
             'mailer' => 'sendmail',
+            'maxRuntime' => null,
             'smtpHost' => null,
             'smtpPort' => 25,
             'smtpUsername' => null,

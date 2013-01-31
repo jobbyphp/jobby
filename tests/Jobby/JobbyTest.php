@@ -210,4 +210,28 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
 
         $this->assertLessThan(0.5, $duration);
     }
+
+    /**
+     *
+     */
+    public function testShouldFailIfMaxRuntimeExceeded()
+    {
+        $jobby = new Jobby();
+        $jobby->add('slow job', array(
+            'command' => 'sleep 4',
+            'schedule' => '* * * * *',
+            'maxRuntime' => 1,
+            'output' => $this->logFile
+        ));
+
+        $jobby->run();
+        sleep(2);
+        $jobby->run();
+        sleep(1);
+
+        $this->assertContains(
+            "ERROR: MaxRuntime of 1 secs exceeded!",
+            $this->getLogContent()
+        );
+    }
 }

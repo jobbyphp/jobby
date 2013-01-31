@@ -135,6 +135,55 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Jobby\Helper::getLockLifetime
+     */
+    public function testLockLifetimeShouldBeZeroIfFileDoesNotExists()
+    {
+        $lockFile = $this->tmpDir . "/test.lock";
+        unlink($lockFile);
+        $this->assertFalse(file_exists($lockFile));
+        $this->assertEquals(0, $this->helper->getLockLifetime($lockFile));
+    }
+
+    /**
+     * @covers Jobby\Helper::getLockLifetime
+     */
+    public function testLockLifetimeShouldBeZeroIfFileIsEmpty()
+    {
+        $lockFile = $this->tmpDir . "/test.lock";
+        file_put_contents($lockFile, "");
+        $this->assertEquals(0, $this->helper->getLockLifetime($lockFile));
+    }
+
+    /**
+     * @covers Jobby\Helper::getLockLifetime
+     */
+    public function testLockLifetimeShouldBeZeroIfItContainsAInvalidPid()
+    {
+        $lockFile = $this->tmpDir . "/test.lock";
+        file_put_contents($lockFile, "invalid-pid");
+        $this->assertEquals(0, $this->helper->getLockLifetime($lockFile));
+    }
+
+    /**
+     * @covers Jobby\Helper::getLockLifetime
+     */
+    public function testGetLocklifetime()
+    {
+        $lockFile = $this->tmpDir . "/test.lock";
+
+        $this->helper->aquireLock($lockFile);
+
+        $this->assertEquals(0, $this->helper->getLockLifetime($lockFile));
+        sleep(1);
+        $this->assertEquals(1, $this->helper->getLockLifetime($lockFile));
+        sleep(1);
+        $this->assertEquals(2, $this->helper->getLockLifetime($lockFile));
+
+        $this->helper->releaseLock($lockFile);
+    }
+
+    /**
      * @covers Jobby\Helper::releaseLock
      */
     public function testReleaseNonExistin()

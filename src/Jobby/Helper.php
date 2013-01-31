@@ -140,6 +140,30 @@ EOF;
     }
 
     /**
+     * @param string $lockfile
+     * @return int
+     */
+    public function getLockLifetime($lockfile)
+    {
+        if (!file_exists($lockfile)) {
+            return 0;
+        }
+
+        $pid = file_get_contents($lockfile);
+        if (empty($pid)) {
+            return 0;
+        }
+
+        exec("ps -o pid | grep $pid", $dummy, $retval);
+        if ($retval !== 0) {
+            return 0;
+        }
+
+        $stat = stat($lockfile);
+        return (time() - $stat["mtime"]);
+    }
+
+    /**
      * @return string
      */
     public function getTempDir()

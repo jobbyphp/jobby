@@ -53,11 +53,19 @@ class BackgroundJob
      */
     public function run()
     {
-        if (!$this->shouldRun()) {
+        $lockfile = $this->getLockFile();
+
+        try {
+            $this->checkMaxRuntime($lockfile);
+        } catch (Exception $e) {
+            $this->log("ERROR: " . $e->getMessage());
+            $this->mail($e->getMessage());
             return;
         }
 
-        $lockfile = $this->getLockFile();
+        if (!$this->shouldRun()) {
+            return;
+        }
 
         try {
             $this->helper->aquireLock($lockfile);
@@ -73,6 +81,27 @@ class BackgroundJob
         }
 
         $this->helper->releaseLock($lockfile);
+    }
+
+    /**
+     * @param string $lockfile
+     */
+    private function checkMaxRuntime($lockfile)
+    {
+        $maxRuntime = $this->config["maxRuntime"];
+        if ($maxRuntime === null) {
+            return;
+        }
+
+        $runtime = $this->helper->getLockLifetime($lockfile);
+        if ($runtime < $maxRuntime) {
+            return;
+        }
+
+        throw new Exception(
+            "MaxRuntime of $maxRuntime secs exceeded! "
+            . "Current runtime: $runtime secs"
+        );
     }
 
     /**

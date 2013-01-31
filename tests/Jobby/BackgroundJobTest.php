@@ -70,7 +70,8 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
                 "runOnHost" => $helper->getHost(),
                 "dateFormat" => "Y-m-d H:i:s",
                 "schedule" => "* * * * *",
-                "output" => $this->logFile
+                "output" => $this->logFile,
+                "maxRuntime" => null
             ),
             $config
         );
