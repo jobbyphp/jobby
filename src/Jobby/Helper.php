@@ -22,9 +22,23 @@ class Helper
     private $lockHandles = array();
 
     /**
+     * @var \Swift_Mailer
+     */
+    private $mailer;
+
+    /**
+     * @param \Swift_Mailer $mailer
+     */
+    public function __construct(\Swift_Mailer $mailer = null)
+    {
+        $this->mailer = $mailer;
+    }
+
+    /**
      * @param string $job
      * @param array $config
      * @param string $message
+     * @return \Swift_Message
      */
     public function sendMail($job, array $config, $message)
     {
@@ -45,6 +59,22 @@ EOF;
         $mail->setSender("jobby@$host");
         $mail->setBody($body);
 
+        $mailer = $this->getCurrentMailer($config);
+        $mailer->send($mail);
+
+        return $mail;
+    }
+
+    /**
+     * @param array $config
+     * @return \Swift_Mailer
+     */
+    private function getCurrentMailer(array $config)
+    {
+        if ($this->mailer !== null) {
+            return $this->mailer;
+        }
+
         if ($config['mailer'] == 'smtp') {
             $transport = \Swift_SmtpTransport::newInstance(
                 $config['smtpHost'],
@@ -56,8 +86,7 @@ EOF;
             $transport = \Swift_SendmailTransport::newInstance();
         }
 
-        $mailer = \Swift_Mailer::newInstance($transport);
-        $mailer->send($mail);
+        return \Swift_Mailer::newInstance($transport);
     }
 
     /**

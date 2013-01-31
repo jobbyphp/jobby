@@ -37,6 +37,18 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \Swift_Mailer
+     */
+    private function getSwiftMailerMock()
+    {
+        return $this->getMock(
+            "Swift_Mailer",
+            array(),
+            array(\Swift_NullTransport::newInstance())
+        );
+    }
+
+    /**
      * @param string $input
      * @param string $expected
      *
@@ -190,5 +202,33 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     {
         $actual = $this->helper->getHost();
         $this->assertContains($actual, array(gethostname(), php_uname("n")));
+    }
+
+    /**
+     * @covers Jobby\Helper::sendMail
+     * @covers Jobby\Helper::getCurrentMailer
+     */
+    public function testSendMail()
+    {
+        $mailer = $this->getSwiftMailerMock();
+        $mailer->expects($this->once())
+            ->method("send");
+
+        $config = array(
+            "output" => "output message",
+            "recipients" => "a@a.com,b@b.com"
+        );
+        $helper = new Helper($mailer);
+        $mail = $helper->sendMail("job", $config, "message");
+
+        $host = $helper->getHost();
+        $email = "jobby@$host";
+        $this->assertContains("job", $mail->getSubject());
+        $this->assertContains("[$host]", $mail->getSubject());
+        $this->assertEquals(1, count($mail->getFrom()));
+        $this->assertEquals("jobby", current($mail->getFrom()));
+        $this->assertEquals($email, current(array_keys($mail->getFrom())));
+        $this->assertEquals($email, current(array_keys($mail->getSender())));
+        $this->assertContains($config["output"], $mail->getBody());
     }
 }
