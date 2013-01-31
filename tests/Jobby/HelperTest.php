@@ -120,6 +120,21 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Jobby\Helper::aquireLock
+     * @covers Jobby\Helper::releaseLock
+     */
+    public function testLockFileShouldContainCurrentPid()
+    {
+        $lockFile = $this->tmpDir . "/test.lock";
+
+        $this->helper->aquireLock($lockFile);
+        $this->assertEquals(posix_getpid(), file_get_contents($lockFile));
+
+        $this->helper->releaseLock($lockFile);
+        $this->assertEquals("", file_get_contents($lockFile));
+    }
+
+    /**
      * @covers Jobby\Helper::releaseLock
      */
     public function testReleaseNonExistin()

@@ -111,6 +111,8 @@ EOF;
         while ($attempts > 0) {
             if (flock($fh, LOCK_EX | LOCK_NB)) {
                 $this->lockHandles[$lockfile] = $fh;
+                ftruncate($fh, 0);
+                fwrite($fh, posix_getpid());
                 return;
             }
             usleep(250);
@@ -130,6 +132,7 @@ EOF;
         }
 
         if ($this->lockHandles[$lockfile]) {
+            ftruncate($this->lockHandles[$lockfile], 0);
             flock($this->lockHandles[$lockfile], LOCK_UN);
         }
 
