@@ -95,16 +95,16 @@ EOF;
     public function aquireLock($lockfile)
     {
         if (array_key_exists($lockfile, $this->lockHandles)) {
-            throw new Exception("Lock already aquired.\nLockfile: $lockfile");
+            throw new Exception("Lock already aquired (Lockfile: $lockfile).");
         }
 
         if (!file_exists($lockfile) && !touch($lockfile)) {
-            throw new Exception("Unable to create file.\nFile: $lockfile");
+            throw new Exception("Unable to create file (File: $lockfile).");
         }
 
         $fh = fopen($lockfile, "r+");
         if ($fh === false) {
-            throw new Exception("Unable to open file.\nFile: $lockfile");
+            throw new Exception("Unable to open file (File: $lockfile).");
         }
 
         $attempts = 5;
@@ -119,7 +119,7 @@ EOF;
             --$attempts;
         }
 
-        throw new Exception("Job is still locked.\nLockfile: $lockfile");
+        throw new Exception("Job is still locked (Lockfile: $lockfile)!");
     }
 
     /**
@@ -128,7 +128,7 @@ EOF;
     public function releaseLock($lockfile)
     {
         if (!array_key_exists($lockfile, $this->lockHandles)) {
-            throw new Exception("Lock NOT hold - bug?\nLockfile: $lockfile");
+            throw new Exception("Lock NOT hold - bug? Lockfile: $lockfile");
         }
 
         if ($this->lockHandles[$lockfile]) {

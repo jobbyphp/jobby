@@ -151,7 +151,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         $this->runJob(array("command" => function() { return false; }));
 
         $this->assertContains(
-            'ERROR: Closure did not return true.',
+            'ERROR: Closure did not return true! Returned:',
             $this->getLogContent()
         );
     }

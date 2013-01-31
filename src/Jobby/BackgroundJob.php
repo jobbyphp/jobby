@@ -213,7 +213,7 @@ class BackgroundJob
 
         if ($retval !== true) {
             throw new Exception(
-                "Closure did not return true.\n" . print_r($retval, true)
+                "Closure did not return true! Returned:\n" . print_r($retval, true)
             );
         }
     }
