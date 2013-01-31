@@ -67,8 +67,10 @@ class BackgroundJob
             return;
         }
 
+        $lockAquired = false;
         try {
             $this->helper->aquireLock($lockfile);
+            $lockAquired = true;
 
             if ($this->isFunction()) {
                 $this->runFunction();
@@ -80,7 +82,9 @@ class BackgroundJob
             $this->mail($e->getMessage());
         }
 
-        $this->helper->releaseLock($lockfile);
+        if ($lockAquired) {
+            $this->helper->releaseLock($lockfile);
+        }
     }
 
     /**
