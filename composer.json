@@ -15,6 +15,7 @@
     }
   ],
   "require": {
+    "php": ">=5.3.0",
     "mtdowling/cron-expression": "1.0.x",
     "swiftmailer/swiftmailer": "4.2.x"
   },

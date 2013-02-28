@@ -92,7 +92,7 @@ EOF;
     /**
      *
      */
-    public function aquireLock($lockfile)
+    public function aquireLock($lockfile, $fn = null)
     {
         if (array_key_exists($lockfile, $this->lockHandles)) {
             throw new Exception("Lock already aquired (Lockfile: $lockfile).");
@@ -119,7 +119,9 @@ EOF;
             --$attempts;
         }
 
-        throw new Exception("Job is still locked (Lockfile: $lockfile)!");
+        if ($fn !== null) {
+            $fn("INFO: Job is still locked (Lockfile: $lockfile)!");
+        }
     }
 
     /**

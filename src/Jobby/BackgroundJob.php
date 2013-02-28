@@ -69,7 +69,7 @@ class BackgroundJob
 
         $lockAquired = false;
         try {
-            $this->helper->aquireLock($lockfile);
+            $this->helper->aquireLock($lockfile, array($this, 'log'));
             $lockAquired = true;
 
             if ($this->isFunction()) {
