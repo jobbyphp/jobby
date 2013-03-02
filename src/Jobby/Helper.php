@@ -120,7 +120,7 @@ EOF;
         }
 
         if ($fn !== null) {
-            call_user_func($fn, "INFO: Job is still locked (Lockfile: $lockfile)!");
+            $fn("INFO: Job is still locked (Lockfile: $lockfile)!");
         }
     }
 
