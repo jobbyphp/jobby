@@ -1,24 +1,23 @@
 {
-    "hash": "a9ff011c31ff3e54bab569574d247245",
+    "hash": "e350dcdee8fc7aba5589faff944e7753",
     "packages": [
         {
             "name": "mtdowling/cron-expression",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mtdowling/cron-expression",
-                "reference": "v1.0.0"
+                "url": "https://github.com/mtdowling/cron-expression.git",
+                "reference": "v1.0.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/mtdowling/cron-expression/zipball/v1.0.0",
-                "reference": "v1.0.0",
+                "url": "https://api.github.com/repos/mtdowling/cron-expression/zipball/v1.0.1",
+                "reference": "v1.0.1",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.2"
             },
-            "time": "2012-07-15 14:19:48",
             "type": "library",
             "autoload": {
                 "psr-0": {
@@ -40,7 +39,8 @@
             "keywords": [
                 "cron",
                 "schedule"
-            ]
+            ],
+            "time": "2013-03-06 02:49:08"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -59,7 +59,6 @@
             "require": {
                 "php": ">=5.2.4"
             },
-            "time": "2012-10-25 01:30:40",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -89,7 +88,8 @@
             "keywords": [
                 "mail",
                 "mailer"
-            ]
+            ],
+            "time": "2012-10-25 01:30:40"
         }
     ],
     "packages-dev": null,
