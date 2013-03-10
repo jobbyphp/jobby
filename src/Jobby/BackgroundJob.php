@@ -4,6 +4,7 @@ namespace Jobby;
 
 use Jobby\Helper;
 use Jobby\Exception;
+use Jobby\InfoException;
 use Cron\CronExpression;
 
 /**
@@ -69,7 +70,7 @@ class BackgroundJob
 
         $lockAquired = false;
         try {
-            $this->helper->aquireLock($lockfile, array($this, 'log'));
+            $this->helper->aquireLock($lockfile);
             $lockAquired = true;
 
             if ($this->isFunction()) {
@@ -77,6 +78,8 @@ class BackgroundJob
             } else {
                 $this->runFile();
             }
+        } catch (InfoException $e) {
+            $this->log("INFO: " . $e->getMessage());
         } catch (Exception $e) {
             $this->log("ERROR: " . $e->getMessage());
             $this->mail($e->getMessage());

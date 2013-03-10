@@ -207,11 +207,8 @@ class HelperTest extends \PHPUnit_Framework_TestCase
         $res = flock($fh, LOCK_EX | LOCK_NB);
         $this->assertTrue($res);
 
-        $this->helper->aquireLock($lockFile, function($msg) use ($lockFile) {
-            if ($msg !== "INFO: Job is still locked (Lockfile: $lockFile)!") {
-                $this->fail('Failed asserting that log message is printed.');
-            }
-        });
+        $this->setExpectedException("Jobby\InfoException");
+        $this->helper->aquireLock($lockFile);
     }
 
     /**
