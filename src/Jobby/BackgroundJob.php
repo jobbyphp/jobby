@@ -269,6 +269,30 @@ if (!debug_backtrace()) {
     });
 
     parse_str($argv[2], $config);
+
+    $restoreNullValues = function ($config) {
+        return array_merge(
+            array(
+                'recipients' => null,
+                'mailer' => null,
+                'maxRuntime' => null,
+                'smtpHost' => null,
+                'smtpPort' => null,
+                'smtpUsername' => null,
+                'smtpPassword' => null,
+                'runAs' => null,
+                'environment' => null,
+                'runOnHost' => null,
+                'output' => null,
+                'dateFormat' => null,
+                'enabled' => null,
+                'debug' => null,
+            ),
+            $config
+        );
+    };
+    $config = $restoreNullValues($config);
+
     $job = new BackgroundJob($argv[1], $config);
     $job->run();
 }
