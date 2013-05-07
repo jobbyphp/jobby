@@ -87,6 +87,12 @@ class BackgroundJob
 
         if ($lockAquired) {
             $this->helper->releaseLock($lockfile);
+            
+            // remove log file if empty
+            $logfile = $this->getLogfile();
+            if(is_file($logfile) && filesize($logfile)<=0) {
+                unlink($logfile);
+            }
         }
     }
 
