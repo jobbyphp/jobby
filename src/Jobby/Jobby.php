@@ -138,8 +138,13 @@ class Jobby
             $output = '/dev/null';
         }
 
-        $command = $this->getExecutableCommand($job, $config);
-        exec("php $command 1> $output 2>&1 &");
+        if ($config['command'] instanceof \Closure) {
+            $j = new BackgroundJob($job, $config);
+            $j->run();
+        } else {
+            $command = $this->getExecutableCommand($job, $config);
+            exec("php $command 1> $output 2>&1 &");
+        }
     }
 
     // @codeCoverageIgnoreStart
