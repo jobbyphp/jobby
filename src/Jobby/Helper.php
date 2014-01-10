@@ -78,7 +78,8 @@ EOF;
         if ($config['mailer'] == 'smtp') {
             $transport = \Swift_SmtpTransport::newInstance(
                 $config['smtpHost'],
-                $config['smtpPort']
+                $config['smtpPort'],
+                $config['smtpSecurity']
             );
             $transport->setUsername($config['smtpUsername']);
             $transport->setPassword($config['smtpPassword']);

@@ -286,6 +286,7 @@ if (!debug_backtrace()) {
                 'smtpPort' => null,
                 'smtpUsername' => null,
                 'smtpPassword' => null,
+                'smtpSecurity' => null,
                 'runAs' => null,
                 'environment' => null,
                 'runOnHost' => null,
