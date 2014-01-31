@@ -67,6 +67,7 @@ class Jobby
             'smtpUsername' => null,
             'smtpPassword' => null,
             'smtpSender' => 'jobby@'.$this->getHelper()->getHost(),
+            'smtpSenderName' => 'Jobby',
             'smtpSecurity' => null,
             'runAs' => null,
             'environment' => $this->getHelper()->getApplicationEnv(),

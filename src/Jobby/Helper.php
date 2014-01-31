@@ -55,7 +55,7 @@ EOF;
         $mail->setTo(explode(',', $config['recipients']));
         $mail->setSubject("[$host] '{$job}' needs some attention!");
         $mail->setBody($body);
-        $mail->setFrom(array($config['smtpSender'] => 'jobby'));
+        $mail->setFrom(array($config['smtpSender'] => $config['smtpSenderName']));
         $mail->setSender($config['smtpSender']);
 
         $mailer = $this->getCurrentMailer($config);
