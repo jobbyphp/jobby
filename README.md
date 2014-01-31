@@ -50,6 +50,7 @@ smtpPort     | 25                                  | No       | SMTP port, if `m
 smtpUsername | null                                | No       | SMTP user, if `mailer` is smtp
 smtpPassword | null                                | No       | SMTP password, if `mailer` is smtp
 smtpSecurity | null                                | No       | SMTP security option (ssl|tls), if `mailer` is smtp
+smtpSender   | jobby@<hostname>                    | No       | The sender and from addresses used in email notices
 runAs        | null                                | No       | Run as this user, if crontab user has `sudo` privileges
 environment  | null or `getenv('APPLICATION_ENV')` | No       | Development environment for this job
 runOnHost    | `gethostname()`                     | No       | Run jobs only on this hostname
