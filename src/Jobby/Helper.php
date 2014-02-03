@@ -51,13 +51,12 @@ You can find its output in {$config['output']} on $host.
 Best,
 jobby@$host
 EOF;
-
         $mail = \Swift_Message::newInstance();
         $mail->setTo(explode(',', $config['recipients']));
         $mail->setSubject("[$host] '{$job}' needs some attention!");
-        $mail->setFrom(array("jobby@$host" => 'jobby'));
-        $mail->setSender("jobby@$host");
         $mail->setBody($body);
+        $mail->setFrom(array($config['smtpSender'] => $config['smtpSenderName']));
+        $mail->setSender($config['smtpSender']);
 
         $mailer = $this->getCurrentMailer($config);
         $mailer->send($mail);
