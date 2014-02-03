@@ -3,6 +3,7 @@
 namespace Jobby\Tests;
 
 use Jobby\Helper;
+use Jobby\Jobby;
 
 /**
  * @covers Jobby\Helper
@@ -278,10 +279,11 @@ class HelperTest extends \PHPUnit_Framework_TestCase
         $mailer->expects($this->once())
             ->method("send");
 
-        $config = array(
-            "output" => "output message",
-            "recipients" => "a@a.com,b@b.com"
-        );
+        $jobby  = new Jobby();
+        $config = $jobby->getDefaultConfig();
+        $config["output"]     = "output message";
+        $config["recipients"] = "a@a.com,b@b.com";
+
         $helper = new Helper($mailer);
         $mail = $helper->sendMail("job", $config, "message");
 
