@@ -107,3 +107,7 @@ $jobby->run();
 ### Credits ###
 
 Developed before, but since inspired by [`whenever`](<https://github.com/javan/whenever>).
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/hellogerard/jobby/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
