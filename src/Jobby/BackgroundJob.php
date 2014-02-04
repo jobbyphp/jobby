@@ -73,7 +73,7 @@ class BackgroundJob
             $this->helper->aquireLock($lockfile);
             $lockAquired = true;
 
-            if ($this->isFunction()) {
+            if ($this->isFunction() || $this->isClosure()) {
                 $this->runFunction();
             } else {
                 $this->runFile();
@@ -206,7 +206,15 @@ class BackgroundJob
      */
     private function isFunction()
     {
-        return preg_match('/^function\(.*\).*}$/', $this->config['command']);
+        return is_string($this->config['command']) && preg_match('/^function\(.*\).*}$/', $this->config['command']);
+    }
+
+    /**
+     * @return bool
+     */
+    private function isClosure()
+    {
+        return $this->config['command'] instanceof \Closure;
     }
 
     /**
@@ -216,7 +224,11 @@ class BackgroundJob
     {
         // If job is an anonymous function string, eval it to get the
         // closure, and run the closure.
-        eval('$command = ' . $this->config['command'] . ';');
+        if ($this->isFunction()) {
+            eval('$command = ' . $this->config['command'] . ';');
+        } else {
+            $command = $this->config['command'];
+        }
 
         ob_start();
         $retval = $command();
