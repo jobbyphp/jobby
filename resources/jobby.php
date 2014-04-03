@@ -8,7 +8,7 @@
 
 require(__DIR__ . '/vendor/autoload.php');
 
-$jobby = new Jobby();
+$jobby = new \Jobby\Jobby();
 
 $jobby->add('CommandExample', array(
     'command' => 'ls',
