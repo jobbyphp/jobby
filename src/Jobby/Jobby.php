@@ -13,22 +13,22 @@ class Jobby
     /**
      * @var array
      */
-    private $config = array();
+    protected $config = array();
 
     /**
      * @var string
      */
-    private $script;
+    protected $script;
 
     /**
      * @var array
      */
-    private $jobs = array();
+    protected $jobs = array();
 
     /**
      * @var Helper
      */
-    private $helper;
+    protected $helper;
 
     /**
      * @param array $config
@@ -44,7 +44,7 @@ class Jobby
     /**
      * @return Helper
      */
-    private function getHelper()
+    protected function getHelper()
     {
         if ($this->helper === null) {
             $this->helper = new Helper();
@@ -133,7 +133,7 @@ class Jobby
      * @param string $job
      * @param array $config
      */
-    private function runUnix($job, array $config)
+    protected function runUnix($job, array $config)
     {
         if ($config['debug']) {
             $output = 'debug.log';
@@ -150,7 +150,7 @@ class Jobby
      * @param string $job
      * @param array $config
      */
-    private function runWindows($job, array $config)
+    protected function runWindows($job, array $config)
     {
         // Run in background (non-blocking). From
         // http://us3.php.net/manual/en/function.exec.php#43834
@@ -165,7 +165,7 @@ class Jobby
      * @param array $config
      * @return string
      */
-    private function getExecutableCommand($job, array $config)
+    protected function getExecutableCommand($job, array $config)
     {
         // Convert closures to its source code as a string so that we
         // can send it on the command line.
