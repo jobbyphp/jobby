@@ -112,7 +112,7 @@ EOF;
             if (flock($fh, LOCK_EX | LOCK_NB)) {
                 $this->lockHandles[$lockfile] = $fh;
                 ftruncate($fh, 0);
-                fwrite($fh, posix_getpid());
+                fwrite($fh, getmypid());
                 return;
             }
             usleep(250);

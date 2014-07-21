@@ -122,10 +122,10 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     public function testShouldRunAsCurrentUser()
     {
         $this->runJob(array(
-            "command" => function() { echo posix_getuid(); return true; }
+            "command" => function() { echo getmyuid(); return true; }
         ));
 
-        $this->assertEquals(posix_getuid(), $this->getLogContent());
+        $this->assertEquals(getmyuid(), $this->getLogContent());
     }
 
     /**

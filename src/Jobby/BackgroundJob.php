@@ -238,14 +238,15 @@ class BackgroundJob
     {
         // If job should run as another user, we must be on *nix and
         // must have sudo privileges.
-        $hasRunAs = !empty($this->config["runAs"]);
-        $isRoot = (posix_getuid() === 0);
         $isUnix = ($this->helper->getPlatform() === Helper::UNIX);
+        $useSudo = "";
 
-        if ($hasRunAs && $isUnix && $isRoot) {
-            $useSudo = "sudo -u {$this->config['runAs']}";
-        } else {
-            $useSudo = "";
+        if ($isUnix) {
+            $hasRunAs = !empty($this->config["runAs"]);
+            $isRoot = (posix_getuid() === 0);
+            if ($hasRunAs && $isRoot) {
+                $useSudo = "sudo -u {$this->config['runAs']}";
+            }
         }
 
         // Start execution. Run in foreground (will block).

@@ -116,15 +116,17 @@ class Jobby
      */
     public function run()
     {
-        if (! extension_loaded('posix')) {
+        $isUnix = ($this->helper->getPlatform() === Helper::UNIX);
+
+        if ($isUnix && ! extension_loaded('posix')) {
             throw new Exception("'posix' extension is required");
         }
 
         foreach ($this->jobs as $job => $config) {
-            if ($this->getHelper()->getPlatform() === Helper::WINDOWS) {
-                $this->runWindows($job, $config);
-            } else {
+            if ($isUnix) {
                 $this->runUnix($job, $config);
+            } else {
+                $this->runWindows($job, $config);
             }
         }
     }
