@@ -206,7 +206,7 @@ class BackgroundJob
      */
     protected function isFunction()
     {
-        return preg_match('/^function\(.*\).*}$/', $this->config['command']);
+        return preg_match('/^function\s*\(.*\).*}$/', $this->config['command']);
     }
 
     /**
