@@ -2,6 +2,7 @@
 
 namespace Jobby;
 
+use Jeremeamia\SuperClosure\SerializableClosure;
 use Jobby\Helper;
 use Jobby\Exception;
 use Jobby\InfoException;
@@ -207,7 +208,8 @@ class BackgroundJob
      */
     protected function isFunction()
     {
-        return !is_null(unserialize($this->config['command']));
+        $cmd = unserialize($this->config['command']);
+        return !is_null($cmd) && $cmd instanceof SerializableClosure;
     }
 
     /**
@@ -215,7 +217,7 @@ class BackgroundJob
      */
     protected function runFunction()
     {
-        /** @var \Closure $command */
+        /** @var SerializableClosure $command */
         $command = unserialize($this->config['command']);
 
         ob_start();
