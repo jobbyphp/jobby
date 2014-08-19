@@ -87,7 +87,7 @@ class BackgroundJob
 
         if ($lockAquired) {
             $this->helper->releaseLock($lockfile);
-            
+
             // remove log file if empty
             $logfile = $this->getLogfile();
             if(is_file($logfile) && filesize($logfile)<=0) {
@@ -98,6 +98,7 @@ class BackgroundJob
 
     /**
      * @param string $lockfile
+     * @throws Exception
      */
     protected function checkMaxRuntime($lockfile)
     {
@@ -206,7 +207,7 @@ class BackgroundJob
      */
     protected function isFunction()
     {
-        return preg_match('/^function\s*\(.*\).*}$/', $this->config['command']);
+        return !is_null(unserialize($this->config['command']));
     }
 
     /**
@@ -214,9 +215,8 @@ class BackgroundJob
      */
     protected function runFunction()
     {
-        // If job is an anonymous function string, eval it to get the
-        // closure, and run the closure.
-        eval('$command = ' . $this->config['command'] . ';');
+        /** @var \Closure $command */
+        $command = unserialize($this->config['command']);
 
         ob_start();
         $retval = $command();
