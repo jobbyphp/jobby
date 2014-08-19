@@ -1,6 +1,6 @@
 {
-  "name": "hellogerard/jobby",
-  "homepage": "https://github.com/hellogerard/jobby",
+  "name": "kusmierz/jobby",
+  "homepage": "https://github.com/kusmierz/jobby",
   "license": "MIT",
   "description": "Manage all your cron jobs without modifying crontab. Handles locking, logging, error emails, and more.",
   "authors": [
