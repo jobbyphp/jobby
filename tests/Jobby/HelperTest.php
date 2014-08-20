@@ -196,7 +196,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     {
         $lockFile = $this->tmpDir . "/test.lock";
 
-        $this->setExpectedException("Jobby\Exception");
+        $this->setExpectedException("Jobby\\Exception");
         $this->helper->releaseLock($lockFile);
     }
 
@@ -213,7 +213,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
         $res = flock($fh, LOCK_EX | LOCK_NB);
         $this->assertTrue($res);
 
-        $this->setExpectedException("Jobby\InfoException");
+        $this->setExpectedException("Jobby\\InfoException");
         $this->helper->aquireLock($lockFile);
     }
 
@@ -225,7 +225,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
         $lockFile = $this->tmpDir . "/test.lock";
         $this->helper->aquireLock($lockFile);
 
-        $this->setExpectedException("Jobby\Exception");
+        $this->setExpectedException("Jobby\\Exception");
         $this->helper->aquireLock($lockFile);
     }
 
