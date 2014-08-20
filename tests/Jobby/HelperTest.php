@@ -81,11 +81,16 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testClosureToString()
     {
-        $actual = $this->helper->closureToString(
-            function ($args) { return "bar"; }
-        );
+        $closure = function ($args) { return $args . "bar"; };
 
-        $expected = 'function ($args) { return "bar"; }';
+        $serialized = $this->helper->closureToString($closure);
+
+        /** @var \Closure $actual */
+        $actual = @unserialize($serialized);
+        $actual = $actual("foo");
+
+        $expected = $closure("foo");
+
         $this->assertEquals($expected, $actual);
     }
 
@@ -191,7 +196,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     {
         $lockFile = $this->tmpDir . "/test.lock";
 
-        $this->setExpectedException("Jobby\Exception");
+        $this->setExpectedException("Jobby\\Exception");
         $this->helper->releaseLock($lockFile);
     }
 
@@ -208,7 +213,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
         $res = flock($fh, LOCK_EX | LOCK_NB);
         $this->assertTrue($res);
 
-        $this->setExpectedException("Jobby\InfoException");
+        $this->setExpectedException("Jobby\\InfoException");
         $this->helper->aquireLock($lockFile);
     }
 
@@ -220,7 +225,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
         $lockFile = $this->tmpDir . "/test.lock";
         $this->helper->aquireLock($lockFile);
 
-        $this->setExpectedException("Jobby\Exception");
+        $this->setExpectedException("Jobby\\Exception");
         $this->helper->aquireLock($lockFile);
     }
 

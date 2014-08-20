@@ -1,6 +1,8 @@
 <?php
 namespace Jobby;
 
+use Jeremeamia\SuperClosure\SerializableClosure;
+
 /**
  *
  */
@@ -220,31 +222,14 @@ EOF;
     }
 
     /**
-     * @param closure $fn
+     * @param \Closure $fn
      * @return string
      */
     public function closureToString($fn)
     {
-        // From http://www.htmlist.com/development/extending-php-5-3-closures-with-serialization-and-reflection/
-        $reflection = new \ReflectionFunction($fn);
+        $code = new SerializableClosure($fn);
 
-        // Open file and seek to the first line of the closure
-        $file = new \SplFileObject($reflection->getFileName());
-        $file->seek($reflection->getStartLine() - 1);
-
-        // Retrieve all of the lines that contain code for the closure
-        $code = '';
-        while ($file->key() < $reflection->getEndLine()) {
-            $code .= $file->current();
-            $file->next();
-        }
-
-        // Only keep the code defining that closure
-        $begin = strpos($code, 'function');
-        $end = strrpos($code, '}');
-        $code = substr($code, $begin, $end - $begin + 1);
-
-        return str_replace(array("\r\n", "\n"), '', $code);
+        return serialize($code);
     }
 
     /**
@@ -254,7 +239,7 @@ EOF;
     public function escape($input)
     {
         $input = strtolower($input);
-        $input = preg_replace("/[^a-z0-9_.\- ]+/", "", $input);
+        $input = preg_replace("/[^a-z0-9_. -]+/", "", $input);
         $input = trim($input);
         $input = str_replace(" ", "_", $input);
         $input = preg_replace("/_{2,}/", "_", $input);

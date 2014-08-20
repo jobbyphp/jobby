@@ -2,6 +2,7 @@
 
 namespace Jobby;
 
+use Jeremeamia\SuperClosure\SerializableClosure;
 use Jobby\Helper;
 use Jobby\Exception;
 use Jobby\InfoException;
@@ -87,7 +88,7 @@ class BackgroundJob
 
         if ($lockAquired) {
             $this->helper->releaseLock($lockfile);
-            
+
             // remove log file if empty
             $logfile = $this->getLogfile();
             if(is_file($logfile) && filesize($logfile)<=0) {
@@ -98,6 +99,7 @@ class BackgroundJob
 
     /**
      * @param string $lockfile
+     * @throws Exception
      */
     protected function checkMaxRuntime($lockfile)
     {
@@ -206,7 +208,13 @@ class BackgroundJob
      */
     protected function isFunction()
     {
-        return preg_match('/^function\(.*\).*}$/', $this->config['command']);
+        $cmd = @unserialize($this->config['command']);
+
+        if ($cmd === false) {
+            return false;
+        }
+
+        return is_object($cmd) && $cmd instanceof SerializableClosure;
     }
 
     /**
@@ -214,9 +222,8 @@ class BackgroundJob
      */
     protected function runFunction()
     {
-        // If job is an anonymous function string, eval it to get the
-        // closure, and run the closure.
-        eval('$command = ' . $this->config['command'] . ';');
+        /** @var SerializableClosure $command */
+        $command = unserialize($this->config['command']);
 
         ob_start();
         $retval = $command();
