@@ -208,8 +208,14 @@ class BackgroundJob
      */
     protected function isFunction()
     {
+        $isSerialized = ($str == serialize(false) || @unserialize($str) !== false);
+        
+        if (!$isSerialized) {
+            return false;
+        }
+        
         $cmd = unserialize($this->config['command']);
-        return !is_null($cmd) && $cmd instanceof SerializableClosure;
+        return is_object($cmd) && $cmd instanceof SerializableClosure;
     }
 
     /**
