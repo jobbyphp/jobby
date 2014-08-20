@@ -81,11 +81,16 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testClosureToString()
     {
-        $actual = $this->helper->closureToString(
-            function ($args) { return "bar"; }
-        );
+        $closure = function ($args) { return $args . "bar"; };
 
-        $expected = 'function ($args) { return "bar"; }';
+        $serialized = $this->helper->closureToString($closure);
+
+        /** @var \Closure $actual */
+        $actual = @unserialize($serialized);
+        $actual = $actual("foo");
+
+        $expected = $closure("foo");
+
         $this->assertEquals($expected, $actual);
     }
 
