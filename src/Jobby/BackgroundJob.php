@@ -141,7 +141,7 @@ class BackgroundJob
     protected function getLogfile()
     {
         if ($this->config['output'] === null) {
-            return "/dev/null";
+            return false;
         }
 
         $logfile = $this->config['output'];
@@ -198,9 +198,9 @@ class BackgroundJob
     protected function log($message)
     {
         $now = date($this->config['dateFormat'], $_SERVER['REQUEST_TIME']);
-        $logfile = $this->getLogfile();
 
-        file_put_contents($logfile, "[$now] $message\n", FILE_APPEND);
+        if($logfile = $this->getLogfile())
+            file_put_contents($logfile, "[$now] $message\n", FILE_APPEND);
     }
 
     /**
@@ -228,7 +228,8 @@ class BackgroundJob
         ob_start();
         $retval = $command();
         $content = ob_get_contents();
-        file_put_contents($this->getLogfile(), $content, FILE_APPEND);
+        if($logfile = $this->getLogfile())
+            file_put_contents($this->getLogfile(), $content, FILE_APPEND);
         ob_end_clean();
 
         if ($retval !== true) {
