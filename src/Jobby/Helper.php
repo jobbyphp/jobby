@@ -156,8 +156,7 @@ EOF;
             return 0;
         }
 
-        exec("ps -o pid | grep $pid", $dummy, $retval);
-        if ($retval !== 0) {
+        if (!posix_kill(intval($pid), 0)) {
             return 0;
         }
 
