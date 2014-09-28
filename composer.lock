@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6a4348f49b490bc7d1bc26e0d7eb2c19",
+    "hash": "e821edc619d8feb227d49868023b7b19",
     "packages": [
         {
             "name": "jeremeamia/SuperClosure",
@@ -610,12 +610,18 @@
             "time": "2014-08-05 09:00:40"
         }
     ],
-    "aliases": [],
+    "aliases": [
+
+    ],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": [
+
+    ],
     "prefer-stable": false,
     "platform": {
         "php": ">=5.3.0"
     },
-    "platform-dev": []
+    "platform-dev": [
+
+    ]
 }
