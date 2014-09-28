@@ -69,9 +69,9 @@ class BackgroundJob
             return;
         }
 
-        $lockAquired = false;
+        $lockAcquired = false;
         try {
-            $this->helper->aquireLock($lockfile);
+            $this->helper->acquireLock($lockfile);
             $lockAquired = true;
 
             if ($this->isFunction()) {
@@ -86,7 +86,7 @@ class BackgroundJob
             $this->mail($e->getMessage());
         }
 
-        if ($lockAquired) {
+        if ($lockAcquired) {
             $this->helper->releaseLock($lockfile);
 
             // remove log file if empty

@@ -112,28 +112,28 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Jobby\Helper::aquireLock
+     * @covers Jobby\Helper::acquireLock
      * @covers Jobby\Helper::releaseLock
      */
     public function testAquireAndReleaseLock()
     {
         $lockFile = $this->tmpDir . "/test.lock";
 
-        $this->helper->aquireLock($lockFile);
+        $this->helper->acquireLock($lockFile);
         $this->helper->releaseLock($lockFile);
-        $this->helper->aquireLock($lockFile);
+        $this->helper->acquireLock($lockFile);
         $this->helper->releaseLock($lockFile);
     }
 
     /**
-     * @covers Jobby\Helper::aquireLock
+     * @covers Jobby\Helper::acquireLock
      * @covers Jobby\Helper::releaseLock
      */
     public function testLockFileShouldContainCurrentPid()
     {
         $lockFile = $this->tmpDir . "/test.lock";
 
-        $this->helper->aquireLock($lockFile);
+        $this->helper->acquireLock($lockFile);
         $this->assertEquals(getmypid(), file_get_contents($lockFile));
 
         $this->helper->releaseLock($lockFile);
@@ -178,7 +178,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     {
         $lockFile = $this->tmpDir . "/test.lock";
 
-        $this->helper->aquireLock($lockFile);
+        $this->helper->acquireLock($lockFile);
 
         $this->assertEquals(0, $this->helper->getLockLifetime($lockFile));
         sleep(1);
@@ -201,7 +201,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Jobby\Helper::aquireLock
+     * @covers Jobby\Helper::acquireLock
      */
     public function testExceptionIfAquireFails()
     {
@@ -214,19 +214,19 @@ class HelperTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($res);
 
         $this->setExpectedException("Jobby\\InfoException");
-        $this->helper->aquireLock($lockFile);
+        $this->helper->acquireLock($lockFile);
     }
 
     /**
-     * @covers Jobby\Helper::aquireLock
+     * @covers Jobby\Helper::acquireLock
      */
     public function testAquireLockShouldFailOnSecondTry()
     {
         $lockFile = $this->tmpDir . "/test.lock";
-        $this->helper->aquireLock($lockFile);
+        $this->helper->acquireLock($lockFile);
 
         $this->setExpectedException("Jobby\\Exception");
-        $this->helper->aquireLock($lockFile);
+        $this->helper->acquireLock($lockFile);
     }
 
     /**
