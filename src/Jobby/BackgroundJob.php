@@ -179,6 +179,14 @@ class BackgroundJob
             return false;
         }
 
+        if ($this->config['haltDir'] !== null) {
+            $flag_file =
+                $this->config['haltDir'] . DIRECTORY_SEPARATOR . $this->job;
+            if (file_exists($flag_file)) {
+                return false;
+            }
+        }
+
         $cron = CronExpression::factory($this->config['schedule']);
         if (!$cron->isDue()) {
             return false;
@@ -301,6 +309,7 @@ if (!debug_backtrace()) {
                 'output' => null,
                 'dateFormat' => null,
                 'enabled' => null,
+                'haltDir' => null,
                 'debug' => null,
             ),
             $config

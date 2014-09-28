@@ -4,12 +4,15 @@ namespace Jobby\Tests;
 
 use Jobby\BackgroundJob;
 use Jobby\Helper;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @covers Jobby\BackgroundJob
  */
 class BackgroundJobTest extends \PHPUnit_Framework_TestCase
 {
+    const JOB_NAME = "name";
+
     /**
      * @var string
      */
@@ -48,7 +51,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     {
         $config = $this->getJobConfig($config);
 
-        $job = new BackgroundJob("name", $config, $helper);
+        $job = new BackgroundJob(self::JOB_NAME, $config, $helper);
         $job->run();
     }
 
@@ -67,6 +70,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         return array_merge(
             array(
                 "enabled" => 1,
+                "haltDir" => null,
                 "runOnHost" => $helper->getHost(),
                 "dateFormat" => "Y-m-d H:i:s",
                 "schedule" => "* * * * *",
@@ -271,6 +275,55 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         $this->assertContains(
             "MaxRuntime of 1 secs exceeded! Current runtime: 2 secs",
             $this->getLogContent()
+        );
+    }
+
+    /**
+     * @dataProvider provideHaltDirTests
+     * @covers Jobby\BackgroundJob::shouldRun
+     */
+    public function testHaltDir($create_file, $job_runs)
+    {
+        #> Given
+
+        $temptation = new \Icecave\Temptation\Temptation;
+        $temp_dir = $temptation->createDirectory();
+        $fs = new Filesystem;
+
+        $flag_file_pathname =
+            $temp_dir->path() . DIRECTORY_SEPARATOR . self::JOB_NAME;
+
+        if ($create_file) {
+            $fs->touch($flag_file_pathname);
+        }
+
+        #> When
+
+        $this->runJob(array(
+            "haltDir" => $temp_dir->path(),
+            "command" => function() { echo "test"; return true; },
+        ));
+
+        #> Then
+
+        $this->assertEquals(
+            $job_runs,
+            is_string($this->getLogContent()) &&
+                "" !== $this->getLogContent()
+        );
+
+        #> Clean up
+
+        if ($create_file) {
+            $fs->remove($flag_file_pathname);
+        }
+    }
+
+    public function provideHaltDirTests()
+    {
+        return array(
+            array(true, false),
+            array(false, true),
         );
     }
 }

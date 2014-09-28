@@ -75,6 +75,7 @@ class Jobby
             'output' => null,
             'dateFormat' => 'Y-m-d H:i:s',
             'enabled' => true,
+            'haltDir' => null,
             'debug' => false,
         );
     }
