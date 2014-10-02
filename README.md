@@ -58,6 +58,7 @@ runOnHost      | `gethostname()`                     | No       | Run jobs only 
 output         | /dev/null                           | No       | Redirect `stdout` and `stderr` to this file
 dateFormat     | 'Y-m-d H:i:s'                       | No       | Format for dates on `jobby` log messages
 enabled        | true                                | No       | Run this job at scheduled times
+haltDir        | null                                | No       | A job will not run if this directory contains a file bearing its name
 debug          | false                               | No       | Send `jobby` internal messages to 'debug.log'
 command        | none                                | Yes      | The job to run (either a shell command or anonymous PHP function)
 schedule       | none                                | Yes      | Crontab schedule format (`man -s 5 crontab`)
