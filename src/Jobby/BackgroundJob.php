@@ -152,7 +152,7 @@ class BackgroundJob
 
         $logs = dirname($logfile);
         if (!file_exists($logs)) {
-            mkdir($logs, 0777, true);
+            mkdir($logs, 0755, true);
         }
 
         return $logfile;
