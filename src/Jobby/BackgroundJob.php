@@ -108,6 +108,10 @@ class BackgroundJob
             return;
         }
 
+        if ($this->helper->getPlatform() === Helper::WINDOWS) {
+            throw new Exception("'maxRuntime' is not supported on Windows");
+        }
+
         $runtime = $this->helper->getLockLifetime($lockfile);
         if ($runtime < $maxRuntime) {
             return;

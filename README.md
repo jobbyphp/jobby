@@ -55,10 +55,11 @@ smtpSenderName | Jobby                               | No       | The name used 
 runAs          | null                                | No       | Run as this user, if crontab user has `sudo` privileges
 environment    | null or `getenv('APPLICATION_ENV')` | No       | Development environment for this job
 runOnHost      | `gethostname()`                     | No       | Run jobs only on this hostname
+maxRuntime     | null                                | No       | Maximum execution time for this job (in seconds)
 output         | /dev/null                           | No       | Redirect `stdout` and `stderr` to this file
 dateFormat     | 'Y-m-d H:i:s'                       | No       | Format for dates on `jobby` log messages
 enabled        | true                                | No       | Run this job at scheduled times
-haltDir        | null                                | No       | A job will not run if this directory contains a file bearing its name
+haltDir        | null                                | No       | A job will not run if this directory contains a file bearing the job's name
 debug          | false                               | No       | Send `jobby` internal messages to 'debug.log'
 command        | none                                | Yes      | The job to run (either a shell command or anonymous PHP function)
 schedule       | none                                | Yes      | Crontab schedule format (`man -s 5 crontab`)
