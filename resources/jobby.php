@@ -20,6 +20,7 @@ $jobby->add('CommandExample', array(
 $jobby->add('ClosureExample', array(
     'command' => function() {
         echo "I'm a function!\n";
+        return true;
     },
     'schedule' => '* * * * *',
     'output' => 'logs/closure.log',
