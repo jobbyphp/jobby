@@ -44,7 +44,7 @@ Option         | Default                             | Required | Description
 ===============+=====================================+==========+============
                |                                     |          |
 recipients     | null                                | No       | Comma-separated string of email addresses
-mailer         | sendmail                            | No       | Email method: sendmail or smtp
+mailer         | sendmail                            | No       | Email method: sendmail or smtp or mail
 smtpHost       | null                                | No       | SMTP host, if `mailer` is smtp
 smtpPort       | 25                                  | No       | SMTP port, if `mailer` is smtp
 smtpUsername   | null                                | No       | SMTP user, if `mailer` is smtp

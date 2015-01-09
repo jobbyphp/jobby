@@ -84,6 +84,8 @@ EOF;
             );
             $transport->setUsername($config['smtpUsername']);
             $transport->setPassword($config['smtpPassword']);
+        } elseif($config['mailer'] == 'mail'){
+            $transport = \Swift_MailTransport::newInstance();
         } else {
             $transport = \Swift_SendmailTransport::newInstance();
         }
