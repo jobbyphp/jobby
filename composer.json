@@ -15,7 +15,7 @@
     }
   ],
   "require": {
-    "php": ">=5.4",
+    "php": ">=5.3.3",
     "mtdowling/cron-expression": "1.0.x",
     "swiftmailer/swiftmailer": "~5.4",
     "jeremeamia/superclosure": "2.1.*"
