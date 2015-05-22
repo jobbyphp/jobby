@@ -15,10 +15,10 @@
     }
   ],
   "require": {
-    "php": ">=5.3.3",
+    "php": ">=5.4",
     "mtdowling/cron-expression": "1.0.x",
     "swiftmailer/swiftmailer": "~5.4",
-    "jeremeamia/superclosure": "1.0.2"
+    "jeremeamia/superclosure": "2.1.*"
   },
   "require-dev": {
     "icecave/temptation": "1.*",

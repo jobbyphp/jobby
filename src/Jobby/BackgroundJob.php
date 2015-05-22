@@ -2,10 +2,7 @@
 
 namespace Jobby;
 
-use Jeremeamia\SuperClosure\SerializableClosure;
-use Jobby\Helper;
-use Jobby\Exception;
-use Jobby\InfoException;
+use SuperClosure\SerializableClosure;
 use Cron\CronExpression;
 
 /**

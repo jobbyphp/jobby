@@ -1,7 +1,7 @@
 <?php
 namespace Jobby;
 
-use Jeremeamia\SuperClosure\SerializableClosure;
+use SuperClosure\SerializableClosure;
 
 /**
  *
