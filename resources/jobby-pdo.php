@@ -54,7 +54,7 @@ $insertJob->execute(
 );
 // Second demo-job.
 $secondJobFn = function() {
-    echo "I'm a function (" . date('Y-m-d H:i:s') .")!" . PHP_EOL;
+    echo "I'm a function (" . date('Y-m-d H:i:s') . ')!' . PHP_EOL;
     return true;
 };
 $secondJobFnSerializable = new \SuperClosure\SerializableClosure($secondJobFn);
