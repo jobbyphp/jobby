@@ -226,7 +226,7 @@ EOF;
      * @param \Closure $fn
      * @return string
      */
-    public function closureToString($fn)
+    public function closureToString(\Closure $fn)
     {
         $code = new SerializableClosure($fn);
 
