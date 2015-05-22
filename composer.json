@@ -15,15 +15,15 @@
     }
   ],
   "require": {
-    "php": ">=5.3.0",
+    "php": ">=5.3.3",
     "mtdowling/cron-expression": "1.0.x",
-    "swiftmailer/swiftmailer": "~5.2",
-    "jeremeamia/superclosure": "~1.0"
+    "swiftmailer/swiftmailer": "~5.4",
+    "jeremeamia/superclosure": "1.0.2"
   },
   "require-dev": {
     "icecave/temptation": "1.*",
-    "phpunit/phpunit": "3.7.*",
-    "symfony/filesystem": "~2.5.4"
+    "phpunit/phpunit": "~4.6",
+    "symfony/filesystem": "~2.6.7"
   },
   "autoload": {
     "psr-0": {
