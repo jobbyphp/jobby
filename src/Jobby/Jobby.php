@@ -12,22 +12,22 @@ class Jobby
     /**
      * @var array
      */
-    protected $config = array();
+    private $config = array();
 
     /**
      * @var string
      */
-    protected $script;
+    private $script;
 
     /**
      * @var array
      */
-    protected $jobs = array();
+    private $jobs = array();
 
     /**
      * @var Helper
      */
-    protected $helper;
+    private $helper;
 
     /**
      * @param array $config
@@ -43,7 +43,7 @@ class Jobby
     /**
      * @return Helper
      */
-    protected function getHelper()
+    private function getHelper()
     {
         if ($this->helper === null) {
             $this->helper = new Helper();
@@ -136,7 +136,7 @@ class Jobby
      * @param string $job
      * @param array $config
      */
-    protected function runUnix($job, array $config)
+    private function runUnix($job, array $config)
     {
         if ($config['debug']) {
             $output = 'debug.log';
@@ -153,7 +153,7 @@ class Jobby
      * @param string $job
      * @param array $config
      */
-    protected function runWindows($job, array $config)
+    private function runWindows($job, array $config)
     {
         // Run in background (non-blocking). From
         // http://us3.php.net/manual/en/function.exec.php#43834
@@ -168,7 +168,7 @@ class Jobby
      * @param array $config
      * @return string
      */
-    protected function getExecutableCommand($job, array $config)
+    private function getExecutableCommand($job, array $config)
     {
         if ($config['command'] instanceof SerializableClosure) {
             $config['command'] = serialize($config['command']);
