@@ -8,24 +8,15 @@
 
 require(__DIR__ . '/vendor/autoload.php');
 
-$dbhHost = '';
-$dbhUser = '';
-$dbhPassword = '';
-$dbhDatabaseName = '';
 $dbhJobbiesTableName = 'jobbies';
 
-#$dbh = new PDO('mysql:host=' . $dbhHost . ';dbname=' . $dbhDatabaseName, $dbhUser, $dbhPassword);
-#$dbh = new PDO('sqlite:messaging.sqlite3');
 $dbh = new PDO('sqlite::memory:');
 $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 /*
- * Setup a test-fixture.
+ * Setup a test-fixture, having two jobs, first one is a system-cmd (date), second one is a closure.
  */
 
-if ($dbhDatabaseName) {
-    $dbh->exec("CREATE DATABASE IF NOT EXISTS `$dbhDatabaseName`; USE $dbhDatabaseName");
-}
 $dbh->exec("
 CREATE TABLE `$dbhJobbiesTableName`
 (`name` VARCHAR(255) NOT NULL ,
