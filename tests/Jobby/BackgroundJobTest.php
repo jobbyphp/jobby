@@ -31,7 +31,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->logFile = __DIR__ . "/_files/BackgroundJobTest.log";
+        $this->logFile = __DIR__ . '/_files/BackgroundJobTest.log';
         !file_exists($this->logFile) || unlink($this->logFile);
     }
 

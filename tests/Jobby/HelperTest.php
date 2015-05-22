@@ -23,7 +23,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     /**
      *
      */
-    public function setUp()
+    protected function setUp()
     {
         $this->helper = new Helper();
         $this->tmpDir = $this->helper->getTempDir();
@@ -32,7 +32,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     /**
      *
      */
-    public function tearDown()
+    protected function tearDown()
     {
         unset($_SERVER["APPLICATION_ENV"]);
     }

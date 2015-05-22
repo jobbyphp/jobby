@@ -25,18 +25,18 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     /**
      *
      */
-    public function setUp()
+    protected function setUp()
     {
-        $this->logFile = __DIR__ . "/_files/JobbyTest.log";
-        @unlink($this->logFile);
+        $this->logFile = __DIR__ . '/_files/JobbyTest.log';
+        !file_exists($this->logFile) || unlink($this->logFile);
     }
 
     /**
      *
      */
-    public function tearDown()
+    protected function tearDown()
     {
-        @unlink($this->logFile);
+        !file_exists($this->logFile) || unlink($this->logFile);
     }
 
     /**
