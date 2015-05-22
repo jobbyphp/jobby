@@ -6,7 +6,7 @@
 // * * * * * cd /path/to/project && php jobby-pdo.php 1>> /dev/null 2>&1
 //
 
-require(__DIR__ . '/../vendor/autoload.php');
+require(__DIR__ . '/vendor/autoload.php');
 
 $dbhHost = '';
 $dbhUser = '';
@@ -53,13 +53,13 @@ CREATE TABLE `$dbhJobbiesTableName`
 
 $insertJob = $dbh->prepare("
 INSERT INTO `$dbhJobbiesTableName`
- (`name`,`command`,`schedule`,`runOnHost`,`output`)
+ (`name`,`command`,`schedule`,`output`)
  VALUES
- (:name,:command,:schedule,:runOnHost,:output)
+ (:name,:command,:schedule,:output)
 ");
 // First demo-job.
 $insertJob->execute(
-    array('CommandExample', 'date', '* * * * *', php_uname('n'), 'logs/command-pdo.log')
+    array('CommandExample', 'date', '* * * * *', 'logs/command-pdo.log')
 );
 // Second demo-job.
 $secondJobFn = function() {
@@ -69,7 +69,7 @@ $secondJobFn = function() {
 $secondJobFnSerializable = new \SuperClosure\SerializableClosure($secondJobFn);
 $secondJobFnSerialized = serialize($secondJobFnSerializable);
 $insertJob->execute(
-    array('ClosureExample', $secondJobFnSerialized, '* * * * *', php_uname('n'), 'logs/closure-pdo.log')
+    array('ClosureExample', $secondJobFnSerialized, '* * * * *', 'logs/closure-pdo.log')
 );
 
 /*
@@ -82,6 +82,9 @@ $jobbies = $jobbiesStmt->fetchAll(PDO::FETCH_ASSOC);
 $jobby = new \Jobby\Jobby();
 
 foreach ($jobbies as $job) {
+    // Filter out each unset value.
+    $job = array_filter($job);
+
     $jobName = $job['name'];
     unset($job['name']);
 
