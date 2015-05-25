@@ -62,7 +62,7 @@ enabled        | true                                | No       | Run this job a
 haltDir        | null                                | No       | A job will not run if this directory contains a file bearing the job's name
 debug          | false                               | No       | Send `jobby` internal messages to 'debug.log'
 command        | none                                | Yes      | The job to run (either a shell command or anonymous PHP function)
-schedule       | none                                | Yes      | Crontab schedule format (`man -s 5 crontab`)
+schedule       | none                                | Yes      | Crontab schedule format (`man -s 5 crontab`) or Datetime format
 </pre>
 
 ### Example `jobby.php` File ###
@@ -79,8 +79,9 @@ $jobby->add('CommandExample', array(
     // Commands are either shell commands or anonymous functions
     'command' => 'ls',
 
-    // Ordinary crontab schedule format is supported. This schedule runs every
-    // hour
+    // Ordinary crontab schedule format is supported.
+    // This schedule runs every hour.
+    // You could also insert Datetime string.
     'schedule' => '0 * * * *',
 
     // Stdout and stderr is sent to the specified file
