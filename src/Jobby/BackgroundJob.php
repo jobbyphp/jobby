@@ -191,6 +191,11 @@ class BackgroundJob
             }
         }
 
+        $schedule = \DateTime::createFromFormat('Y-m-d H:i:s', $this->config['schedule']);
+        if($schedule!==false){
+            return $schedule->getTimeStamp() == (new \DateTime)->getTimeStamp();
+        }
+
         $cron = CronExpression::factory($this->config['schedule']);
         if (!$cron->isDue()) {
             return false;
