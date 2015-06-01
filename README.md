@@ -111,5 +111,4 @@ $jobby->run();
 
 Developed before, but since inspired by [`whenever`](<https://github.com/javan/whenever>).
 
-[![Support via Gittip](https://rawgithub.com/twolfson/gittip-badge/0.2.0/dist/gittip.png)](https://www.gittip.com/hellogerard/)
-
+[Support this project](https://cash.me/$hellogerard)
