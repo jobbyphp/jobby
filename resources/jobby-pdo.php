@@ -17,6 +17,8 @@ $dbhJobbiesTableName = 'jobbies';
 
 /*
  * For demo-purposes, an in-memory SQLite database is used.
+ *
+ * !!! REPLACE WITH YOUR OWN DATASOURCE!!!
  */
 $dbh = new PDO('sqlite::memory:');
 $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
