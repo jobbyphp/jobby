@@ -1,24 +1,33 @@
 <?php
 
 //
-// Add this line to your crontab file:
+// This script demonstrates how to use jobby with a PDO-backend, which is used to
+// save the jobby-cronjob/jobbies configuration.
+//
+// Adapt this file to your needs, copy it to your projec-troot,
+// and add this line to your crontab file:
 //
 // * * * * * cd /path/to/project && php jobby-pdo.php 1>> /dev/null 2>&1
 //
 
-require(__DIR__ . '/vendor/autoload.php');
+require(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
 
+// The table, which shall contain the cronjob-configuration(s).
 $dbhJobbiesTableName = 'jobbies';
 
+/*
+ * For demo-purposes, an in-memory SQLite database is used.
+ */
 $dbh = new PDO('sqlite::memory:');
 $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 /*
- * Setup a test-fixture, having two jobs, first one is a system-cmd (date), second one is a closure.
+ * Setup a test-fixture, having two jobs, first one is a system-cmd (date), second one is a Closure
+ * (which is saved to pdo-database).
  */
 
 $dbh->exec("
-CREATE TABLE `$dbhJobbiesTableName`
+CREATE TABLE IF NOT EXISTS `$dbhJobbiesTableName`
 (`name` VARCHAR(255) NOT NULL ,
  `command` TEXT NOT NULL ,
  `schedule` VARCHAR(255) NOT NULL ,
@@ -42,29 +51,31 @@ CREATE TABLE `$dbhJobbiesTableName`
 )
 ");
 
-$insertJob = $dbh->prepare("
+$insertCronJobConfiguration = $dbh->prepare("
 INSERT INTO `$dbhJobbiesTableName`
  (`name`,`command`,`schedule`,`output`)
  VALUES
  (:name,:command,:schedule,:output)
 ");
-// First demo-job.
-$insertJob->execute(
-    array('CommandExample', 'date', '* * * * *', 'logs/command-pdo.log')
+// First demo-job - print "date" to logs/command-pdo.log.
+$insertCronJobConfiguration->execute(
+    ['CommandExample', 'date', '* * * * *', 'logs/command-pdo.log']
 );
-// Second demo-job.
+// Second demo-job - a Closure which does some php::echo(). The Closure is saved to PDO-backend, too.
 $secondJobFn = function() {
     echo "I'm a function (" . date('Y-m-d H:i:s') . ')!' . PHP_EOL;
     return true;
 };
 $secondJobFnSerializable = new \SuperClosure\SerializableClosure($secondJobFn);
 $secondJobFnSerialized = serialize($secondJobFnSerializable);
-$insertJob->execute(
-    array('ClosureExample', $secondJobFnSerialized, '* * * * *', 'logs/closure-pdo.log')
+$insertCronJobConfiguration->execute(
+    ['ClosureExample', $secondJobFnSerialized, '* * * * *', 'logs/closure-pdo.log']
 );
 
 /*
- * Fetch all jobbies from database and run them.
+ * Examples are now set up, and saved to PDO-backend.
+ *
+ * Now, fetch all jobbies from PDO-backend and run them.
  */
 
 $jobbiesStmt = $dbh->query("SELECT * FROM `$dbhJobbiesTableName`");
@@ -73,16 +84,18 @@ $jobbies = $jobbiesStmt->fetchAll(PDO::FETCH_ASSOC);
 $jobby = new \Jobby\Jobby();
 
 foreach ($jobbies as $job) {
-    // Filter out each unset value.
+    // Filter out each value, which is not set (for example, "maxRuntime" is not defined in the job).
     $job = array_filter($job);
-
-    $jobName = $job['name'];
-    unset($job['name']);
 
     $commandUnserialized = @unserialize($job['command']);
     if (false !== $commandUnserialized) {
+        assert($commandUnserialized instanceof \SuperClosure\SerializableClosure);
+
         $job['command'] = $commandUnserialized;
     }
+
+    $jobName = $job['name'];
+    unset($job['name']);
     $jobby->add($jobName, $job);
 }
 
