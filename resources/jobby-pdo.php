@@ -4,7 +4,7 @@
 // This script demonstrates how to use jobby with a PDO-backend, which is used to
 // save the jobby-cronjob/jobbies configuration.
 //
-// Adapt this file to your needs, copy it to your projec-troot,
+// Adapt this file to your needs, copy it to your project-root,
 // and add this line to your crontab file:
 //
 // * * * * * cd /path/to/project && php jobby-pdo.php 1>> /dev/null 2>&1
