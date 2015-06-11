@@ -1,7 +1,7 @@
 <?php
 namespace Jobby;
 
-use Jeremeamia\SuperClosure\SerializableClosure;
+use SuperClosure\SerializableClosure;
 
 /**
  *
@@ -226,7 +226,7 @@ EOF;
      * @param \Closure $fn
      * @return string
      */
-    public function closureToString($fn)
+    public function closureToString(\Closure $fn)
     {
         $code = new SerializableClosure($fn);
 

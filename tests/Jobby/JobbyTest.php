@@ -25,18 +25,18 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     /**
      *
      */
-    public function setUp()
+    protected function setUp()
     {
-        $this->logFile = __DIR__ . "/_files/JobbyTest.log";
-        @unlink($this->logFile);
+        $this->logFile = __DIR__ . '/_files/JobbyTest.log';
+        !file_exists($this->logFile) || unlink($this->logFile);
     }
 
     /**
      *
      */
-    public function tearDown()
+    protected function tearDown()
     {
-        @unlink($this->logFile);
+        !file_exists($this->logFile) || unlink($this->logFile);
     }
 
     /**
@@ -67,7 +67,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     {
         $jobby = new Jobby();
         $jobby->add('HelloWorldClosure', array(
-            'command' => function() {
+            'command' => static function() {
                 echo "A function!";
                 return true;
             },
@@ -93,11 +93,11 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         ));
         $jobby->add('job-1', array(
             'schedule' => '* * * * *',
-            'command' => function() { echo "job-1"; return true; }
+            'command' => static function() { echo "job-1"; return true; }
         ));
         $jobby->add('job-2', array(
             'schedule' => '* * * * *',
-            'command' => function() { echo "job-2"; return true; }
+            'command' => static function() { echo "job-2"; return true; }
         ));
         $jobby->run();
 
@@ -116,7 +116,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     {
         $jobby = new Jobby(array('output' => $this->logFile));
         $jobby->add('HelloWorldClosure', array(
-            'command' => function() {
+            'command' => static function() {
                 echo "A function!";
                 return true;
             },
@@ -185,7 +185,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException("Jobby\Exception");
         $jobby->add('should fail', array(
-            'command' => function() {}
+            'command' => static function() {}
         ));
     }
 

@@ -2,10 +2,7 @@
 
 namespace Jobby;
 
-use Jeremeamia\SuperClosure\SerializableClosure;
-use Jobby\Helper;
-use Jobby\Exception;
-use Jobby\InfoException;
+use SuperClosure\SerializableClosure;
 use Cron\CronExpression;
 
 /**
@@ -16,22 +13,22 @@ class BackgroundJob
     /**
      * @var Helper
      */
-    protected $helper;
+    private $helper;
 
     /**
      * @var string
      */
-    protected $job;
+    private $job;
 
     /**
      * @var string
      */
-    protected $tmpDir;
+    private $tmpDir;
 
     /**
      * @var array
      */
-    protected $config;
+    private $config;
 
     /**
      * @param string $job
@@ -101,7 +98,7 @@ class BackgroundJob
      * @param string $lockfile
      * @throws Exception
      */
-    protected function checkMaxRuntime($lockfile)
+    private function checkMaxRuntime($lockfile)
     {
         $maxRuntime = $this->config["maxRuntime"];
         if ($maxRuntime === null) {
@@ -126,7 +123,7 @@ class BackgroundJob
     /**
      * @param string $message
      */
-    protected function mail($message)
+    private function mail($message)
     {
         if (empty($this->config['recipients'])) {
             return;
@@ -142,7 +139,7 @@ class BackgroundJob
     /**
      * @return string
      */
-    protected function getLogfile()
+    private function getLogfile()
     {
         if ($this->config['output'] === null) {
             return false;
@@ -161,7 +158,7 @@ class BackgroundJob
     /**
      * @return string
      */
-    protected function getLockFile()
+    private function getLockFile()
     {
         $tmp = $this->tmpDir;
         $job = $this->helper->escape($this->job);
@@ -177,7 +174,7 @@ class BackgroundJob
     /**
      * @return bool
      */
-    protected function shouldRun()
+    private function shouldRun()
     {
         if (!$this->config['enabled']) {
             return false;
@@ -212,7 +209,7 @@ class BackgroundJob
     /**
      * @param string $message
      */
-    protected function log($message)
+    private function log($message)
     {
         $now = date($this->config['dateFormat'], $_SERVER['REQUEST_TIME']);
 
@@ -223,7 +220,7 @@ class BackgroundJob
     /**
      * @return bool
      */
-    protected function isFunction()
+    private function isFunction()
     {
         $cmd = @unserialize($this->config['command']);
 
@@ -237,7 +234,7 @@ class BackgroundJob
     /**
      *
      */
-    protected function runFunction()
+    private function runFunction()
     {
         /** @var SerializableClosure $command */
         $command = unserialize($this->config['command']);
@@ -259,7 +256,7 @@ class BackgroundJob
     /**
      *
      */
-    protected function runFile()
+    private function runFile()
     {
         // If job should run as another user, we must be on *nix and
         // must have sudo privileges.
