@@ -110,6 +110,29 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Jobby\BackgroundJob::run
      */
+    public function testShouldNotRunDateTime()
+    {
+        $this->runJob(array(
+            "command" => function() { echo "test"; return true; },
+            "schedule" => date('Y-m-d H:i:s', strtotime('tomorrow'))
+        ));
+
+        $this->assertEquals("", $this->getLogContent());
+    }
+
+    public function testShouldRunDateTime()
+    {
+        $this->runJob(array(
+            "command" => function() { echo "test"; return true; },
+            "schedule" => date('Y-m-d H:i:s')
+        ));
+
+        $this->assertEquals("test", $this->getLogContent());
+    }
+
+    /**
+     * @covers Jobby\BackgroundJob::run
+     */
     public function testShouldNotRunOnWrongHost()
     {
         $this->runJob(array(
