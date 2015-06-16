@@ -13,22 +13,22 @@ class BackgroundJob
     /**
      * @var Helper
      */
-    private $helper;
+    protected $helper;
 
     /**
      * @var string
      */
-    private $job;
+    protected $job;
 
     /**
      * @var string
      */
-    private $tmpDir;
+    protected $tmpDir;
 
     /**
      * @var array
      */
-    private $config;
+    protected $config;
 
     /**
      * @param string $job
@@ -98,7 +98,7 @@ class BackgroundJob
      * @param string $lockfile
      * @throws Exception
      */
-    private function checkMaxRuntime($lockfile)
+    protected function checkMaxRuntime($lockfile)
     {
         $maxRuntime = $this->config["maxRuntime"];
         if ($maxRuntime === null) {
@@ -123,7 +123,7 @@ class BackgroundJob
     /**
      * @param string $message
      */
-    private function mail($message)
+    protected function mail($message)
     {
         if (empty($this->config['recipients'])) {
             return;
@@ -139,7 +139,7 @@ class BackgroundJob
     /**
      * @return string
      */
-    private function getLogfile()
+    protected function getLogfile()
     {
         if ($this->config['output'] === null) {
             return false;
@@ -158,7 +158,7 @@ class BackgroundJob
     /**
      * @return string
      */
-    private function getLockFile()
+    protected function getLockFile()
     {
         $tmp = $this->tmpDir;
         $job = $this->helper->escape($this->job);
@@ -174,7 +174,7 @@ class BackgroundJob
     /**
      * @return bool
      */
-    private function shouldRun()
+    protected function shouldRun()
     {
         if (!$this->config['enabled']) {
             return false;
@@ -209,7 +209,7 @@ class BackgroundJob
     /**
      * @param string $message
      */
-    private function log($message)
+    protected function log($message)
     {
         $now = date($this->config['dateFormat'], $_SERVER['REQUEST_TIME']);
 
@@ -220,7 +220,7 @@ class BackgroundJob
     /**
      * @return bool
      */
-    private function isFunction()
+    protected function isFunction()
     {
         $cmd = @unserialize($this->config['command']);
 
@@ -234,7 +234,7 @@ class BackgroundJob
     /**
      *
      */
-    private function runFunction()
+    protected function runFunction()
     {
         /** @var SerializableClosure $command */
         $command = unserialize($this->config['command']);
@@ -256,7 +256,7 @@ class BackgroundJob
     /**
      *
      */
-    private function runFile()
+    protected function runFile()
     {
         // If job should run as another user, we must be on *nix and
         // must have sudo privileges.
