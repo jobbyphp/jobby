@@ -3,6 +3,7 @@
 namespace Jobby\Tests;
 
 use Jobby\Jobby;
+use SuperClosure\SerializableClosure;
 
 /**
  * @covers Jobby\Jobby
@@ -57,6 +58,31 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         sleep(1);
 
         $this->assertEquals('Hello World!', $this->getLogContent());
+    }
+
+    /**
+     * @covers Jobby\Jobby::add
+     * @covers Jobby\Jobby::run
+     */
+    public function testSuperClosure()
+    {
+        $fn = static function() {
+            echo "Another function!";
+            return true;
+        };
+
+        $jobby = new Jobby();
+        $jobby->add('HelloWorldClosure', array(
+            'command' => new SerializableClosure($fn),
+            'schedule' => '* * * * *',
+            'output' => $this->logFile
+        ));
+        $jobby->run();
+
+        // Job runs asynchronously, so wait a bit
+        sleep(1);
+
+        $this->assertEquals('Another function!', $this->getLogContent());
     }
 
     /**

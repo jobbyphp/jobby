@@ -2,8 +2,7 @@
 
 namespace Jobby;
 
-use Jobby\Helper;
-use Jobby\Exception;
+use SuperClosure\SerializableClosure;
 
 /**
  *
@@ -66,7 +65,7 @@ class Jobby
             'smtpPort' => 25,
             'smtpUsername' => null,
             'smtpPassword' => null,
-            'smtpSender' => 'jobby@'.$this->getHelper()->getHost(),
+            'smtpSender' => 'jobby@' . $this->getHelper()->getHost(),
             'smtpSenderName' => 'jobby',
             'smtpSecurity' => null,
             'runAs' => null,
@@ -97,8 +96,9 @@ class Jobby
     }
 
     /**
-     * @param string $job
+     * @param $job
      * @param array $config
+     * @throws Exception
      */
     public function add($job, array $config)
     {
@@ -119,7 +119,7 @@ class Jobby
     {
         $isUnix = ($this->helper->getPlatform() === Helper::UNIX);
 
-        if ($isUnix && ! extension_loaded('posix')) {
+        if ($isUnix && !extension_loaded('posix')) {
             throw new Exception("'posix' extension is required");
         }
 
@@ -170,9 +170,12 @@ class Jobby
      */
     private function getExecutableCommand($job, array $config)
     {
-        // Convert closures to its source code as a string so that we
-        // can send it on the command line.
-        if ($config['command'] instanceof \Closure) {
+        if ($config['command'] instanceof SerializableClosure) {
+            $config['command'] = serialize($config['command']);
+
+        } else if ($config['command'] instanceof \Closure) {
+            // Convert closures to its source code as a string so that we
+            // can send it on the command line.
             $config['command'] = $this->getHelper()
                 ->closureToString($config['command']);
         }
