@@ -108,6 +108,10 @@ $jobby->add('ClosureExample', array(
 $jobby->run();
 ```
 
+### Paid Support
+
+[![Support and Consulting Services](https://s3-us-west-2.amazonaws.com/supportedsourceassets/buttons/supportandservices1.png)](http://supportedsource.org/consulting-services-and-support/jobby)
+
 ### Credits ###
 
 Developed before, but since inspired by [`whenever`](<https://github.com/javan/whenever>).
