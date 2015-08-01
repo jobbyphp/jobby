@@ -3,6 +3,7 @@
 namespace Jobby;
 
 use SuperClosure\SerializableClosure;
+use Symfony\Component\Process\PhpExecutableFinder;
 
 /**
  *
@@ -145,7 +146,9 @@ class Jobby
         }
 
         $command = $this->getExecutableCommand($job, $config);
-        exec("php $command 1> $output 2>&1 &");
+        $binary = $this->getPhpBinary();
+
+        exec("$binary $command 1> $output 2>&1 &");
     }
 
     // @codeCoverageIgnoreStart
@@ -182,5 +185,15 @@ class Jobby
 
         $configQuery = http_build_query($config);
         return "\"$this->script\" \"$job\" \"$configQuery\"";
+    }
+
+
+    /**
+     * @return false|string
+     */
+    protected function getPhpBinary() {
+        $executableFinder = new PhpExecutableFinder();
+
+        return $executableFinder->find();
     }
 }
