@@ -274,7 +274,7 @@ class BackgroundJob
         // Start execution. Run in foreground (will block).
         $command = $this->config['command'];
         $logfile = $this->getLogfile() ?: '/dev/null';
-        exec("$useSudo $command 1>> $logfile 2>&1", $dummy, $retval);
+        exec("$useSudo $command 1>> \"$logfile\" 2>&1", $dummy, $retval);
 
         if ($retval !== 0) {
             throw new Exception("Job exited with status '$retval'.");
