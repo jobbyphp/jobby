@@ -26,8 +26,13 @@
     "symfony/filesystem": "^2.7"
   },
   "autoload": {
-    "psr-0": {
-      "Jobby": "src/"
+    "psr-4": {
+      "Jobby\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Jobby\\Tests\\": "tests"
     }
   }
 }

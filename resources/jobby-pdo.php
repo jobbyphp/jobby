@@ -10,7 +10,7 @@
 // * * * * * cd /path/to/project && php jobby-pdo.php 1>> /dev/null 2>&1
 //
 
-require(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // The table, which shall contain the cronjob-configuration(s).
 $dbhJobbiesTableName = 'jobbies';
