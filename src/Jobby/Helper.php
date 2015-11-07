@@ -3,9 +3,6 @@ namespace Jobby;
 
 use SuperClosure\SerializableClosure;
 
-/**
- *
- */
 class Helper
 {
     /**
@@ -19,9 +16,9 @@ class Helper
     const WINDOWS = 1;
 
     /**
-     * @var array
+     * @var resource[]
      */
-    private $lockHandles = array();
+    private $lockHandles = [];
 
     /**
      * @var \Swift_Mailer
@@ -38,8 +35,9 @@ class Helper
 
     /**
      * @param string $job
-     * @param array $config
+     * @param array  $config
      * @param string $message
+     *
      * @return \Swift_Message
      */
     public function sendMail($job, array $config, $message)
@@ -57,7 +55,7 @@ EOF;
         $mail->setTo(explode(',', $config['recipients']));
         $mail->setSubject("[$host] '{$job}' needs some attention!");
         $mail->setBody($body);
-        $mail->setFrom(array($config['smtpSender'] => $config['smtpSenderName']));
+        $mail->setFrom([$config['smtpSender'] => $config['smtpSenderName']]);
         $mail->setSender($config['smtpSender']);
 
         $mailer = $this->getCurrentMailer($config);
@@ -68,6 +66,7 @@ EOF;
 
     /**
      * @param array $config
+     *
      * @return \Swift_Mailer
      */
     private function getCurrentMailer(array $config)
@@ -84,7 +83,7 @@ EOF;
             );
             $transport->setUsername($config['smtpUsername']);
             $transport->setPassword($config['smtpPassword']);
-        } elseif($config['mailer'] == 'mail'){
+        } elseif ($config['mailer'] == 'mail') {
             $transport = \Swift_MailTransport::newInstance();
         } else {
             $transport = \Swift_SendmailTransport::newInstance();
@@ -94,66 +93,73 @@ EOF;
     }
 
     /**
+     * @param string $lockFile
      *
+     * @throws Exception
+     * @throws InfoException
      */
-    public function acquireLock($lockfile)
+    public function acquireLock($lockFile)
     {
-        if (array_key_exists($lockfile, $this->lockHandles)) {
-            throw new Exception("Lock already acquired (Lockfile: $lockfile).");
+        if (array_key_exists($lockFile, $this->lockHandles)) {
+            throw new Exception("Lock already acquired (Lockfile: $lockFile).");
         }
 
-        if (!file_exists($lockfile) && !touch($lockfile)) {
-            throw new Exception("Unable to create file (File: $lockfile).");
+        if (!file_exists($lockFile) && !touch($lockFile)) {
+            throw new Exception("Unable to create file (File: $lockFile).");
         }
 
-        $fh = fopen($lockfile, "r+");
+        $fh = fopen($lockFile, 'r+');
         if ($fh === false) {
-            throw new Exception("Unable to open file (File: $lockfile).");
+            throw new Exception("Unable to open file (File: $lockFile).");
         }
 
         $attempts = 5;
         while ($attempts > 0) {
             if (flock($fh, LOCK_EX | LOCK_NB)) {
-                $this->lockHandles[$lockfile] = $fh;
+                $this->lockHandles[$lockFile] = $fh;
                 ftruncate($fh, 0);
                 fwrite($fh, getmypid());
+
                 return;
             }
             usleep(250);
             --$attempts;
         }
 
-        throw new InfoException("Job is still locked (Lockfile: $lockfile)!");
+        throw new InfoException("Job is still locked (Lockfile: $lockFile)!");
     }
 
     /**
-     * @param string $lockfile
+     * @param string $lockFile
+     *
+     * @throws Exception
      */
-    public function releaseLock($lockfile)
+    public function releaseLock($lockFile)
     {
-        if (!array_key_exists($lockfile, $this->lockHandles)) {
-            throw new Exception("Lock NOT held - bug? Lockfile: $lockfile");
+        if (!array_key_exists($lockFile, $this->lockHandles)) {
+            throw new Exception("Lock NOT held - bug? Lockfile: $lockFile");
         }
 
-        if ($this->lockHandles[$lockfile]) {
-            ftruncate($this->lockHandles[$lockfile], 0);
-            flock($this->lockHandles[$lockfile], LOCK_UN);
+        if ($this->lockHandles[$lockFile]) {
+            ftruncate($this->lockHandles[$lockFile], 0);
+            flock($this->lockHandles[$lockFile], LOCK_UN);
         }
 
-        unset($this->lockHandles[$lockfile]);
+        unset($this->lockHandles[$lockFile]);
     }
 
     /**
-     * @param string $lockfile
+     * @param string $lockFile
+     *
      * @return int
      */
-    public function getLockLifetime($lockfile)
+    public function getLockLifetime($lockFile)
     {
-        if (!file_exists($lockfile)) {
+        if (!file_exists($lockFile)) {
             return 0;
         }
 
-        $pid = file_get_contents($lockfile);
+        $pid = file_get_contents($lockFile);
         if (empty($pid)) {
             return 0;
         }
@@ -162,7 +168,8 @@ EOF;
             return 0;
         }
 
-        $stat = stat($lockfile);
+        $stat = stat($lockFile);
+
         return (time() - $stat["mtime"]);
     }
 
@@ -174,11 +181,11 @@ EOF;
         // @codeCoverageIgnoreStart
         if (function_exists('sys_get_temp_dir')) {
             $tmp = sys_get_temp_dir();
-        } else if (!empty($_SERVER['TMP'])) {
+        } elseif (!empty($_SERVER['TMP'])) {
             $tmp = $_SERVER['TMP'];
-        } else if (!empty($_SERVER['TEMP'])) {
+        } elseif (!empty($_SERVER['TEMP'])) {
             $tmp = $_SERVER['TEMP'];
-        } else if (!empty($_SERVER['TMPDIR'])) {
+        } elseif (!empty($_SERVER['TMPDIR'])) {
             $tmp = $_SERVER['TMPDIR'];
         } else {
             $tmp = getcwd();
@@ -201,11 +208,7 @@ EOF;
      */
     public function getApplicationEnv()
     {
-        if (isset($_SERVER['APPLICATION_ENV'])) {
-            return $_SERVER['APPLICATION_ENV'];
-        } else {
-            return null;
-        }
+        return isset($_SERVER['APPLICATION_ENV']) ? $_SERVER['APPLICATION_ENV'] : null;
     }
 
     /**
@@ -213,7 +216,7 @@ EOF;
      */
     public function getPlatform()
     {
-        if (strncasecmp(PHP_OS, "Win", 3) == 0) {
+        if (strncasecmp(PHP_OS, 'Win', 3) == 0) {
             // @codeCoverageIgnoreStart
             return self::WINDOWS;
             // @codeCoverageIgnoreEnd
@@ -224,6 +227,7 @@ EOF;
 
     /**
      * @param \Closure $fn
+     *
      * @return string
      */
     public function closureToString(\Closure $fn)
@@ -235,15 +239,17 @@ EOF;
 
     /**
      * @param string $input
+     *
      * @return string
      */
     public function escape($input)
     {
         $input = strtolower($input);
-        $input = preg_replace("/[^a-z0-9_. -]+/", "", $input);
+        $input = preg_replace('/[^a-z0-9_. -]+/', '', $input);
         $input = trim($input);
-        $input = str_replace(" ", "_", $input);
-        $input = preg_replace("/_{2,}/", "_", $input);
+        $input = str_replace(' ', '_', $input);
+        $input = preg_replace('/_{2,}/', '_', $input);
+
         return $input;
     }
 }

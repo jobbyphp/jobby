@@ -2,12 +2,9 @@
 
 namespace Jobby;
 
-use SuperClosure\SerializableClosure;
 use Cron\CronExpression;
+use SuperClosure\SerializableClosure;
 
-/**
- *
- */
 class BackgroundJob
 {
     /**
@@ -32,7 +29,7 @@ class BackgroundJob
 
     /**
      * @param string $job
-     * @param array $config
+     * @param array  $config
      * @param Helper $helper
      */
     public function __construct($job, array $config, Helper $helper = null)
@@ -64,18 +61,16 @@ class BackgroundJob
         $this->tmpDir = $this->helper->getTempDir();
     }
 
-    /**
-     *
-     */
     public function run()
     {
-        $lockfile = $this->getLockFile();
+        $lockFile = $this->getLockFile();
 
         try {
-            $this->checkMaxRuntime($lockfile);
+            $this->checkMaxRuntime($lockFile);
         } catch (Exception $e) {
-            $this->log("ERROR: " . $e->getMessage());
+            $this->log('ERROR: ' . $e->getMessage());
             $this->mail($e->getMessage());
+
             return;
         }
 
@@ -85,7 +80,7 @@ class BackgroundJob
 
         $lockAcquired = false;
         try {
-            $this->helper->acquireLock($lockfile);
+            $this->helper->acquireLock($lockFile);
             $lockAcquired = true;
 
             if ($this->isFunction()) {
@@ -94,47 +89,45 @@ class BackgroundJob
                 $this->runFile();
             }
         } catch (InfoException $e) {
-            $this->log("INFO: " . $e->getMessage());
+            $this->log('INFO: ' . $e->getMessage());
         } catch (Exception $e) {
-            $this->log("ERROR: " . $e->getMessage());
+            $this->log('ERROR: ' . $e->getMessage());
             $this->mail($e->getMessage());
         }
 
         if ($lockAcquired) {
-            $this->helper->releaseLock($lockfile);
+            $this->helper->releaseLock($lockFile);
 
             // remove log file if empty
             $logfile = $this->getLogfile();
-            if(is_file($logfile) && filesize($logfile)<=0) {
+            if (is_file($logfile) && filesize($logfile) <= 0) {
                 unlink($logfile);
             }
         }
     }
 
     /**
-     * @param string $lockfile
+     * @param string $lockFile
+     *
      * @throws Exception
      */
-    protected function checkMaxRuntime($lockfile)
+    protected function checkMaxRuntime($lockFile)
     {
-        $maxRuntime = $this->config["maxRuntime"];
+        $maxRuntime = $this->config['maxRuntime'];
         if ($maxRuntime === null) {
             return;
         }
 
         if ($this->helper->getPlatform() === Helper::WINDOWS) {
-            throw new Exception("'maxRuntime' is not supported on Windows");
+            throw new Exception('"maxRuntime" is not supported on Windows');
         }
 
-        $runtime = $this->helper->getLockLifetime($lockfile);
+        $runtime = $this->helper->getLockLifetime($lockFile);
         if ($runtime < $maxRuntime) {
             return;
         }
 
-        throw new Exception(
-            "MaxRuntime of $maxRuntime secs exceeded! "
-            . "Current runtime: $runtime secs"
-        );
+        throw new Exception("MaxRuntime of $maxRuntime secs exceeded! Current runtime: $runtime secs");
     }
 
     /**
@@ -182,6 +175,7 @@ class BackgroundJob
 
         if (!empty($this->config['environment'])) {
             $env = $this->helper->escape($this->config['environment']);
+
             return "$tmp/$env-$job.lck";
         } else {
             return "$tmp/$job.lck";
@@ -197,16 +191,14 @@ class BackgroundJob
             return false;
         }
 
-        if ($this->config['haltDir'] !== null) {
-            $flag_file =
-                $this->config['haltDir'] . DIRECTORY_SEPARATOR . $this->job;
-            if (file_exists($flag_file)) {
+        if (($haltDir = $this->config['haltDir']) !== null) {
+            if (file_exists($haltDir . DIRECTORY_SEPARATOR . $this->job)) {
                 return false;
             }
         }
 
         $schedule = \DateTime::createFromFormat('Y-m-d H:i:s', $this->config['schedule']);
-        if($schedule!==false){
+        if ($schedule !== false) {
             return $schedule->format('Y-m-d H:i') == (date('Y-m-d H:i'));
         }
 
@@ -230,8 +222,9 @@ class BackgroundJob
     {
         $now = date($this->config['dateFormat'], $_SERVER['REQUEST_TIME']);
 
-        if($logfile = $this->getLogfile())
+        if ($logfile = $this->getLogfile()) {
             file_put_contents($logfile, "[$now] $message\n", FILE_APPEND);
+        }
     }
 
     /**
@@ -248,9 +241,6 @@ class BackgroundJob
         return is_object($cmd) && $cmd instanceof SerializableClosure;
     }
 
-    /**
-     *
-     */
     protected function runFunction()
     {
         /** @var SerializableClosure $command */
@@ -259,32 +249,28 @@ class BackgroundJob
         ob_start();
         $retval = $command();
         $content = ob_get_contents();
-        if($logfile = $this->getLogfile())
+        if ($logfile = $this->getLogfile()) {
             file_put_contents($this->getLogfile(), $content, FILE_APPEND);
+        }
         ob_end_clean();
 
         if ($retval !== true) {
-            throw new Exception(
-                "Closure did not return true! Returned:\n" . print_r($retval, true)
-            );
+            throw new Exception("Closure did not return true! Returned:\n" . print_r($retval, true));
         }
     }
 
-    /**
-     *
-     */
     protected function runFile()
     {
         // If job should run as another user, we must be on *nix and
         // must have sudo privileges.
         $isUnix = ($this->helper->getPlatform() === Helper::UNIX);
-        $useSudo = "";
+        $useSudo = '';
 
         if ($isUnix) {
-            $hasRunAs = !empty($this->config["runAs"]);
+            $runAs = $this->config['runAs'];
             $isRoot = (posix_getuid() === 0);
-            if ($hasRunAs && $isRoot) {
-                $useSudo = "sudo -u {$this->config['runAs']}";
+            if (!empty($runAs) && $isRoot) {
+                $useSudo = "sudo -u $runAs";
             }
         }
 
@@ -304,16 +290,19 @@ class BackgroundJob
 // @codeCoverageIgnoreStart
 if (!debug_backtrace()) {
     if (file_exists('vendor/autoload.php')) {
-        require('vendor/autoload.php');
+        require_once 'vendor/autoload.php';
     } else {
-        require(dirname(dirname(dirname(dirname(dirname(__DIR__))))) . '/vendor/autoload.php');
+        require_once dirname(dirname(dirname(dirname(dirname(__DIR__))))) . '/vendor/autoload.php';
     }
 
-    spl_autoload_register(function ($class) {
-        $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
-        require(dirname(__DIR__) . "/{$class}.php");
-    });
+    spl_autoload_register(
+        function ($class) {
+            $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+            require dirname(__DIR__) . "/{$class}.php";
+        }
+    );
 
+    global $argv;
     parse_str($argv[2], $config);
     $job = new BackgroundJob($argv[1], $config);
     $job->run();
