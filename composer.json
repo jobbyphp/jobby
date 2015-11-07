@@ -22,7 +22,6 @@
     "symfony/process": "2.7.*"
   },
   "require-dev": {
-    "icecave/temptation": "1.*",
     "phpunit/phpunit": "~4.6",
     "symfony/filesystem": "2.7.*"
   },

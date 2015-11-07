@@ -9,9 +9,6 @@ use Jobby\Exception;
  */
 class ExceptionTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     *
-     */
     public function testInheritsBaseException()
     {
         $e = new Exception();

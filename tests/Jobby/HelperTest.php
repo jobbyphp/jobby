@@ -6,7 +6,7 @@ use Jobby\Helper;
 use Jobby\Jobby;
 
 /**
- * @covers Jobby\Helper
+ * @coversDefaultClass Jobby\Helper
  */
 class HelperTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,32 +21,26 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     private $tmpDir;
 
     /**
-     *
+     * @var string
+     */
+    private $lockFile;
+
+    /**
+     * {@inheritdoc}
      */
     protected function setUp()
     {
         $this->helper = new Helper();
         $this->tmpDir = $this->helper->getTempDir();
+        $this->lockFile = $this->tmpDir . '/test.lock';
     }
 
     /**
-     *
+     * {@inheritdoc}
      */
     protected function tearDown()
     {
-        unset($_SERVER["APPLICATION_ENV"]);
-    }
-
-    /**
-     * @return \Swift_Mailer
-     */
-    private function getSwiftMailerMock()
-    {
-        return $this->getMock(
-            "Swift_Mailer",
-            array(),
-            array(\Swift_NullTransport::newInstance())
-        );
+        unset($_SERVER['APPLICATION_ENV']);
     }
 
     /**
@@ -66,45 +60,47 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function dataProviderTestEscape()
     {
-        return array(
-            array("lower", "lower"),
-            array("UPPER", "upper"),
-            array("0123456789", "0123456789"),
-            array("with    spaces", "with_spaces"),
-            array("invalid!@#$%^&*()chars", "invalidchars"),
-            array("._-", "._-")
-        );
+        return [
+            ['lower', 'lower'],
+            ['UPPER', 'upper'],
+            ['0123456789', '0123456789'],
+            ['with    spaces', 'with_spaces'],
+            ['invalid!@#$%^&*()chars', 'invalidchars'],
+            ['._-', '._-'],
+        ];
     }
 
     /**
-     * @covers Jobby\Helper::closureToString
+     * @covers ::closureToString
      */
     public function testClosureToString()
     {
-        $closure = function ($args) { return $args . "bar"; };
+        $closure = function ($args) {
+            return $args . 'bar';
+        };
 
         $serialized = $this->helper->closureToString($closure);
 
         /** @var \Closure $actual */
         $actual = @unserialize($serialized);
-        $actual = $actual("foo");
+        $actual = $actual('foo');
 
-        $expected = $closure("foo");
+        $expected = $closure('foo');
 
         $this->assertEquals($expected, $actual);
     }
 
     /**
-     * @covers Jobby\Helper::getPlatform
+     * @covers ::getPlatform
      */
     public function testGetPlatform()
     {
         $actual = $this->helper->getPlatform();
-        $this->assertContains($actual, array(Helper::UNIX, Helper::WINDOWS));
+        $this->assertContains($actual, [Helper::UNIX, Helper::WINDOWS]);
     }
 
     /**
-     * @covers Jobby\Helper::getPlatform
+     * @covers ::getPlatform
      */
     public function testPlatformConstants()
     {
@@ -112,130 +108,115 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Jobby\Helper::acquireLock
-     * @covers Jobby\Helper::releaseLock
+     * @covers ::acquireLock
+     * @covers ::releaseLock
      */
     public function testAquireAndReleaseLock()
     {
-        $lockFile = $this->tmpDir . "/test.lock";
-
-        $this->helper->acquireLock($lockFile);
-        $this->helper->releaseLock($lockFile);
-        $this->helper->acquireLock($lockFile);
-        $this->helper->releaseLock($lockFile);
+        $this->helper->acquireLock($this->lockFile);
+        $this->helper->releaseLock($this->lockFile);
+        $this->helper->acquireLock($this->lockFile);
+        $this->helper->releaseLock($this->lockFile);
     }
 
     /**
-     * @covers Jobby\Helper::acquireLock
-     * @covers Jobby\Helper::releaseLock
+     * @covers ::acquireLock
+     * @covers ::releaseLock
      */
     public function testLockFileShouldContainCurrentPid()
     {
-        $lockFile = $this->tmpDir . "/test.lock";
+        $this->helper->acquireLock($this->lockFile);
+        $this->assertEquals(getmypid(), file_get_contents($this->lockFile));
 
-        $this->helper->acquireLock($lockFile);
-        $this->assertEquals(getmypid(), file_get_contents($lockFile));
-
-        $this->helper->releaseLock($lockFile);
-        $this->assertEquals("", file_get_contents($lockFile));
+        $this->helper->releaseLock($this->lockFile);
+        $this->assertEmpty(file_get_contents($this->lockFile));
     }
 
     /**
-     * @covers Jobby\Helper::getLockLifetime
+     * @covers ::getLockLifetime
      */
     public function testLockLifetimeShouldBeZeroIfFileDoesNotExists()
     {
-        $lockFile = $this->tmpDir . "/test.lock";
-        unlink($lockFile);
-        $this->assertFalse(file_exists($lockFile));
-        $this->assertEquals(0, $this->helper->getLockLifetime($lockFile));
+        unlink($this->lockFile);
+        $this->assertFalse(file_exists($this->lockFile));
+        $this->assertEquals(0, $this->helper->getLockLifetime($this->lockFile));
     }
 
     /**
-     * @covers Jobby\Helper::getLockLifetime
+     * @covers ::getLockLifetime
      */
     public function testLockLifetimeShouldBeZeroIfFileIsEmpty()
     {
-        $lockFile = $this->tmpDir . "/test.lock";
-        file_put_contents($lockFile, "");
-        $this->assertEquals(0, $this->helper->getLockLifetime($lockFile));
+        file_put_contents($this->lockFile, '');
+        $this->assertEquals(0, $this->helper->getLockLifetime($this->lockFile));
     }
 
     /**
-     * @covers Jobby\Helper::getLockLifetime
+     * @covers ::getLockLifetime
      */
     public function testLockLifetimeShouldBeZeroIfItContainsAInvalidPid()
     {
-        $lockFile = $this->tmpDir . "/test.lock";
-        file_put_contents($lockFile, "invalid-pid");
-        $this->assertEquals(0, $this->helper->getLockLifetime($lockFile));
+        file_put_contents($this->lockFile, 'invalid-pid');
+        $this->assertEquals(0, $this->helper->getLockLifetime($this->lockFile));
     }
 
     /**
-     * @covers Jobby\Helper::getLockLifetime
+     * @covers ::getLockLifetime
      */
     public function testGetLocklifetime()
     {
-        $lockFile = $this->tmpDir . "/test.lock";
+        $this->helper->acquireLock($this->lockFile);
 
-        $this->helper->acquireLock($lockFile);
-
-        $this->assertEquals(0, $this->helper->getLockLifetime($lockFile));
+        $this->assertEquals(0, $this->helper->getLockLifetime($this->lockFile));
         sleep(1);
-        $this->assertEquals(1, $this->helper->getLockLifetime($lockFile));
+        $this->assertEquals(1, $this->helper->getLockLifetime($this->lockFile));
         sleep(1);
-        $this->assertEquals(2, $this->helper->getLockLifetime($lockFile));
+        $this->assertEquals(2, $this->helper->getLockLifetime($this->lockFile));
 
-        $this->helper->releaseLock($lockFile);
+        $this->helper->releaseLock($this->lockFile);
     }
 
     /**
-     * @covers Jobby\Helper::releaseLock
+     * @covers ::releaseLock
+     * @expectedException \Jobby\Exception
      */
     public function testReleaseNonExistin()
     {
-        $lockFile = $this->tmpDir . "/test.lock";
-
-        $this->setExpectedException("Jobby\\Exception");
-        $this->helper->releaseLock($lockFile);
+        $this->helper->releaseLock($this->lockFile);
     }
 
     /**
-     * @covers Jobby\Helper::acquireLock
+     * @covers ::acquireLock
+     * @expectedException \Jobby\InfoException
      */
     public function testExceptionIfAquireFails()
     {
-        $lockFile = $this->tmpDir . "/test.lock";
-
-        $fh = fopen($lockFile, "r+");
+        $fh = fopen($this->lockFile, 'r+');
         $this->assertTrue(is_resource($fh));
 
         $res = flock($fh, LOCK_EX | LOCK_NB);
         $this->assertTrue($res);
 
-        $this->setExpectedException("Jobby\\InfoException");
-        $this->helper->acquireLock($lockFile);
+        $this->helper->acquireLock($this->lockFile);
     }
 
     /**
-     * @covers Jobby\Helper::acquireLock
+     * @covers ::acquireLock
+     * @expectedException \Jobby\Exception
      */
     public function testAquireLockShouldFailOnSecondTry()
     {
-        $lockFile = $this->tmpDir . "/test.lock";
-        $this->helper->acquireLock($lockFile);
-
-        $this->setExpectedException("Jobby\\Exception");
-        $this->helper->acquireLock($lockFile);
+        $this->helper->acquireLock($this->lockFile);
+        $this->helper->acquireLock($this->lockFile);
     }
 
     /**
-     * @covers Jobby\Helper::getTempDir
+     * @covers ::getTempDir
      */
     public function testGetTempDir()
     {
-        $valid = array(sys_get_temp_dir(), getcwd());
-        foreach (array("TMP", "TEMP", "TMPDIR") as $key) {
+        $valid = [sys_get_temp_dir(), getcwd()];
+        foreach (['TMP', 'TEMP', 'TMPDIR'] as $key) {
             if (!empty($_SERVER[$key])) {
                 $valid[] = $_SERVER[$key];
             }
@@ -246,18 +227,18 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Jobby\Helper::getApplicationEnv
+     * @covers ::getApplicationEnv
      */
     public function testGetApplicationEnv()
     {
-        $_SERVER["APPLICATION_ENV"] = "foo";
+        $_SERVER['APPLICATION_ENV'] = 'foo';
 
         $actual = $this->helper->getApplicationEnv();
-        $this->assertEquals("foo", $actual);
+        $this->assertEquals('foo', $actual);
     }
 
     /**
-     * @covers Jobby\Helper::getApplicationEnv
+     * @covers ::getApplicationEnv
      */
     public function testGetApplicationEnvShouldBeNullIfUndefined()
     {
@@ -266,41 +247,50 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Jobby\Helper::getHost
+     * @covers ::getHost
      */
     public function testGetHostname()
     {
         $actual = $this->helper->getHost();
-        $this->assertContains($actual, array(gethostname(), php_uname("n")));
+        $this->assertContains($actual, [gethostname(), php_uname('n')]);
     }
 
     /**
-     * @covers Jobby\Helper::sendMail
-     * @covers Jobby\Helper::getCurrentMailer
+     * @covers ::sendMail
+     * @covers ::getCurrentMailer
      */
     public function testSendMail()
     {
         $mailer = $this->getSwiftMailerMock();
         $mailer->expects($this->once())
-            ->method("send");
+            ->method('send')
+        ;
 
-        $jobby  = new Jobby();
+        $jobby = new Jobby();
         $config = $jobby->getDefaultConfig();
-        $config["output"]     = "output message";
-        $config["recipients"] = "a@a.com,b@b.com";
+        $config['output'] = 'output message';
+        $config['recipients'] = 'a@a.com,b@b.com';
 
         $helper = new Helper($mailer);
-        $mail = $helper->sendMail("job", $config, "message");
+        $mail = $helper->sendMail('job', $config, 'message');
 
         $host = $helper->getHost();
         $email = "jobby@$host";
-        $this->assertContains("job", $mail->getSubject());
+        $this->assertContains('job', $mail->getSubject());
         $this->assertContains("[$host]", $mail->getSubject());
         $this->assertEquals(1, count($mail->getFrom()));
-        $this->assertEquals("jobby", current($mail->getFrom()));
+        $this->assertEquals('jobby', current($mail->getFrom()));
         $this->assertEquals($email, current(array_keys($mail->getFrom())));
         $this->assertEquals($email, current(array_keys($mail->getSender())));
-        $this->assertContains($config["output"], $mail->getBody());
-        $this->assertContains("message", $mail->getBody());
+        $this->assertContains($config['output'], $mail->getBody());
+        $this->assertContains('message', $mail->getBody());
+    }
+
+    /**
+     * @return \Swift_Mailer
+     */
+    private function getSwiftMailerMock()
+    {
+        return $this->getMock('Swift_Mailer', [], [\Swift_NullTransport::newInstance()]);
     }
 }

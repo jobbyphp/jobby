@@ -7,11 +7,11 @@ use Jobby\Helper;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @covers Jobby\BackgroundJob
+ * @coversDefaultClass Jobby\BackgroundJob
  */
 class BackgroundJobTest extends \PHPUnit_Framework_TestCase
 {
-    const JOB_NAME = "name";
+    const JOB_NAME = 'name';
 
     /**
      * @var string
@@ -19,151 +19,74 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     private $logFile;
 
     /**
-     * @return string
-     */
-    private function getLogContent()
-    {
-        return @file_get_contents($this->logFile);
-    }
-
-    /**
-     *
+     * {@inheritdoc}
      */
     protected function setUp()
     {
         $this->logFile = __DIR__ . '/_files/BackgroundJobTest.log';
-        !file_exists($this->logFile) || unlink($this->logFile);
+        if (file_exists($this->logFile)) {
+            unlink($this->logFile);
+        }
     }
 
     /**
-     *
+     * {@inheritdoc}
      */
     protected function tearDown()
     {
-        !file_exists($this->logFile) || unlink($this->logFile);
-    }
-
-    /**
-     * @param array $config
-     * @param Helper $helper
-     */
-    private function runJob(array $config, Helper $helper = null)
-    {
-        $config = $this->getJobConfig($config);
-
-        $job = new BackgroundJob(self::JOB_NAME, $config, $helper);
-        $job->run();
-    }
-
-    /**
-     * @param array $config
-     * @return array
-     */
-    private function getJobConfig(array $config)
-    {
-        $helper = new Helper();
-
-        if ($config['command'] instanceof \Closure) {
-            $config['command'] = $helper->closureToString($config['command']);
+        if (file_exists($this->logFile)) {
+            unlink($this->logFile);
         }
+    }
 
-        return array_merge(
-            array(
-                "enabled" => 1,
-                "haltDir" => null,
-                "runOnHost" => $helper->getHost(),
-                "dateFormat" => "Y-m-d H:i:s",
-                "schedule" => "* * * * *",
-                "output" => $this->logFile,
-                "maxRuntime" => null
-            ),
-            $config
-        );
+    public function runProvider()
+    {
+        $echo = function () {
+            echo 'test';
+
+            return true;
+        };
+        $uid = function () {
+            echo getmyuid();
+
+            return true;
+        };
+        $job = ['command' => $echo];
+
+        return [
+            'diabled, not run'       => [$job + ['enabled' => false], ''],
+            'cron schedule, not run' => [$job + ['schedule' => '0 0 1 1 *'], ''],
+            'date time, not run'     => [$job + ['schedule' => date('Y-m-d H:i:s', strtotime('tomorrow'))], ''],
+            'date time, run'         => [$job + ['schedule' => date('Y-m-d H:i:s')], 'test'],
+            'wrong host, not run'    => [$job + ['runOnHost' => 'something that does not match'], ''],
+            'current user, run,'     => [['command' => $uid], getmyuid()],
+        ];
     }
 
     /**
-     * @covers Jobby\BackgroundJob::run
+     * @dataProvider runProvider
+     *
+     * @covers ::run
+     *
+     * @param array  $config
+     * @param string $expectedOutput
      */
-    public function testShouldNotRunIfNotEnabled()
+    public function testRun($config, $expectedOutput)
     {
-        $this->runJob(array(
-            "command" => function() { echo "test"; return true; },
-            "enabled" => false
-        ));
+        $this->runJob($config);
 
-        $this->assertEquals("", $this->getLogContent());
+        $this->assertEquals($expectedOutput, $this->getLogContent());
     }
 
     /**
-     * @covers Jobby\BackgroundJob::run
-     */
-    public function testShouldNotRunIfNotDue()
-    {
-        $this->runJob(array(
-            "command" => function() { echo "test"; return true; },
-            "schedule" => "0 0 1 1 *"
-        ));
-
-        $this->assertEquals("", $this->getLogContent());
-    }
-
-    /**
-     * @covers Jobby\BackgroundJob::run
-     */
-    public function testShouldNotRunDateTime()
-    {
-        $this->runJob(array(
-            "command" => function() { echo "test"; return true; },
-            "schedule" => date('Y-m-d H:i:s', strtotime('tomorrow'))
-        ));
-
-        $this->assertEquals("", $this->getLogContent());
-    }
-
-    public function testShouldRunDateTime()
-    {
-        $this->runJob(array(
-            "command" => function() { echo "test"; return true; },
-            "schedule" => date('Y-m-d H:i:s')
-        ));
-
-        $this->assertEquals("test", $this->getLogContent());
-    }
-
-    /**
-     * @covers Jobby\BackgroundJob::run
-     */
-    public function testShouldNotRunOnWrongHost()
-    {
-        $this->runJob(array(
-            "command" => function() { echo "test"; return true; },
-            "runOnHost" => "something that does not match"
-        ));
-
-        $this->assertEquals("", $this->getLogContent());
-    }
-
-    /**
-     * @covers Jobby\BackgroundJob::run
-     */
-    public function testShouldRunAsCurrentUser()
-    {
-        $this->runJob(array(
-            "command" => function() { echo getmyuid(); return true; }
-        ));
-
-        $this->assertEquals(getmyuid(), $this->getLogContent());
-    }
-
-    /**
-     * @covers Jobby\BackgroundJob::runFile
+     * @covers ::runFile
      */
     public function testInvalidCommand()
     {
-        $this->runJob(array("command" => "invalid-command"));
+        $this->runJob(['command' => 'invalid-command']);
 
-        $this->assertContains("invalid-command", $this->getLogContent());
-        $this->assertContains("not found", $this->getLogContent());
+        $this->assertContains('invalid-command', $this->getLogContent());
+        $this->assertContains('not found', $this->getLogContent());
         $this->assertContains(
             "ERROR: Job exited with status '127'",
             $this->getLogContent()
@@ -171,11 +94,17 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Jobby\BackgroundJob::runFunction
+     * @covers ::runFunction
      */
     public function testClosureNotReturnTrue()
     {
-        $this->runJob(array("command" => function() { return false; }));
+        $this->runJob(
+            [
+                'command' => function () {
+                    return false;
+                },
+            ]
+        );
 
         $this->assertContains(
             'ERROR: Closure did not return true! Returned:',
@@ -184,31 +113,39 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Jobby\BackgroundJob::getLogFile
+     * @covers ::getLogFile
      */
     public function testHideStdOutByDefault()
     {
         ob_start();
-        $this->runJob(array(
-            "command" => function() { echo "foo bar"; },
-            "output" => null
-        ));
+        $this->runJob(
+            [
+                'command' => function () {
+                    echo 'foo bar';
+                },
+                'output'  => null,
+            ]
+        );
         $content = ob_get_contents();
         ob_end_clean();
 
-        $this->assertEquals("", $content);
+        $this->assertEmpty($content);
     }
 
     /**
-     * @covers Jobby\BackgroundJob::getLogFile
+     * @covers ::getLogFile
      */
     public function testShouldCreateLogFolder()
     {
-        $logfile = dirname($this->logFile) . "/foo/bar.log";
-        $this->runJob(array(
-            "command" => function() { echo "foo bar"; },
-            "output" => $logfile
-        ));
+        $logfile = dirname($this->logFile) . '/foo/bar.log';
+        $this->runJob(
+            [
+                'command' => function () {
+                    echo 'foo bar';
+                },
+                'output'  => $logfile,
+            ]
+        );
 
         $dirExists = file_exists(dirname($logfile));
         $isDir = is_dir(dirname($logfile));
@@ -221,132 +158,184 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Jobby\BackgroundJob::mail
+     * @covers ::mail
      */
     public function testNotSendMailOnMissingRecipients()
     {
-        $helper = $this->getMock("Jobby\Helper", array("sendMail"));
+        $helper = $this->getMock('Jobby\Helper', ['sendMail']);
         $helper->expects($this->never())
-            ->method("sendMail");
+            ->method('sendMail')
+        ;
 
         $this->runJob(
-            array(
-                "command" => function() { return false; },
-                "recipients" => ""
-            ),
+            [
+                'command'    => function () {
+                    return false;
+                },
+                'recipients' => '',
+            ],
             $helper
         );
     }
 
     /**
-     * @covers Jobby\BackgroundJob::mail
+     * @covers ::mail
      */
-    public function testMailShoudTriggerHelper()
+    public function testMailShouldTriggerHelper()
     {
-        $helper = $this->getMock("Jobby\Helper", array("sendMail"));
+        $helper = $this->getMock('Jobby\Helper', ['sendMail']);
         $helper->expects($this->once())
-            ->method("sendMail");
+            ->method('sendMail')
+        ;
 
         $this->runJob(
-            array(
-                "command" => function() { return false; },
-                "recipients" => "test@example.com"
-            ),
+            [
+                'command'    => function () {
+                    return false;
+                },
+                'recipients' => 'test@example.com',
+            ],
             $helper
         );
     }
 
     /**
-     * @covers Jobby\BackgroundJob::checkMaxRuntime
+     * @covers ::checkMaxRuntime
      */
     public function testCheckMaxRuntime()
     {
-        $helper = $this->getMock("Jobby\Helper", array("getLockLifetime"));
+        $helper = $this->getMock('Jobby\Helper', ['getLockLifetime']);
         $helper->expects($this->once())
-            ->method("getLockLifetime")
-            ->will($this->returnValue(0));
+            ->method('getLockLifetime')
+            ->will($this->returnValue(0))
+        ;
 
         $this->runJob(
-            array(
-                "command" => "true",
-                "maxRuntime" => 1
-            ),
+            [
+                'command'    => 'true',
+                'maxRuntime' => 1,
+            ],
             $helper
         );
 
-        $this->assertEquals("", $this->getLogContent());
+        $this->assertEmpty($this->getLogContent());
     }
 
     /**
-     * @covers Jobby\BackgroundJob::checkMaxRuntime
+     * @covers ::checkMaxRuntime
      */
     public function testCheckMaxRuntimeShouldFailIsExceeded()
     {
-        $helper = $this->getMock("Jobby\Helper", array("getLockLifetime"));
+        $helper = $this->getMock('Jobby\Helper', ['getLockLifetime']);
         $helper->expects($this->once())
-            ->method("getLockLifetime")
-            ->will($this->returnValue(2));
+            ->method('getLockLifetime')
+            ->will($this->returnValue(2))
+        ;
 
         $this->runJob(
-            array(
-                "command" => "true",
-                "maxRuntime" => 1
-            ),
+            [
+                'command'    => 'true',
+                'maxRuntime' => 1,
+            ],
             $helper
         );
 
         $this->assertContains(
-            "MaxRuntime of 1 secs exceeded! Current runtime: 2 secs",
+            'MaxRuntime of 1 secs exceeded! Current runtime: 2 secs',
             $this->getLogContent()
         );
     }
 
     /**
-     * @dataProvider provideHaltDirTests
-     * @covers Jobby\BackgroundJob::shouldRun
+     * @dataProvider haltDirProvider
+     * @covers       ::shouldRun
+     *
+     * @param bool $createFile
+     * @param bool $jobRuns
      */
-    public function testHaltDir($create_file, $job_runs)
+    public function testHaltDir($createFile, $jobRuns)
     {
-        #> Given
+        $dir = __DIR__ . '/_files';
+        $file = $dir . '/' . static::JOB_NAME;
 
-        $temptation = new \Icecave\Temptation\Temptation;
-        $temp_dir = $temptation->createDirectory();
-        $fs = new Filesystem;
+        $fs = new Filesystem();
 
-        $flag_file_pathname =
-            $temp_dir->path() . DIRECTORY_SEPARATOR . self::JOB_NAME;
-
-        if ($create_file) {
-            $fs->touch($flag_file_pathname);
+        if ($createFile) {
+            $fs->touch($file);
         }
 
-        #> When
+        $this->runJob(
+            [
+                'haltDir' => $dir,
+                'command' => function () {
+                    echo 'test';
 
-        $this->runJob(array(
-            "haltDir" => $temp_dir->path(),
-            "command" => function() { echo "test"; return true; },
-        ));
-
-        #> Then
-
-        $this->assertEquals(
-            $job_runs,
-            is_string($this->getLogContent()) &&
-                "" !== $this->getLogContent()
+                    return true;
+                },
+            ]
         );
 
-        #> Clean up
-
-        if ($create_file) {
-            $fs->remove($flag_file_pathname);
+        if ($createFile) {
+            $fs->remove($file);
         }
+
+        $content = $this->getLogContent();
+        $this->assertEquals($jobRuns, is_string($content) && !empty($content));
     }
 
-    public function provideHaltDirTests()
+    public function haltDirProvider()
     {
-        return array(
-            array(true, false),
-            array(false, true),
+        return [
+            [true, false],
+            [false, true],
+        ];
+    }
+
+    /**
+     * @param array  $config
+     * @param Helper $helper
+     */
+    private function runJob(array $config, Helper $helper = null)
+    {
+        $config = $this->getJobConfig($config);
+
+        $job = new BackgroundJob(self::JOB_NAME, $config, $helper);
+        $job->run();
+    }
+
+    /**
+     * @param array $config
+     *
+     * @return array
+     */
+    private function getJobConfig(array $config)
+    {
+        $helper = new Helper();
+
+        if ($config['command'] instanceof \Closure) {
+            $config['command'] = $helper->closureToString($config['command']);
+        }
+
+        return array_merge(
+            [
+                'enabled'    => 1,
+                'haltDir'    => null,
+                'runOnHost'  => $helper->getHost(),
+                'dateFormat' => 'Y-m-d H:i:s',
+                'schedule'   => '* * * * *',
+                'output'     => $this->logFile,
+                'maxRuntime' => null,
+                'runAs'      => null,
+            ],
+            $config
         );
+    }
+
+    /**
+     * @return string
+     */
+    private function getLogContent()
+    {
+        return @file_get_contents($this->logFile);
     }
 }
