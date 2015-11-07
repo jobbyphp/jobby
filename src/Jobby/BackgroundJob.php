@@ -288,23 +288,26 @@ class BackgroundJob
 // run this file, if executed directly
 // @see: http://stackoverflow.com/questions/2413991/php-equivalent-of-pythons-name-main
 // @codeCoverageIgnoreStart
-if (!debug_backtrace()) {
-    if (file_exists('vendor/autoload.php')) {
-        require_once 'vendor/autoload.php';
-    } else {
-        require_once dirname(dirname(dirname(dirname(dirname(__DIR__))))) . '/vendor/autoload.php';
-    }
-
-    spl_autoload_register(
-        function ($class) {
-            $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
-            require dirname(__DIR__) . "/{$class}.php";
-        }
-    );
-
-    global $argv;
-    parse_str($argv[2], $config);
-    $job = new BackgroundJob($argv[1], $config);
-    $job->run();
+$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+if (!empty($trace)) {
+    return;
 }
+
+if (file_exists('vendor/autoload.php')) {
+    require_once 'vendor/autoload.php';
+} else {
+    require_once dirname(dirname(dirname(dirname(dirname(__DIR__))))) . '/vendor/autoload.php';
+}
+
+spl_autoload_register(
+    function ($class) {
+        $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+        require dirname(__DIR__) . "/{$class}.php";
+    }
+);
+
+global $argv;
+parse_str($argv[2], $config);
+$job = new BackgroundJob($argv[1], $config);
+$job->run();
 // @codeCoverageIgnoreEnd
