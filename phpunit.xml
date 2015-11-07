@@ -12,17 +12,12 @@
          bootstrap="vendor/autoload.php">
 
     <testsuite name="Jobby">
-        <directory suffix="Test.php">./tests</directory>
+        <directory>tests</directory>
     </testsuite>
 
     <filter>
         <whitelist>
-            <directory>./</directory>
-            <exclude>
-                <directory>./tests</directory>
-                <directory>./vendor</directory>
-                <directory>./resources</directory>
-            </exclude>
+            <directory>src</directory>
         </whitelist>
     </filter>
 </phpunit>
