@@ -5,15 +5,12 @@ namespace Jobby;
 use SuperClosure\SerializableClosure;
 use Symfony\Component\Process\PhpExecutableFinder;
 
-/**
- *
- */
 class Jobby
 {
     /**
      * @var array
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var string
@@ -23,7 +20,7 @@ class Jobby
     /**
      * @var array
      */
-    protected $jobs = array();
+    protected $jobs = [];
 
     /**
      * @var Helper
@@ -33,7 +30,7 @@ class Jobby
     /**
      * @param array $config
      */
-    public function __construct(array $config = array())
+    public function __construct(array $config = [])
     {
         $this->setConfig($this->getDefaultConfig());
         $this->setConfig($config);
@@ -58,26 +55,26 @@ class Jobby
      */
     public function getDefaultConfig()
     {
-        return array(
-            'recipients' => null,
-            'mailer' => 'sendmail',
-            'maxRuntime' => null,
-            'smtpHost' => null,
-            'smtpPort' => 25,
-            'smtpUsername' => null,
-            'smtpPassword' => null,
-            'smtpSender' => 'jobby@' . $this->getHelper()->getHost(),
+        return [
+            'recipients'     => null,
+            'mailer'         => 'sendmail',
+            'maxRuntime'     => null,
+            'smtpHost'       => null,
+            'smtpPort'       => 25,
+            'smtpUsername'   => null,
+            'smtpPassword'   => null,
+            'smtpSender'     => 'jobby@' . $this->getHelper()->getHost(),
             'smtpSenderName' => 'jobby',
-            'smtpSecurity' => null,
-            'runAs' => null,
-            'environment' => $this->getHelper()->getApplicationEnv(),
-            'runOnHost' => $this->getHelper()->getHost(),
-            'output' => null,
-            'dateFormat' => 'Y-m-d H:i:s',
-            'enabled' => true,
-            'haltDir' => null,
-            'debug' => false,
-        );
+            'smtpSecurity'   => null,
+            'runAs'          => null,
+            'environment'    => $this->getHelper()->getApplicationEnv(),
+            'runOnHost'      => $this->getHelper()->getHost(),
+            'output'         => null,
+            'dateFormat'     => 'Y-m-d H:i:s',
+            'enabled'        => true,
+            'haltDir'        => null,
+            'debug'          => false,
+        ];
     }
 
     /**
@@ -97,13 +94,16 @@ class Jobby
     }
 
     /**
-     * @param $job
-     * @param array $config
+     * Add a job.
+     *
+     * @param string $job
+     * @param array  $config
+     *
      * @throws Exception
      */
     public function add($job, array $config)
     {
-        foreach (array("command", "schedule") as $field) {
+        foreach (['command', 'schedule'] as $field) {
             if (empty($config[$field])) {
                 throw new Exception("'$field' is required for '$job' job");
             }
@@ -114,14 +114,14 @@ class Jobby
     }
 
     /**
-     *
+     * Run all jobs.
      */
     public function run()
     {
         $isUnix = ($this->helper->getPlatform() === Helper::UNIX);
 
         if ($isUnix && !extension_loaded('posix')) {
-            throw new Exception("'posix' extension is required");
+            throw new Exception('posix extension is required');
         }
 
         foreach ($this->jobs as $job => $config) {
@@ -135,26 +135,21 @@ class Jobby
 
     /**
      * @param string $job
-     * @param array $config
+     * @param array  $config
      */
     protected function runUnix($job, array $config)
     {
-        if ($config['debug']) {
-            $output = 'debug.log';
-        } else {
-            $output = '/dev/null';
-        }
-
         $command = $this->getExecutableCommand($job, $config);
         $binary = $this->getPhpBinary();
 
+        $output = $config['debug'] ? 'debug.log' : '/dev/null';
         exec("$binary $command 1> $output 2>&1 &");
     }
 
     // @codeCoverageIgnoreStart
     /**
      * @param string $job
-     * @param array $config
+     * @param array  $config
      */
     protected function runWindows($job, array $config)
     {
@@ -168,7 +163,8 @@ class Jobby
 
     /**
      * @param string $job
-     * @param array $config
+     * @param array  $config
+     *
      * @return string
      */
     protected function getExecutableCommand($job, array $config)
@@ -180,18 +176,18 @@ class Jobby
             // Convert closures to its source code as a string so that we
             // can send it on the command line.
             $config['command'] = $this->getHelper()
-                ->closureToString($config['command']);
+                ->closureToString($config['command'])
+            ;
         }
 
-        $configQuery = http_build_query($config);
-        return "\"$this->script\" \"$job\" \"$configQuery\"";
+        return sprintf('"%s" "%s" "%s"', $this->script, $job, http_build_query($config));
     }
-
 
     /**
      * @return false|string
      */
-    protected function getPhpBinary() {
+    protected function getPhpBinary()
+    {
         $executableFinder = new PhpExecutableFinder();
 
         return $executableFinder->find();

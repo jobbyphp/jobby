@@ -6,7 +6,7 @@
 // * * * * * cd /path/to/project && php jobby.php 1>> /dev/null 2>&1
 //
 
-require(__DIR__ . '/vendor/autoload.php');
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $jobby = new \Jobby\Jobby();
 

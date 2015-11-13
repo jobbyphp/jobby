@@ -16,19 +16,23 @@
   ],
   "require": {
     "php": ">=5.4",
-    "mtdowling/cron-expression": "1.0.*",
-    "swiftmailer/swiftmailer": "5.4.*",
-    "jeremeamia/superclosure": "2.1.*",
-    "symfony/process": "2.7.*"
+    "mtdowling/cron-expression": "^1.0",
+    "swiftmailer/swiftmailer": "^5.4",
+    "jeremeamia/superclosure": "^2.1",
+    "symfony/process": "^2.7"
   },
   "require-dev": {
-    "icecave/temptation": "1.*",
-    "phpunit/phpunit": "~4.6",
-    "symfony/filesystem": "2.7.*"
+    "phpunit/phpunit": "^4.6",
+    "symfony/filesystem": "^2.7"
   },
   "autoload": {
-    "psr-0": {
-      "Jobby": "src/"
+    "psr-4": {
+      "Jobby\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Jobby\\Tests\\": "tests"
     }
   }
 }
