@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/michaelcontento/jobby.png)](http://travis-ci.org/michaelcontento/jobby)
+[![Build Status](https://secure.travis-ci.org/hellogerard/jobby.png)](http://travis-ci.org/hellogerard/jobby)
 
 `Jobby` is a PHP cron job manager. Install the master jobby cron job, and it will
 manage all your offline tasks. Add jobs without modifying crontab. Jobby can
