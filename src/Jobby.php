@@ -35,7 +35,7 @@ class Jobby
         $this->setConfig($this->getDefaultConfig());
         $this->setConfig($config);
 
-        $this->script = __DIR__ . DIRECTORY_SEPARATOR . 'BackgroundJob.php';
+        $this->script = realpath(__DIR__ . '/../bin/run-job');
     }
 
     /**
@@ -56,6 +56,7 @@ class Jobby
     public function getDefaultConfig()
     {
         return [
+            'jobClass'       => 'Jobby\BackgroundJob',
             'recipients'     => null,
             'mailer'         => 'sendmail',
             'maxRuntime'     => null,
