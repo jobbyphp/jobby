@@ -4,6 +4,7 @@ namespace Jobby\Tests;
 
 use Jobby\BackgroundJob;
 use Jobby\Helper;
+use Jobby\SerializerTrait;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -11,6 +12,8 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class BackgroundJobTest extends \PHPUnit_Framework_TestCase
 {
+    use SerializerTrait;
+
     const JOB_NAME = 'name';
 
     /**
@@ -51,7 +54,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
 
             return true;
         };
-        $job = ['command' => $echo];
+        $job = ['closure' => $echo];
 
         return [
             'diabled, not run'       => [$job + ['enabled' => false], ''],
@@ -59,7 +62,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
             'date time, not run'     => [$job + ['schedule' => date('Y-m-d H:i:s', strtotime('tomorrow'))], ''],
             'date time, run'         => [$job + ['schedule' => date('Y-m-d H:i:s')], 'test'],
             'wrong host, not run'    => [$job + ['runOnHost' => 'something that does not match'], ''],
-            'current user, run,'     => [['command' => $uid], getmyuid()],
+            'current user, run,'     => [['closure' => $uid], getmyuid()],
         ];
     }
 
@@ -100,7 +103,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     {
         $this->runJob(
             [
-                'command' => function () {
+                'closure' => function () {
                     return false;
                 },
             ]
@@ -120,7 +123,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         ob_start();
         $this->runJob(
             [
-                'command' => function () {
+                'closure' => function () {
                     echo 'foo bar';
                 },
                 'output'  => null,
@@ -140,7 +143,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         $logfile = dirname($this->logFile) . '/foo/bar.log';
         $this->runJob(
             [
-                'command' => function () {
+                'closure' => function () {
                     echo 'foo bar';
                 },
                 'output'  => $logfile,
@@ -169,7 +172,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
 
         $this->runJob(
             [
-                'command'    => function () {
+                'closure'    => function () {
                     return false;
                 },
                 'recipients' => '',
@@ -190,7 +193,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
 
         $this->runJob(
             [
-                'command'    => function () {
+                'closure'    => function () {
                     return false;
                 },
                 'recipients' => 'test@example.com',
@@ -267,7 +270,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         $this->runJob(
             [
                 'haltDir' => $dir,
-                'command' => function () {
+                'closure' => function () {
                     echo 'test';
 
                     return true;
@@ -312,8 +315,8 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     {
         $helper = new Helper();
 
-        if ($config['command'] instanceof \Closure) {
-            $config['command'] = $helper->closureToString($config['command']);
+        if (isset($config['closure'])) {
+            $config['closure'] = $this->getSerializer()->serialize($config['closure']);
         }
 
         return array_merge(

@@ -2,11 +2,14 @@
 
 namespace Jobby;
 
+use Closure;
 use SuperClosure\SerializableClosure;
 use Symfony\Component\Process\PhpExecutableFinder;
 
 class Jobby
 {
+    use SerializerTrait;
+
     /**
      * @var array
      */
@@ -104,9 +107,25 @@ class Jobby
      */
     public function add($job, array $config)
     {
-        foreach (['command', 'schedule'] as $field) {
-            if (empty($config[$field])) {
-                throw new Exception("'$field' is required for '$job' job");
+        if (empty($config['schedule'])) {
+            throw new Exception("'schedule' is required for '$job' job");
+        }
+
+        if (!(isset($config['command']) xor isset($config['closure']))) {
+            throw new Exception("Either 'command' or 'closure' is required for '$job' job");
+        }
+
+        if (isset($config['command']) &&
+            (
+                $config['command'] instanceof Closure ||
+                $config['command'] instanceof SerializableClosure
+            )
+        ) {
+            $config['closure'] = $config['command'];
+            unset($config['command']);
+
+            if ($config['closure'] instanceof SerializableClosure) {
+                $config['closure'] = $config['closure']->getClosure();
             }
         }
 
@@ -170,17 +189,9 @@ class Jobby
      */
     protected function getExecutableCommand($job, array $config)
     {
-        if ($config['command'] instanceof SerializableClosure) {
-            $config['command'] = serialize($config['command']);
-
-        } else if ($config['command'] instanceof \Closure) {
-            // Convert closures to its source code as a string so that we
-            // can send it on the command line.
-            $config['command'] = $this->getHelper()
-                ->closureToString($config['command'])
-            ;
+        if (isset($config['closure'])) {
+            $config['closure'] = $this->getSerializer()->serialize($config['closure']);
         }
-
         return sprintf('"%s" "%s" "%s"', $this->script, $job, http_build_query($config));
     }
 
