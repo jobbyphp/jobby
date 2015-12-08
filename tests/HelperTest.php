@@ -71,26 +71,6 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::closureToString
-     */
-    public function testClosureToString()
-    {
-        $closure = function ($args) {
-            return $args . 'bar';
-        };
-
-        $serialized = $this->helper->closureToString($closure);
-
-        /** @var \Closure $actual */
-        $actual = @unserialize($serialized);
-        $actual = $actual('foo');
-
-        $expected = $closure('foo');
-
-        $this->assertEquals($expected, $actual);
-    }
-
-    /**
      * @covers ::getPlatform
      */
     public function testGetPlatform()

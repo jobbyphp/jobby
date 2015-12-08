@@ -1,8 +1,6 @@
 <?php
 namespace Jobby;
 
-use SuperClosure\SerializableClosure;
-
 class Helper
 {
     /**
@@ -223,18 +221,6 @@ EOF;
         } else {
             return self::UNIX;
         }
-    }
-
-    /**
-     * @param \Closure $fn
-     *
-     * @return string
-     */
-    public function closureToString(\Closure $fn)
-    {
-        $code = new SerializableClosure($fn);
-
-        return serialize($code);
     }
 
     /**
