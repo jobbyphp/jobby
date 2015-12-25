@@ -181,7 +181,7 @@ class Jobby
         }
 
         if (strpos(__DIR__, 'phar://') === 0) {
-            return sprintf(' -r \'define("JOBBY_RUN_JOB",1);include("%s");\' "$s" "$s"', $this->script, $job, http_build_query($config));
+            return sprintf(' -r \'define("JOBBY_RUN_JOB",1);include("%s");\' "%s" "%s"', $this->script, $job, http_build_query($config));
         }
         return sprintf('"%s" "%s" "%s"', $this->script, $job, http_build_query($config));
     }
