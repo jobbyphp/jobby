@@ -289,7 +289,7 @@ class BackgroundJob
 // @see: http://stackoverflow.com/questions/2413991/php-equivalent-of-pythons-name-main
 // @codeCoverageIgnoreStart
 $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-if (!empty($trace)) {
+if (!empty($trace) and !defined('JOBBY_RUN_JOB')) {
     return;
 }
 
