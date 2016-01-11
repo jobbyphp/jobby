@@ -12,7 +12,7 @@ with `git remote set-url origin https://github.com/jobbyphp/jobby.git`.
 1. Install [`composer`](<http://getcomposer.org>).
 2. Add `jobby` to your `composer.json`.
 
-  `'jobbyphp/jobby': 'dev-master'`
+  `'hellogerard/jobby': 'dev-master'`
 
 3. Run `composer install`.
 4. Add the following line to your (or whomever's) crontab:
@@ -21,7 +21,7 @@ with `git remote set-url origin https://github.com/jobbyphp/jobby.git`.
 
 After `jobby` installs, you can copy an example jobby file to the project root.
 
-  `% cp vendor/jobbyphp/jobby/resources/jobby.php .`
+  `% cp vendor/hellogerard/jobby/resources/jobby.php .`
 
 ## Usage ##
 
