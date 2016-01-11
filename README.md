@@ -1,15 +1,18 @@
-[![Build Status](https://secure.travis-ci.org/hellogerard/jobby.png)](http://travis-ci.org/hellogerard/jobby)
+[![Build Status](https://secure.travis-ci.org/jobbyphp/jobby.png)](http://travis-ci.org/jobbyphp/jobby)
 
 `Jobby` is a PHP cron job manager. Install the master jobby cron job, and it will
 manage all your offline tasks. Add jobs without modifying crontab. Jobby can
 handle logging, locking, error emails and more.
+
+**NEW REPO:** We have moved `jobby` to a Github org. Please update your remotes
+with `git remote set-url origin https://github.com/jobbyphp/jobby.git`.
 
 ## Install ##
 
 1. Install [`composer`](<http://getcomposer.org>).
 2. Add `jobby` to your `composer.json`.
 
-  `'hellogerard/jobby': 'dev-master'`
+  `'jobbyphp/jobby': 'dev-master'`
 
 3. Run `composer install`.
 4. Add the following line to your (or whomever's) crontab:
@@ -18,7 +21,7 @@ handle logging, locking, error emails and more.
 
 After `jobby` installs, you can copy an example jobby file to the project root.
 
-  `% cp vendor/hellogerard/jobby/resources/jobby.php .`
+  `% cp vendor/jobbyphp/jobby/resources/jobby.php .`
 
 ## Usage ##
 
