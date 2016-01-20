@@ -192,6 +192,12 @@ class Jobby
         if (isset($config['closure'])) {
             $config['closure'] = $this->getSerializer()->serialize($config['closure']);
         }
+
+        if (strpos(__DIR__, 'phar://') === 0) {
+            $script = __DIR__ . DIRECTORY_SEPARATOR . 'BackgroundJob.php';
+            return sprintf(' -r \'define("JOBBY_RUN_JOB",1);include("%s");\' "%s" "%s"', $script, $job, http_build_query($config));
+        }
+
         return sprintf('"%s" "%s" "%s"', $this->script, $job, http_build_query($config));
     }
 
