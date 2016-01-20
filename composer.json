@@ -1,6 +1,6 @@
 {
   "name": "hellogerard/jobby",
-  "homepage": "https://github.com/hellogerard/jobby",
+  "homepage": "https://github.com/jobbyphp/jobby",
   "license": "MIT",
   "description": "Manage all your cron jobs without modifying crontab. Handles locking, logging, error emails, and more.",
   "authors": [

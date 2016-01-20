@@ -7,6 +7,9 @@
 Install the master jobby cron job, and it will manage all your offline tasks. Add jobs without modifying crontab.
 Jobby can handle logging, locking, error emails and more.
 
+**NEW REPO:** We have moved `jobby` to a Github org. Please update your remotes
+with `git remote set-url origin https://github.com/jobbyphp/jobby.git`.
+
 ## Features ##
 
 - Maintain one master crontab job.
