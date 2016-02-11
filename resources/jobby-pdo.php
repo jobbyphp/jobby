@@ -68,8 +68,9 @@ $secondJobFn = function() {
     echo "I'm a function (" . date('Y-m-d H:i:s') . ')!' . PHP_EOL;
     return true;
 };
-$secondJobFnSerializable = new \SuperClosure\SerializableClosure($secondJobFn);
-$secondJobFnSerialized = serialize($secondJobFnSerializable);
+$serializer = new SuperClosure\Serializer();
+
+$secondJobFnSerialized = $serializer->serialize($secondJobFn);
 $insertCronJobConfiguration->execute(
     ['ClosureExample', $secondJobFnSerialized, '* * * * *', 'logs/closure-pdo.log']
 );
@@ -89,11 +90,10 @@ foreach ($jobbies as $job) {
     // Filter out each value, which is not set (for example, "maxRuntime" is not defined in the job).
     $job = array_filter($job);
 
-    $commandUnserialized = @unserialize($job['command']);
-    if (false !== $commandUnserialized) {
-        assert($commandUnserialized instanceof \SuperClosure\SerializableClosure);
-
-        $job['command'] = $commandUnserialized;
+    try {
+        $job['closure'] = $serializer->unserialize($job['command']);
+        unset($job['command']);
+    } catch (SuperClosure\Exception\ClosureUnserializationException $e) {
     }
 
     $jobName = $job['name'];

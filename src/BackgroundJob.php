@@ -3,10 +3,11 @@
 namespace Jobby;
 
 use Cron\CronExpression;
-use SuperClosure\SerializableClosure;
 
 class BackgroundJob
 {
+    use SerializerTrait;
+
     /**
      * @var Helper
      */
@@ -83,7 +84,7 @@ class BackgroundJob
             $this->helper->acquireLock($lockFile);
             $lockAcquired = true;
 
-            if ($this->isFunction()) {
+            if (isset($this->config['closure'])) {
                 $this->runFunction();
             } else {
                 $this->runFile();
@@ -227,24 +228,9 @@ class BackgroundJob
         }
     }
 
-    /**
-     * @return bool
-     */
-    protected function isFunction()
-    {
-        $cmd = @unserialize($this->config['command']);
-
-        if ($cmd === false) {
-            return false;
-        }
-
-        return is_object($cmd) && $cmd instanceof SerializableClosure;
-    }
-
     protected function runFunction()
     {
-        /** @var SerializableClosure $command */
-        $command = unserialize($this->config['command']);
+        $command = $this->getSerializer()->unserialize($this->config['closure']);
 
         ob_start();
         $retval = $command();
