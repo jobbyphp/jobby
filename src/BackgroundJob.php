@@ -284,23 +284,3 @@ class BackgroundJob
         }
     }
 }
-
-// run this file, if executed directly
-// @see: http://stackoverflow.com/questions/2413991/php-equivalent-of-pythons-name-main
-// @codeCoverageIgnoreStart
-$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-if (!empty($trace)) {
-    return;
-}
-
-if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    require_once __DIR__ . '/../vendor/autoload.php';
-} else {
-    require_once __DIR__ . '/../../../autoload.php';
-}
-
-global $argv;
-parse_str($argv[2], $config);
-$job = new BackgroundJob($argv[1], $config);
-$job->run();
-// @codeCoverageIgnoreEnd
