@@ -233,7 +233,11 @@ class BackgroundJob
         $command = $this->getSerializer()->unserialize($this->config['closure']);
 
         ob_start();
-        $retval = $command();
+        try {
+            $retval = $command();
+        } catch (\Throwable $e) {
+            echo "Error! " . $e->getMessage() . "\n";
+        }
         $content = ob_get_contents();
         if ($logfile = $this->getLogfile()) {
             file_put_contents($this->getLogfile(), $content, FILE_APPEND);
