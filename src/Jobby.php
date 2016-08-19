@@ -3,6 +3,7 @@
 namespace Jobby;
 
 use Closure;
+use Cron\CronExpression;
 use SuperClosure\SerializableClosure;
 use Symfony\Component\Process\PhpExecutableFinder;
 
@@ -78,6 +79,7 @@ class Jobby
             'enabled'        => true,
             'haltDir'        => null,
             'debug'          => false,
+            'scheduleKeys'   => ['m', 'h', 'dom', 'mon', 'dow']
         ];
     }
 
@@ -113,6 +115,20 @@ class Jobby
 
         if (!(isset($config['command']) xor isset($config['closure']))) {
             throw new Exception("Either 'command' or 'closure' is required for '$job' job");
+        }
+
+        if (is_array($config['schedule'])) {
+            $schedule = [];
+
+            foreach ($this->getConfig()['scheduleKeys'] as $scheduleArrayKey) {
+                if (isset($config['schedule'][$scheduleArrayKey])) {
+                    $schedule[] = $config['schedule'][$scheduleArrayKey];
+                } else {
+                    $schedule[] = '*';
+                }
+            }
+
+            $config['schedule'] = implode(' ', $schedule);
         }
 
         if (isset($config['command']) &&
