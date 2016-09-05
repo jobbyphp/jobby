@@ -222,6 +222,10 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckMaxRuntime()
     {
+        if ($this->helper->getPlatform() !== Helper::UNIX) {
+            $this->markTestSkipped("'maxRuntime' is not supported on Windows");
+        }
+
         $helper = $this->getMock('Jobby\Helper', ['getLockLifetime']);
         $helper->expects($this->once())
             ->method('getLockLifetime')
@@ -244,6 +248,10 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckMaxRuntimeShouldFailIsExceeded()
     {
+        if ($this->helper->getPlatform() !== Helper::UNIX) {
+            $this->markTestSkipped("'maxRuntime' is not supported on Windows");
+        }
+
         $helper = $this->getMock('Jobby\Helper', ['getLockLifetime']);
         $helper->expects($this->once())
             ->method('getLockLifetime')
