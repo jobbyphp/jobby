@@ -105,6 +105,10 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testLockFileShouldContainCurrentPid()
     {
+        if ($this->helper->getPlatform() === Helper::WINDOWS) {
+            $this->markTestSkipped("It's not possible to read contents of a locked file on Windows");
+        }
+
         $this->helper->acquireLock($this->lockFile);
         $this->assertEquals(getmypid(), file_get_contents($this->lockFile));
 
@@ -136,6 +140,10 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testLockLifetimeShouldBeZeroIfItContainsAInvalidPid()
     {
+        if ($this->helper->getPlatform() === Helper::WINDOWS) {
+            $this->markTestSkipped("Test relies on posix_ functions");
+        }
+
         file_put_contents($this->lockFile, 'invalid-pid');
         $this->assertEquals(0, $this->helper->getLockLifetime($this->lockFile));
     }
@@ -145,6 +153,10 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetLocklifetime()
     {
+        if ($this->helper->getPlatform() === Helper::WINDOWS) {
+            $this->markTestSkipped("Unable to read a locked file on Windows");
+        }
+
         $this->helper->acquireLock($this->lockFile);
 
         $this->assertEquals(0, $this->helper->getLockLifetime($this->lockFile));
