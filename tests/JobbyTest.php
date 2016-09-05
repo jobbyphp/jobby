@@ -68,6 +68,32 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return void
+     */
+    public function testBackgroundProcessIsNotSpawnedIfJobIsNotDueToBeRun()
+    {
+        $hour = date("H", strtotime("+1 hour"));
+        $jobby = new Jobby();
+        $jobby->add(
+            'HelloWorldShell',
+            [
+                'command'  => 'php ' . __DIR__ . '/_files/helloworld.php',
+                'schedule' => "* {$hour} * * *",
+                'output'   => $this->logFile,
+            ]
+        );
+        $jobby->run();
+
+        // Job runs asynchronously, so wait a bit
+        sleep($this->getSleepTime());
+
+        $this->assertFalse(
+            file_exists($this->logFile),
+            "Failed to assert that log file doesn't exist and that background process did not spawn"
+        );
+    }
+
+    /**
      * @covers ::add
      * @covers ::run
      */

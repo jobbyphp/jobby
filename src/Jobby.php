@@ -144,7 +144,11 @@ class Jobby
             throw new Exception('posix extension is required');
         }
 
+        $scheduleChecker = new ScheduleChecker();
         foreach ($this->jobs as $job => $config) {
+            if (!$scheduleChecker->isDue($config['schedule'])) {
+                continue;
+            }
             if ($isUnix) {
                 $this->runUnix($job, $config);
             } else {
