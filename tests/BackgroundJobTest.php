@@ -22,6 +22,11 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     private $logFile;
 
     /**
+     * @var Helper
+     */
+    private $helper;
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp()
@@ -30,6 +35,8 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         if (file_exists($this->logFile)) {
             unlink($this->logFile);
         }
+
+        $this->helper = new Helper();
     }
 
     /**
@@ -89,11 +96,19 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         $this->runJob(['command' => 'invalid-command']);
 
         $this->assertContains('invalid-command', $this->getLogContent());
-        $this->assertContains('not found', $this->getLogContent());
-        $this->assertContains(
-            "ERROR: Job exited with status '127'",
-            $this->getLogContent()
-        );
+
+        if ($this->helper->getPlatform() === Helper::UNIX) {
+            $this->assertContains('not found', $this->getLogContent());
+            $this->assertContains(
+                "ERROR: Job exited with status '127'",
+                $this->getLogContent()
+            );
+        } else {
+            $this->assertContains(
+                'not recognized as an internal or external command',
+                $this->getLogContent()
+            );
+        }
     }
 
     /**
