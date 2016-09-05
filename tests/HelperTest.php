@@ -106,7 +106,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     public function testLockFileShouldContainCurrentPid()
     {
         if ($this->helper->getPlatform() === Helper::WINDOWS) {
-            $this->markTestSkipped("It's not possible to read contents of a locked file on Windows");
+            $this->markTestSkipped("Unable to read a locked file on Windows");
         }
 
         $this->helper->acquireLock($this->lockFile);
