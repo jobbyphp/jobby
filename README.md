@@ -1,14 +1,13 @@
 # Jobby, a PHP cron job manager #
 [![Total Downloads](https://img.shields.io/packagist/dt/hellogerard/jobby.svg)](https://packagist.org/packages/hellogerard/jobby)
 [![Latest Version](https://img.shields.io/packagist/v/hellogerard/jobby.svg)](https://packagist.org/packages/hellogerard/jobby)
-[![Build Status](https://img.shields.io/travis/hellogerard/jobby.svg)](https://travis-ci.org/hellogerard/jobby)
-[![MIT License](https://img.shields.io/packagist/l/hellogerard/jobby.svg)](https://github.com/hellogerard/jobby/blob/master/LICENSE)
+[![Build Status](https://img.shields.io/travis/jobbyphp/jobby.svg)](https://travis-ci.org/jobbyphp/jobby)
+[![MIT License](https://img.shields.io/packagist/l/hellogerard/jobby.svg)](https://github.com/jobbyphp/jobby/blob/master/LICENSE)
 
 Install the master jobby cron job, and it will manage all your offline tasks. Add jobs without modifying crontab.
 Jobby can handle logging, locking, error emails and more.
 
-**NEW REPO:** We have moved `jobby` to a Github org. Please update your remotes
-with `git remote set-url origin https://github.com/jobbyphp/jobby.git`.
+**NEW REPO:** We have moved `jobby` to a Github org. Please update your remotes to `https://github.com/jobbyphp/jobby.git`.
 
 ## Features ##
 
