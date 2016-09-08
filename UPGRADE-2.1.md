@@ -1,7 +1,7 @@
 # UPGRADE FROM 2.0 to 2.1
 
 As [SuperClosure](https://github.com/jeremeamia/super_closure) was updated from 1.x to 2.x 
-(see [ChangeLog-2.1](https://github.com/hellogerard/jobby/blob/master/CHANGELOG-2.1.md)), some of your
+(see [ChangeLog](https://github.com/hellogerard/jobby/blob/master/CHANGELOG)), some of your
 [Closures](http://php.net/manual/de/class.closure.php) might not be useable within jobby any more.
 
 The change is the way, SuperClosure handles scoped Closures now.
