@@ -198,13 +198,8 @@ class BackgroundJob
             }
         }
 
-        $schedule = \DateTime::createFromFormat('Y-m-d H:i:s', $this->config['schedule']);
-        if ($schedule !== false) {
-            return $schedule->format('Y-m-d H:i') == (date('Y-m-d H:i'));
-        }
-
-        $cron = CronExpression::factory($this->config['schedule']);
-        if (!$cron->isDue()) {
+        $scheduleChecker = new ScheduleChecker();
+        if (!$scheduleChecker->isDue($this->config['schedule'])) {
             return false;
         }
 
