@@ -2,6 +2,7 @@
 
 namespace Jobby\Tests;
 
+use Jobby\Helper;
 use Jobby\Jobby;
 use SuperClosure\SerializableClosure;
 
@@ -16,6 +17,11 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     private $logFile;
 
     /**
+     * @var Helper
+     */
+    private $helper;
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp()
@@ -24,6 +30,8 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         if (file_exists($this->logFile)) {
             unlink($this->logFile);
         }
+        
+        $this->helper = new Helper();
     }
 
     /**
@@ -54,7 +62,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         $jobby->run();
 
         // Job runs asynchronously, so wait a bit
-        sleep(1);
+        sleep($this->getSleepTime());
 
         $this->assertEquals('Hello World!', $this->getLogContent());
     }
@@ -83,7 +91,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         $jobby->run();
 
         // Job runs asynchronously, so wait a bit
-        sleep(1);
+        sleep($this->getSleepTime());
 
         $this->assertEquals('Another function!', $this->getLogContent());
     }
@@ -110,7 +118,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         $jobby->run();
 
         // Job runs asynchronously, so wait a bit
-        sleep(1);
+        sleep($this->getSleepTime());
 
         $this->assertEquals('A function!', $this->getLogContent());
     }
@@ -147,7 +155,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         $jobby->run();
 
         // Job runs asynchronously, so wait a bit
-        sleep(1);
+        sleep($this->getSleepTime());
 
         $this->assertContains('job-1', $this->getLogContent());
         $this->assertContains('job-2', $this->getLogContent());
@@ -174,7 +182,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         $jobby->run();
 
         // Job runs asynchronously, so wait a bit
-        sleep(1);
+        sleep($this->getSleepTime());
 
         $this->assertEquals('A function!', $this->getLogContent());
     }
@@ -272,6 +280,10 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldFailIfMaxRuntimeExceeded()
     {
+        if ($this->helper->getPlatform() === Helper::WINDOWS) {
+            $this->markTestSkipped("'maxRuntime' is not supported on Windows");
+        }
+
         $jobby = new Jobby();
         $jobby->add(
             'slow job',
@@ -297,5 +309,10 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     private function getLogContent()
     {
         return file_get_contents($this->logFile);
+    }
+
+    private function getSleepTime()
+    {
+        return $this->helper->getPlatform() === Helper::UNIX ? 1 : 2;
     }
 }

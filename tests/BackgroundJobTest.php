@@ -22,6 +22,11 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     private $logFile;
 
     /**
+     * @var Helper
+     */
+    private $helper;
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp()
@@ -30,6 +35,8 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         if (file_exists($this->logFile)) {
             unlink($this->logFile);
         }
+
+        $this->helper = new Helper();
     }
 
     /**
@@ -89,11 +96,19 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         $this->runJob(['command' => 'invalid-command']);
 
         $this->assertContains('invalid-command', $this->getLogContent());
-        $this->assertContains('not found', $this->getLogContent());
-        $this->assertContains(
-            "ERROR: Job exited with status '127'",
-            $this->getLogContent()
-        );
+
+        if ($this->helper->getPlatform() === Helper::UNIX) {
+            $this->assertContains('not found', $this->getLogContent());
+            $this->assertContains(
+                "ERROR: Job exited with status '127'",
+                $this->getLogContent()
+            );
+        } else {
+            $this->assertContains(
+                'not recognized as an internal or external command',
+                $this->getLogContent()
+            );
+        }
     }
 
     /**
@@ -207,6 +222,10 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckMaxRuntime()
     {
+        if ($this->helper->getPlatform() !== Helper::UNIX) {
+            $this->markTestSkipped("'maxRuntime' is not supported on Windows");
+        }
+
         $helper = $this->getMock('Jobby\Helper', ['getLockLifetime']);
         $helper->expects($this->once())
             ->method('getLockLifetime')
@@ -229,6 +248,10 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckMaxRuntimeShouldFailIsExceeded()
     {
+        if ($this->helper->getPlatform() !== Helper::UNIX) {
+            $this->markTestSkipped("'maxRuntime' is not supported on Windows");
+        }
+
         $helper = $this->getMock('Jobby\Helper', ['getLockLifetime']);
         $helper->expects($this->once())
             ->method('getLockLifetime')
