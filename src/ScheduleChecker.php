@@ -17,6 +17,6 @@ class ScheduleChecker
             return $dateTime->format('Y-m-d H:i') == (date('Y-m-d H:i'));
         }
 
-        return CronExpression::factory($schedule)->isDue();
+        return CronExpression::factory((string)$schedule)->isDue();
     }
 }
