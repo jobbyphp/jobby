@@ -1,3 +1,9 @@
+## 3.2.0
+
+* Cast cron expression to string before passing to CronExpression (which allows
+  us to use, e.g., https://github.com/garethellis36/crontab-schedule-generator) (#63)
+* Remove job schedule check from jobby jobs (keepin' it DRY!) (#62)
+
 ## 3.1.0
 
 * Determine if job should run in main process, not jobby jobs (#45)
