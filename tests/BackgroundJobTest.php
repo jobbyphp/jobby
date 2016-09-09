@@ -65,9 +65,7 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
 
         return [
             'diabled, not run'       => [$job + ['enabled' => false], ''],
-            'cron schedule, not run' => [$job + ['schedule' => '0 0 1 1 *'], ''],
-            'date time, not run'     => [$job + ['schedule' => date('Y-m-d H:i:s', strtotime('tomorrow'))], ''],
-            'date time, run'         => [$job + ['schedule' => date('Y-m-d H:i:s')], 'test'],
+            'normal job, run'         => [$job, 'test'],
             'wrong host, not run'    => [$job + ['runOnHost' => 'something that does not match'], ''],
             'current user, run,'     => [['closure' => $uid], getmyuid()],
         ];
