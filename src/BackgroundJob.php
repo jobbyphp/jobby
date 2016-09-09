@@ -198,11 +198,6 @@ class BackgroundJob
             }
         }
 
-        $scheduleChecker = new ScheduleChecker();
-        if (!$scheduleChecker->isDue($this->config['schedule'])) {
-            return false;
-        }
-
         $host = $this->helper->getHost();
         if (strcasecmp($this->config['runOnHost'], $host) != 0) {
             return false;
