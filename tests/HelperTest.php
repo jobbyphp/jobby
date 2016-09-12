@@ -304,7 +304,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     public function testItReturnsTheCorrectNullSystemDeviceForUnix()
     {
         /** @var Helper $helper */
-        $helper = $this->getMock(Helper::class, ["getPlatform"]);
+        $helper = $this->getMock("\\Jobby\\Helper", ["getPlatform"]);
         $helper->expects($this->once())
             ->method("getPlatform")
             ->willReturn(Helper::UNIX);
@@ -318,7 +318,7 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     public function testItReturnsTheCorrectNullSystemDeviceForWindows()
     {
         /** @var Helper $helper */
-        $helper = $this->getMock(Helper::class, ["getPlatform"]);
+        $helper = $this->getMock("\\Jobby\\Helper", ["getPlatform"]);
         $helper->expects($this->once())
                ->method("getPlatform")
                ->willReturn(Helper::WINDOWS);
