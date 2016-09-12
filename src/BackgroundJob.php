@@ -261,7 +261,7 @@ class BackgroundJob
 
         // Start execution. Run in foreground (will block).
         $command = $this->config['command'];
-        $logfile = $this->getLogfile() ?: '/dev/null';
+        $logfile = $this->getLogfile() ?: $this->helper->getSystemNullDevice();
         exec("$useSudo $command 1>> \"$logfile\" 2>&1", $dummy, $retval);
 
         if ($retval !== 0) {
