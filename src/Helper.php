@@ -238,4 +238,13 @@ EOF;
 
         return $input;
     }
+
+    public function getSystemNullDevice()
+    {
+        $platform = $this->getPlatform();
+        if ($platform === self::UNIX) {
+            return "/dev/null";
+        }
+        return "NUL";
+    }
 }
