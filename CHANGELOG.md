@@ -1,3 +1,7 @@
+## 3.2.1
+
+* Fix default output (to null device) on Windows (#65)
+
 ## 3.2.0
 
 * Cast cron expression to string before passing to CronExpression (which allows
