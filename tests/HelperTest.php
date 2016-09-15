@@ -297,4 +297,32 @@ class HelperTest extends \PHPUnit_Framework_TestCase
     {
         return $this->getMock('Swift_Mailer', [], [\Swift_NullTransport::newInstance()]);
     }
+
+    /**
+     * @return void
+     */
+    public function testItReturnsTheCorrectNullSystemDeviceForUnix()
+    {
+        /** @var Helper $helper */
+        $helper = $this->getMock("\\Jobby\\Helper", ["getPlatform"]);
+        $helper->expects($this->once())
+            ->method("getPlatform")
+            ->willReturn(Helper::UNIX);
+
+        $this->assertEquals("/dev/null", $helper->getSystemNullDevice());
+    }
+
+    /**
+     * @return void
+     */
+    public function testItReturnsTheCorrectNullSystemDeviceForWindows()
+    {
+        /** @var Helper $helper */
+        $helper = $this->getMock("\\Jobby\\Helper", ["getPlatform"]);
+        $helper->expects($this->once())
+               ->method("getPlatform")
+               ->willReturn(Helper::WINDOWS);
+
+        $this->assertEquals("NUL", $helper->getSystemNullDevice());
+    }
 }
