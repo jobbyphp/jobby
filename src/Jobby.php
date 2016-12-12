@@ -98,6 +98,14 @@ class Jobby
     }
 
     /**
+     * @return array
+     */
+    public function getJobs()
+    {
+        return $this->jobs;
+    }
+
+    /**
      * Add a job.
      *
      * @param string $job
