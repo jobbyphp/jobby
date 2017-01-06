@@ -179,9 +179,10 @@ class Jobby
     {
         // Run in background (non-blocking). From
         // http://us3.php.net/manual/en/function.exec.php#43834
+        $binary = $this->getPhpBinary();
 
         $command = $this->getExecutableCommand($job, $config);
-        pclose(popen("start \"blah\" /B \"php.exe\" $command", "r"));
+        pclose(popen("start \"blah\" /B \"$binary\" $command", "r"));
     }
     // @codeCoverageIgnoreEnd
 
