@@ -59,6 +59,22 @@ $jobby->add('ClosureExample', [
     'output'   => 'logs/closure.log',
 ]);
 
+$jobby->add('ArrayExample', [
+    // Invoke PHP closures
+    'closure'  => function() {
+        echo "I'm a function!\n";
+        return true;
+    },
+
+    // This function will run every fifth minute when dom is 3rd
+    'schedule' => [
+        'm' => 5,
+        'dom' => 3
+    ],
+
+    'output'   => 'logs/closure.log',
+]);
+
 $jobby->run();
 ```
 
@@ -83,11 +99,11 @@ $ cp vendor/hellogerard/jobby/resources/jobby.php .
 
 Each job requires these:
 
-Key       | Type    | Description
-:-------- | :------ | :------------------------------------------------------------------------------
-schedule  | string  | Crontab schedule format (`man -s 5 crontab`) or DateTime format (`Y-m-d H:i:s`)
-command   | string  | The shell command to run (exclusive-or with `closure`)
-closure   | Closure | The anonymous PHP function to run (exclusive-or with `command`)
+Key       | Type             | Description
+:-------- | :--------------- | :------------------------------------------------------------------------------
+schedule  | string or array  | Crontab schedule format (`man -s 5 crontab`) or DateTime format (`Y-m-d H:i:s`) or array (m h dom mon dow)
+command   | string           | The shell command to run (exclusive-or with `closure`)
+closure   | Closure          | The anonymous PHP function to run (exclusive-or with `command`)
 
 
 The options listed below can be applied to an individual job or globally through the `Jobby` constructor. 
