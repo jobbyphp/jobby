@@ -247,6 +247,33 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::getJobs
+     */
+    public function testGetJobs()
+    {
+        $jobby = new Jobby();
+        $this->assertCount(0,$jobby->getJobs());
+        
+        $jobby->add(
+            'test job1',
+            [
+                'command' => 'test',
+                'schedule' => '* * * * *'
+            ]
+        );
+
+        $jobby->add(
+            'test job2',
+            [
+                'command' => 'test',
+                'schedule' => '* * * * *'
+            ]
+        );
+
+        $this->assertCount(2,$jobby->getJobs());
+    }
+
+    /**
      * @covers ::add
      * @expectedException \Jobby\Exception
      */

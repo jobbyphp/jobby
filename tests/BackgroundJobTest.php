@@ -72,6 +72,15 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::getConfig
+     */
+    public function testGetConfig()
+    {
+        $job = new BackgroundJob('test job',[]);
+        $this->assertInternalType('array',$job->getConfig());
+    }
+
+    /**
      * @dataProvider runProvider
      *
      * @covers ::run

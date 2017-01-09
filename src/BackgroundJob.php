@@ -108,6 +108,14 @@ class BackgroundJob
     }
 
     /**
+     * @return array
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
      * @param string $lockFile
      *
      * @throws Exception
