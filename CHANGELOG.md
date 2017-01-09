@@ -1,3 +1,8 @@
+## 3.2.2
+
+* Fix bug on Windows where jobby failed if php is not in path (#73)
+* Add getConfig() and getJobs() helper methods (#72)
+
 ## 3.2.1
 
 * Fix default output (to null device) on Windows (#65)
