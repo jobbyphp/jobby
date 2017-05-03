@@ -20,46 +20,115 @@ Jobby can handle logging, locking, error emails and more.
 - Run only on certain hostnames (handy in webfarms).
 - Theoretical Windows support (but not ever tested)
 
-## Example ##
+## Getting Started ##
 
 ```php
 <?php 
 
+// Ensure you have composer's autoloader  
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Create a new instance of Jobby
 $jobby = new Jobby\Jobby();
 
 // Every job has a name
 $jobby->add('CommandExample', [
-    // Run a shell commands
+
+    // Run a shell command
     'command'  => 'ls',
 
     // Ordinary crontab schedule format is supported.
     // This schedule runs every hour.
-    // You could also insert DateTime string in the format of Y-m-d H:i:s.
     'schedule' => '0 * * * *',
 
+]);
+
+$jobby->run();
+```
+
+## Examples ##
+
+### Logging ###
+
+```php
+<?php
+
+/* ... */
+
+$jobby->add('LoggingExample', [
+    
+    'command'  => 'ls',
+    'schedule' => '0 * * * *',
+    
     // Stdout and stderr is sent to the specified file
     'output'   => 'logs/command.log',
 
-    // You can turn off a job by setting 'enabled' to false
-    'enabled'  => true,
 ]);
 
-$jobby->add('ClosureExample', [
-    // Invoke PHP closures
+/* ... */
+```
+
+### Disabling a command ###
+
+```php
+<?php
+
+/* ... */
+
+$jobby->add('DisabledExample', [
+    
+    'command'  => 'ls',
+    'schedule' => '0 * * * *',
+    
+    // You can turn off a job by setting 'enabled' to false
+    'enabled'  => false,
+
+]);
+
+/* ... */
+```
+
+### Running closures ###
+
+```php
+<?php
+
+/* ... */
+
+$jobby->add('ClosureCommandExample', [
+    
+     // Use the 'closure' key
+     // instead of 'command'
     'closure'  => function() {
         echo "I'm a function!\n";
         return true;
     },
+    
+    'schedule' => '0 * * * *',
 
-    // This function will run every other hour
-    'schedule' => '0 */2 * * *',
-
-    'output'   => 'logs/closure.log',
 ]);
 
-$jobby->run();
+/* ... */
+```
+
+### Using a DateTime ###
+
+```php
+<?php
+
+/* ... */
+
+$jobby->add('DateTimeExample', [
+    
+    'command'  => 'ls',
+    
+    // Use a DateTime string in
+    // the format Y-m-d H:i:s
+    'schedule' => '2017-05-03 17:15:00',
+
+]);
+
+/* ... */
 ```
 
 ## Installation ##
