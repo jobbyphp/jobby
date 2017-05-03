@@ -22,10 +22,29 @@ Jobby can handle logging, locking, error emails and more.
 
 ## Getting Started ##
 
+### Installation ###
+
+The recommended way to install Jobby is through [Composer](http://getcomposer.org):
+```
+$ composer require hellogerard/jobby
+```
+
+Then add the following line to your (or whomever's) crontab:
+```
+* * * * * cd /path/to/project && php jobby.php 1>> /dev/null 2>&1
+```
+
+After Jobby installs, you can copy an example file to the project root.
+```
+$ cp vendor/hellogerard/jobby/resources/jobby.php .
+```
+
+### Running a job ###
+
 ```php
 <?php 
 
-// Ensure you have composer's autoloader  
+// Ensure you have included composer's autoloader  
 require_once __DIR__ . '/vendor/autoload.php';
 
 // Create a new instance of Jobby
@@ -131,21 +150,28 @@ $jobby->add('DateTimeExample', [
 /* ... */
 ```
 
-## Installation ##
+### Using a Custom Scheduler ###
 
-The recommended way to install Jobby is through [Composer](http://getcomposer.org):
-```
-$ composer require hellogerard/jobby
-```
+```php
+<?php
 
-Then add the following line to your (or whomever's) crontab:
-```
-* * * * * cd /path/to/project && php jobby.php 1>> /dev/null 2>&1
-```
+/* ... */
 
-After Jobby installs, you can copy an example file to the project root.
-```
-$ cp vendor/hellogerard/jobby/resources/jobby.php .
+$jobby->add('Example', [
+    
+    'command'  => 'ls',
+    
+    // Use any callable that returns
+    // a boolean stating whether
+    // to run the job or not
+    'schedule' => function() {
+        // Run on even minutes
+        return date('i') % 2 === 0;
+    },
+
+]);
+
+/* ... */
 ```
 
 ## Supported Options ##
@@ -153,8 +179,8 @@ $ cp vendor/hellogerard/jobby/resources/jobby.php .
 Each job requires these:
 
 Key       | Type    | Description
-:-------- | :------ | :------------------------------------------------------------------------------
-schedule  | string  | Crontab schedule format (`man -s 5 crontab`) or DateTime format (`Y-m-d H:i:s`)
+:-------- | :------ | :---------------------------------------------------------------------------------------------------------
+schedule  | string  | Crontab schedule format (`man -s 5 crontab`) or DateTime format (`Y-m-d H:i:s`) or callable (`function(): Bool { /* ... */ }`)
 command   | string  | The shell command to run (exclusive-or with `closure`)
 closure   | Closure | The anonymous PHP function to run (exclusive-or with `command`)
 
