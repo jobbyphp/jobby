@@ -54,4 +54,28 @@ class ScheduleCheckerTest extends PHPUnit_Framework_TestCase
         $hour = date("H", strtotime('+1 hour'));
         $this->assertFalse($this->scheduleChecker->isDue("* {$hour} * * *"));
     }
+
+    /**
+     * @return void
+     */
+    public function test_it_can_use_a_closure_to_detect_a_due_job()
+    {
+        $this->assertTrue(
+            $this->scheduleChecker->isDue(function() {
+                return true;
+            })
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function test_it_can_use_a_closure_to_detect_a_non_due_job()
+    {
+        $this->assertFalse(
+            $this->scheduleChecker->isDue(function() {
+                return false;
+            })
+        );
+    }
 }
