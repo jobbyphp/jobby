@@ -20,49 +20,9 @@ Jobby can handle logging, locking, error emails and more.
 - Run only on certain hostnames (handy in webfarms).
 - Theoretical Windows support (but not ever tested)
 
-## Example ##
+## Getting Started ##
 
-```php
-<?php 
-
-require_once __DIR__ . '/vendor/autoload.php';
-
-$jobby = new Jobby\Jobby();
-
-// Every job has a name
-$jobby->add('CommandExample', [
-    // Run a shell commands
-    'command'  => 'ls',
-
-    // Ordinary crontab schedule format is supported.
-    // This schedule runs every hour.
-    // You could also insert DateTime string in the format of Y-m-d H:i:s.
-    'schedule' => '0 * * * *',
-
-    // Stdout and stderr is sent to the specified file
-    'output'   => 'logs/command.log',
-
-    // You can turn off a job by setting 'enabled' to false
-    'enabled'  => true,
-]);
-
-$jobby->add('ClosureExample', [
-    // Invoke PHP closures
-    'closure'  => function() {
-        echo "I'm a function!\n";
-        return true;
-    },
-
-    // This function will run every other hour
-    'schedule' => '0 */2 * * *',
-
-    'output'   => 'logs/closure.log',
-]);
-
-$jobby->run();
-```
-
-## Installation ##
+### Installation ###
 
 The recommended way to install Jobby is through [Composer](http://getcomposer.org):
 ```
@@ -79,13 +39,148 @@ After Jobby installs, you can copy an example file to the project root.
 $ cp vendor/hellogerard/jobby/resources/jobby.php .
 ```
 
+### Running a job ###
+
+```php
+<?php 
+
+// Ensure you have included composer's autoloader  
+require_once __DIR__ . '/vendor/autoload.php';
+
+// Create a new instance of Jobby
+$jobby = new Jobby\Jobby();
+
+// Every job has a name
+$jobby->add('CommandExample', [
+
+    // Run a shell command
+    'command'  => 'ls',
+
+    // Ordinary crontab schedule format is supported.
+    // This schedule runs every hour.
+    'schedule' => '0 * * * *',
+
+]);
+
+$jobby->run();
+```
+
+## Examples ##
+
+### Logging ###
+
+```php
+<?php
+
+/* ... */
+
+$jobby->add('LoggingExample', [
+    
+    'command'  => 'ls',
+    'schedule' => '0 * * * *',
+    
+    // Stdout and stderr is sent to the specified file
+    'output'   => 'logs/command.log',
+
+]);
+
+/* ... */
+```
+
+### Disabling a command ###
+
+```php
+<?php
+
+/* ... */
+
+$jobby->add('DisabledExample', [
+    
+    'command'  => 'ls',
+    'schedule' => '0 * * * *',
+    
+    // You can turn off a job by setting 'enabled' to false
+    'enabled'  => false,
+
+]);
+
+/* ... */
+```
+
+### Running closures ###
+
+```php
+<?php
+
+/* ... */
+
+$jobby->add('ClosureCommandExample', [
+    
+     // Use the 'closure' key
+     // instead of 'command'
+    'closure'  => function() {
+        echo "I'm a function!\n";
+        return true;
+    },
+    
+    'schedule' => '0 * * * *',
+
+]);
+
+/* ... */
+```
+
+### Using a DateTime ###
+
+```php
+<?php
+
+/* ... */
+
+$jobby->add('DateTimeExample', [
+    
+    'command'  => 'ls',
+    
+    // Use a DateTime string in
+    // the format Y-m-d H:i:s
+    'schedule' => '2017-05-03 17:15:00',
+
+]);
+
+/* ... */
+```
+
+### Using a Custom Scheduler ###
+
+```php
+<?php
+
+/* ... */
+
+$jobby->add('Example', [
+    
+    'command'  => 'ls',
+    
+    // Use any callable that returns
+    // a boolean stating whether
+    // to run the job or not
+    'schedule' => function() {
+        // Run on even minutes
+        return date('i') % 2 === 0;
+    },
+
+]);
+
+/* ... */
+```
+
 ## Supported Options ##
 
 Each job requires these:
 
 Key       | Type    | Description
-:-------- | :------ | :------------------------------------------------------------------------------
-schedule  | string  | Crontab schedule format (`man -s 5 crontab`) or DateTime format (`Y-m-d H:i:s`)
+:-------- | :------ | :---------------------------------------------------------------------------------------------------------
+schedule  | string  | Crontab schedule format (`man -s 5 crontab`) or DateTime format (`Y-m-d H:i:s`) or callable (`function(): Bool { /* ... */ }`)
 command   | string  | The shell command to run (exclusive-or with `closure`)
 closure   | Closure | The anonymous PHP function to run (exclusive-or with `command`)
 
