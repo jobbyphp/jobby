@@ -1,3 +1,7 @@
+## 3.3.0
+
+* Allow user to provide a callable in the `schedule` key that returns boolean (#77)
+
 ## 3.2.2
 
 * Fix bug on Windows where jobby failed if php is not in path (#73)
