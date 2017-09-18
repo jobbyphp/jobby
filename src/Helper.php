@@ -49,7 +49,7 @@ You can find its output in {$config['output']} on $host.
 Best,
 jobby@$host
 EOF;
-        $mail = \Swift_Message::newInstance();
+        $mail = new \Swift_Message();
         $mail->setTo(explode(',', $config['recipients']));
         $mail->setSubject("[$host] '{$job}' needs some attention!");
         $mail->setBody($body);
@@ -73,7 +73,9 @@ EOF;
             return $this->mailer;
         }
 
-        if ($config['mailer'] == 'smtp') {
+        $swiftVersion = (int) explode('.', \Swift::VERSION)[0];
+
+        if ($config['mailer'] === 'smtp') {
             $transport = \Swift_SmtpTransport::newInstance(
                 $config['smtpHost'],
                 $config['smtpPort'],
@@ -81,7 +83,7 @@ EOF;
             );
             $transport->setUsername($config['smtpUsername']);
             $transport->setPassword($config['smtpPassword']);
-        } elseif ($config['mailer'] == 'mail') {
+        } elseif ($swiftVersion < 6 && $config['mailer'] === 'mail') {
             $transport = \Swift_MailTransport::newInstance();
         } else {
             $transport = \Swift_SendmailTransport::newInstance();
@@ -106,7 +108,7 @@ EOF;
             throw new Exception("Unable to create file (File: $lockFile).");
         }
 
-        $fh = fopen($lockFile, 'r+');
+        $fh = fopen($lockFile, 'rb+');
         if ($fh === false) {
             throw new Exception("Unable to open file (File: $lockFile).");
         }
@@ -162,13 +164,13 @@ EOF;
             return 0;
         }
 
-        if (!posix_kill(intval($pid), 0)) {
+        if (!posix_kill((int) $pid, 0)) {
             return 0;
         }
 
         $stat = stat($lockFile);
 
-        return (time() - $stat["mtime"]);
+        return (time() - $stat['mtime']);
     }
 
     /**
@@ -214,13 +216,13 @@ EOF;
      */
     public function getPlatform()
     {
-        if (strncasecmp(PHP_OS, 'Win', 3) == 0) {
+        if (strncasecmp(PHP_OS, 'Win', 3) === 0) {
             // @codeCoverageIgnoreStart
             return self::WINDOWS;
             // @codeCoverageIgnoreEnd
-        } else {
-            return self::UNIX;
         }
+
+        return self::UNIX;
     }
 
     /**
@@ -243,8 +245,8 @@ EOF;
     {
         $platform = $this->getPlatform();
         if ($platform === self::UNIX) {
-            return "/dev/null";
+            return '/dev/null';
         }
-        return "NUL";
+        return 'NUL';
     }
 }

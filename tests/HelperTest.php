@@ -295,7 +295,9 @@ class HelperTest extends \PHPUnit_Framework_TestCase
      */
     private function getSwiftMailerMock()
     {
-        return $this->getMock('Swift_Mailer', [], [\Swift_NullTransport::newInstance()]);
+        $nullTransport = new \Swift_NullTransport();
+
+        return $this->getMock('Swift_Mailer', [], [$nullTransport]);
     }
 
     /**

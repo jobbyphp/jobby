@@ -17,7 +17,7 @@
   "require": {
     "php": ">=5.4",
     "mtdowling/cron-expression": "^1.0",
-    "swiftmailer/swiftmailer": "^5.4",
+    "swiftmailer/swiftmailer": "^5.4|^6.0",
     "jeremeamia/superclosure": "^2.2",
     "symfony/process": "^2.7|^3.0"
   },
