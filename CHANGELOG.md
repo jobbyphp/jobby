@@ -1,3 +1,7 @@
+## 3.3.1
+
+* Added support of swiftmailer version 6
+
 ## 3.3.0
 
 * Allow user to provide a callable in the `schedule` key that returns boolean (#77)
