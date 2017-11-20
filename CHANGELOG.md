@@ -1,3 +1,7 @@
+## 3.3.2
+
+* Added support for Symfony 4
+
 ## 3.3.1
 
 * Added support of swiftmailer version 6
