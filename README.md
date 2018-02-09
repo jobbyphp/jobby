@@ -109,6 +109,8 @@ $jobby->add('DisabledExample', [
 
 ### Running closures ###
 
+When running closures, beware that nothing outside of the closure is visible (see #93)!
+
 ```php
 <?php
 
