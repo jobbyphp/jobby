@@ -1,3 +1,7 @@
+## 3.4.0
+
+* Allow two jobs of the same name to run (#92)
+
 ## 3.3.2
 
 * Added support for Symfony 4
