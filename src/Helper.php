@@ -76,7 +76,7 @@ EOF;
         $swiftVersion = (int) explode('.', \Swift::VERSION)[0];
 
         if ($config['mailer'] === 'smtp') {
-            $transport = \Swift_SmtpTransport::newInstance(
+            $transport = new \Swift_SmtpTransport(
                 $config['smtpHost'],
                 $config['smtpPort'],
                 $config['smtpSecurity']
@@ -86,10 +86,10 @@ EOF;
         } elseif ($swiftVersion < 6 && $config['mailer'] === 'mail') {
             $transport = \Swift_MailTransport::newInstance();
         } else {
-            $transport = \Swift_SendmailTransport::newInstance();
+            $transport = new \Swift_SendmailTransport();
         }
 
-        return \Swift_Mailer::newInstance($transport);
+        return new \Swift_Mailer($transport);
     }
 
     /**
