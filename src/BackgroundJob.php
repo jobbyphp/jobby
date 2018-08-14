@@ -235,6 +235,7 @@ class BackgroundJob
             $retval = $command();
         } catch (\Throwable $e) {
             echo "Error! " . $e->getMessage() . "\n";
+            $retval = $e->getMessage();
         }
         $content = ob_get_contents();
         if ($logfile = $this->getLogfile()) {
