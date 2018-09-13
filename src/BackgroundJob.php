@@ -51,11 +51,16 @@ class BackgroundJob
             'environment'    => null,
             'runOnHost'      => null,
             'output'         => null,
+            'output_stdout'  => null,
+            'output_stderr'  => null,
             'dateFormat'     => null,
             'enabled'        => null,
             'haltDir'        => null,
             'debug'          => null,
         ];
+
+		$this->config['output_stdout'] = $this->config['output_stdout'] === null ? $this->config['output'] : $this->config['output_stdout'];
+		$this->config['output_stderr'] = $this->config['output_stderr'] === null ? $this->config['output'] : $this->config['output_stderr'];
 
         $this->helper = $helper ?: new Helper();
 
@@ -69,7 +74,7 @@ class BackgroundJob
         try {
             $this->checkMaxRuntime($lockFile);
         } catch (Exception $e) {
-            $this->log('ERROR: ' . $e->getMessage());
+            $this->log('ERROR: ' . $e->getMessage(), 'stderr');
             $this->mail($e->getMessage());
 
             return;
@@ -90,9 +95,9 @@ class BackgroundJob
                 $this->runFile();
             }
         } catch (InfoException $e) {
-            $this->log('INFO: ' . $e->getMessage());
+            $this->log('INFO: ' . $e->getMessage(), 'stderr');
         } catch (Exception $e) {
-            $this->log('ERROR: ' . $e->getMessage());
+            $this->log('ERROR: ' . $e->getMessage(), 'stderr');
             $this->mail($e->getMessage());
         }
 
@@ -156,15 +161,16 @@ class BackgroundJob
     }
 
     /**
+	 * @param string $output
      * @return string
      */
-    protected function getLogfile()
+    protected function getLogfile($output = 'stdout')
     {
-        if ($this->config['output'] === null) {
+		$logfile = $this->config['output_'.$output];
+        if ($logfile === null) {
             return false;
         }
 
-        $logfile = $this->config['output'];
 
         $logs = dirname($logfile);
         if (!file_exists($logs)) {
@@ -216,12 +222,13 @@ class BackgroundJob
 
     /**
      * @param string $message
+     * @param string $output
      */
-    protected function log($message)
+    protected function log($message, $output = 'stdout')
     {
         $now = date($this->config['dateFormat'], $_SERVER['REQUEST_TIME']);
 
-        if ($logfile = $this->getLogfile()) {
+        if ($logfile = $this->getLogfile($output)) {
             file_put_contents($logfile, "[$now] $message\n", FILE_APPEND);
         }
     }
@@ -234,7 +241,9 @@ class BackgroundJob
         try {
             $retval = $command();
         } catch (\Throwable $e) {
-            echo "Error! " . $e->getMessage() . "\n";
+			if ($logfile = $this->getLogfile('stderr')) {
+				file_put_contents($this->getLogfile('stderr'), "Error! " . $e->getMessage() . "\n", FILE_APPEND);
+			}
         }
         $content = ob_get_contents();
         if ($logfile = $this->getLogfile()) {
@@ -264,8 +273,9 @@ class BackgroundJob
 
         // Start execution. Run in foreground (will block).
         $command = $this->config['command'];
-        $logfile = $this->getLogfile() ?: $this->helper->getSystemNullDevice();
-        exec("$useSudo $command 1>> \"$logfile\" 2>&1", $dummy, $retval);
+        $stdoutLogfile = $this->getLogfile() ?: $this->helper->getSystemNullDevice();
+        $stderrLogfile = $this->getLogfile('stderr') ?: $this->helper->getSystemNullDevice();
+        exec("$useSudo $command 1>> \"$stdoutLogfile\" 2>> \"$stderrLogfile\"", $dummy, $retval);
 
         if ($retval !== 0) {
             throw new Exception("Job exited with status '$retval'.");

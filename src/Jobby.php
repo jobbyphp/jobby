@@ -74,6 +74,8 @@ class Jobby
             'environment'    => $this->getHelper()->getApplicationEnv(),
             'runOnHost'      => $this->getHelper()->getHost(),
             'output'         => null,
+			'output_stdout'  => null,
+			'output_stderr'  => null,
             'dateFormat'     => 'Y-m-d H:i:s',
             'enabled'        => true,
             'haltDir'        => null,
