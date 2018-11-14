@@ -3,6 +3,7 @@
 namespace Jobby;
 
 use Closure;
+use DateTimeImmutable;
 use SuperClosure\SerializableClosure;
 use Symfony\Component\Process\PhpExecutableFinder;
 
@@ -152,7 +153,7 @@ class Jobby
             throw new Exception('posix extension is required');
         }
 
-        $scheduleChecker = new ScheduleChecker();
+        $scheduleChecker = new ScheduleChecker(new DateTimeImmutable("now"));
         foreach ($this->jobs as $jobConfig) {
             list($job, $config) = $jobConfig;
             if (!$scheduleChecker->isDue($config['schedule'])) {

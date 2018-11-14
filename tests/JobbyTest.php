@@ -324,9 +324,9 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $timeStart = microtime();
+        $timeStart = microtime(true);
         $jobby->run();
-        $duration = microtime() - $timeStart;
+        $duration = microtime(true) - $timeStart;
 
         $this->assertLessThan(0.5, $duration);
     }
