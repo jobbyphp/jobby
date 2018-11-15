@@ -244,6 +244,7 @@ class BackgroundJob
 			if ($logfile = $this->getLogfile('stderr')) {
 				file_put_contents($this->getLogfile('stderr'), "Error! " . $e->getMessage() . "\n", FILE_APPEND);
 			}
+            $retval = $e->getMessage();
         }
         $content = ob_get_contents();
         if ($logfile = $this->getLogfile()) {
