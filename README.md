@@ -166,9 +166,9 @@ $jobby->add('Example', [
     // Use any callable that returns
     // a boolean stating whether
     // to run the job or not
-    'schedule' => function() {
+    'schedule' => function(DateTimeImmutable $now) {
         // Run on even minutes
-        return date('i') % 2 === 0;
+        return $now->format('i') % 2 === 0;
     },
 
 ]);
