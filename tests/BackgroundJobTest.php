@@ -183,6 +183,30 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::getLogFile
+     */
+    public function testShouldSplitStderrAndStdout()
+    {
+        $dirname = dirname($this->logFile);
+        $stdout = $dirname . '/stdout.log';
+        $stderr = $dirname . '/stderr.log';
+        $this->runJob(
+            [
+                'command' => "(echo \"stdout output\" && (>&2 echo \"stderr output\"))",
+                'output_stdout' => $stdout,
+                'output_stderr' => $stderr,
+            ]
+        );
+
+        $this->assertContains('stdout output', @file_get_contents($stdout));
+        $this->assertContains('stderr output', @file_get_contents($stderr));
+
+        unlink($stderr);
+        unlink($stdout);
+
+    }
+
+    /**
      * @covers ::mail
      */
     public function testNotSendMailOnMissingRecipients()

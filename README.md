@@ -202,6 +202,8 @@ enabled        | boolean   | true                                | Run this job 
 haltDir        | string    | null                                | A job will not run if this directory contains a file bearing the job's name 
 _**Logging**_  |           |                                     | _**Options for logging**_
 output         | string    | /dev/null                           | Redirect `stdout` and `stderr` to this file
+output_stdout  | string    | value from `output` option          | Redirect `stdout` to this file
+output_stderr  | string    | value from `output` option          | Redirect `stderr` to this file
 dateFormat     | string    | Y-m-d H:i:s                         | Format for dates on `jobby` log messages
 _**Mailing**_  |           |                                     | _**Options for emailing errors**_
 recipients     | string    | null                                | Comma-separated string of email addresses
