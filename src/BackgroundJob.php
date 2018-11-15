@@ -59,8 +59,8 @@ class BackgroundJob
             'debug'          => null,
         ];
 
-		$this->config['output_stdout'] = $this->config['output_stdout'] === null ? $this->config['output'] : $this->config['output_stdout'];
-		$this->config['output_stderr'] = $this->config['output_stderr'] === null ? $this->config['output'] : $this->config['output_stderr'];
+        $this->config['output_stdout'] = $this->config['output_stdout'] === null ? $this->config['output'] : $this->config['output_stdout'];
+        $this->config['output_stderr'] = $this->config['output_stderr'] === null ? $this->config['output'] : $this->config['output_stderr'];
 
         $this->helper = $helper ?: new Helper();
 
@@ -161,12 +161,12 @@ class BackgroundJob
     }
 
     /**
-	 * @param string $output
+     * @param string $output
      * @return string
      */
     protected function getLogfile($output = 'stdout')
     {
-		$logfile = $this->config['output_'.$output];
+        $logfile = $this->config['output_'.$output];
         if ($logfile === null) {
             return false;
         }
@@ -241,9 +241,9 @@ class BackgroundJob
         try {
             $retval = $command();
         } catch (\Throwable $e) {
-			if ($logfile = $this->getLogfile('stderr')) {
-				file_put_contents($this->getLogfile('stderr'), "Error! " . $e->getMessage() . "\n", FILE_APPEND);
-			}
+            if ($logfile = $this->getLogfile('stderr')) {
+                file_put_contents($this->getLogfile('stderr'), "Error! " . $e->getMessage() . "\n", FILE_APPEND);
+            }
             $retval = $e->getMessage();
         }
         $content = ob_get_contents();
