@@ -2,8 +2,6 @@
 
 namespace Jobby;
 
-use Cron\CronExpression;
-
 class BackgroundJob
 {
     use SerializerTrait;
@@ -276,7 +274,13 @@ class BackgroundJob
         $command = $this->config['command'];
         $stdoutLogfile = $this->getLogfile() ?: $this->helper->getSystemNullDevice();
         $stderrLogfile = $this->getLogfile('stderr') ?: $this->helper->getSystemNullDevice();
-        exec("$useSudo $command 1>> \"$stdoutLogfile\" 2>> \"$stderrLogfile\"", $dummy, $retval);
+        $command = "$useSudo $command 1>> \"$stdoutLogfile\" 2>> \"$stderrLogfile\"";
+
+        if (!$isUnix && $stdoutLogfile === $stderrLogfile) {
+            $command = "$useSudo $command >> \"$stdoutLogfile\" 2>&1";
+        }
+
+        exec($command, $dummy, $retval);
 
         if ($retval !== 0) {
             throw new Exception("Job exited with status '$retval'.");
