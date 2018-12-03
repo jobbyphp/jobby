@@ -57,7 +57,7 @@ $insertCronJobConfiguration = $dbh->prepare("
 INSERT INTO `$dbhJobbiesTableName`
  (`name`,`command`,`schedule`,`output`)
  VALUES
- (:name,:command,:schedule,:output)
+ (?,?,?,?)
 ");
 // First demo-job - print "date" to logs/command-pdo.log.
 $insertCronJobConfiguration->execute(
