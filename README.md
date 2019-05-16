@@ -76,11 +76,11 @@ $jobby->run();
 
 $jobby->add('LoggingExample', [
     
-    'command'  => 'ls',
+    'command' => 'ls',
     'schedule' => '0 * * * *',
     
     // Stdout and stderr is sent to the specified file
-    'output'   => 'logs/command.log',
+    'output' => 'logs/command.log',
 
 ]);
 
@@ -96,11 +96,11 @@ $jobby->add('LoggingExample', [
 
 $jobby->add('DisabledExample', [
     
-    'command'  => 'ls',
+    'command' => 'ls',
     'schedule' => '0 * * * *',
     
     // You can turn off a job by setting 'enabled' to false
-    'enabled'  => false,
+    'enabled' => false,
 
 ]);
 
@@ -120,7 +120,7 @@ $jobby->add('ClosureCommandExample', [
     
      // Use the 'closure' key
      // instead of 'command'
-    'closure'  => function() {
+    'closure' => function() {
         echo "I'm a function!\n";
         return true;
     },
@@ -141,7 +141,7 @@ $jobby->add('ClosureCommandExample', [
 
 $jobby->add('DateTimeExample', [
     
-    'command'  => 'ls',
+    'command' => 'ls',
     
     // Use a DateTime string in
     // the format Y-m-d H:i:s
@@ -161,7 +161,7 @@ $jobby->add('DateTimeExample', [
 
 $jobby->add('Example', [
     
-    'command'  => 'ls',
+    'command' => 'ls',
     
     // Use any callable that returns
     // a boolean stating whether
