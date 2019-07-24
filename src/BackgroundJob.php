@@ -227,7 +227,7 @@ class BackgroundJob
         $now = date($this->config['dateFormat'], $_SERVER['REQUEST_TIME']);
 
         if ($logfile = $this->getLogfile($output)) {
-            file_put_contents($logfile, "[$now] $message\n", FILE_APPEND);
+            file_put_contents($logfile, "[$now] [$this->job] $message\n", FILE_APPEND);
         }
     }
 
