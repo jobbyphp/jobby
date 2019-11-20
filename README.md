@@ -216,6 +216,10 @@ smtpSecurity   | string    | null                                | SMTP security
 smtpSender     | string    | jobby@&lt;hostname&gt;              | The sender and from addresses used in SMTP notices
 smtpSenderName | string    | Jobby                               | The name used in the from field for SMTP messages
 
+## Symfony integration ##
+
+Symfony bundle for Jobby - [imper86/jobby-cron-bundle](https://github.com/imper86/jobby-cron-bundle)
+
 ## Credits ##
 
 Developed before, but since inspired by [whenever](<https://github.com/javan/whenever>).
