@@ -77,6 +77,7 @@ class Jobby
             'output'         => null,
             'output_stdout'  => null,
             'output_stderr'  => null,
+            'output_console' => false,
             'dateFormat'     => 'Y-m-d H:i:s',
             'enabled'        => true,
             'haltDir'        => null,
@@ -178,8 +179,13 @@ class Jobby
         $command = $this->getExecutableCommand($job, $config);
         $binary = $this->getPhpBinary();
 
-        $output = $config['debug'] ? 'debug.log' : '/dev/null';
-        exec("$binary $command 1> $output 2>&1 &");
+        if (!$config['output_console']) {
+            $output = $config['debug'] ? 'debug.log' : '/dev/null';
+            exec("$binary $command 1> $output 2>&1 &");
+            return;
+        }
+
+        echo exec("$binary $command");
     }
 
     // @codeCoverageIgnoreStart

@@ -204,6 +204,7 @@ _**Logging**_  |           |                                     | _**Options fo
 output         | string    | /dev/null                           | Redirect `stdout` and `stderr` to this file
 output_stdout  | string    | value from `output` option          | Redirect `stdout` to this file
 output_stderr  | string    | value from `output` option          | Redirect `stderr` to this file
+output_console | boolean   | false                               | Echo all output to console
 dateFormat     | string    | Y-m-d H:i:s                         | Format for dates on `jobby` log messages
 _**Mailing**_  |           |                                     | _**Options for emailing errors**_
 recipients     | string    | null                                | Comma-separated string of email addresses

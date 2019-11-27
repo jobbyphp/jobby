@@ -153,6 +153,54 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
      * @covers ::add
      * @covers ::run
      */
+    public function testClosureStdout()
+    {
+        $jobby = new Jobby();
+        $jobby->add(
+            'HelloWorldClosureStdout',
+            [
+                'command'  => static function () {
+                    echo 'console output';
+                    return true;
+                },
+                'schedule' => '* * * * *',
+                'output_console' => true,
+            ]
+        );
+        ob_start();
+        $jobby->run();
+        $content = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertEquals('console output', $content);
+    }
+
+    /**
+     * @covers ::add
+     * @covers ::run
+     */
+    public function testFileStdout()
+    {
+        $jobby = new Jobby();
+        $jobby->add(
+            'HelloWorldFileStdout',
+            [
+                'command' => 'php ' . __DIR__ . '/_files/helloworld.php',
+                'schedule' => '* * * * *',
+                'output_console' => true,
+            ]
+        );
+        ob_start();
+        $jobby->run();
+        $content = ob_get_contents();
+        ob_end_clean();
+        $this->assertEquals('Hello World!', $content);
+    }
+
+    /**
+     * @covers ::add
+     * @covers ::run
+     */
     public function testShouldRunAllJobsAdded()
     {
         $jobby = new Jobby(['output' => $this->logFile]);
