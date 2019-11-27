@@ -51,6 +51,7 @@ class BackgroundJob
             'output'         => null,
             'output_stdout'  => null,
             'output_stderr'  => null,
+            'output_console' => false,
             'dateFormat'     => null,
             'enabled'        => null,
             'haltDir'        => null,
@@ -245,10 +246,14 @@ class BackgroundJob
             $retval = $e->getMessage();
         }
         $content = ob_get_contents();
-        if ($logfile = $this->getLogfile()) {
+        if ($logfile = $this->getLogfile() && !$this->config['output_console']) {
             file_put_contents($this->getLogfile(), $content, FILE_APPEND);
         }
         ob_end_clean();
+
+        if ($this->config['output_console']) {
+            echo $content;
+        }
 
         if ($retval !== true) {
             throw new Exception("Closure did not return true! Returned:\n" . print_r($retval, true));
@@ -272,6 +277,7 @@ class BackgroundJob
 
         // Start execution. Run in foreground (will block).
         $command = $this->config['command'];
+        $command_original = $command;
         $stdoutLogfile = $this->getLogfile() ?: $this->helper->getSystemNullDevice();
         $stderrLogfile = $this->getLogfile('stderr') ?: $this->helper->getSystemNullDevice();
         $command = "$useSudo $command 1>> \"$stdoutLogfile\" 2>> \"$stderrLogfile\"";
@@ -280,7 +286,11 @@ class BackgroundJob
             $command = "$useSudo $command >> \"$stdoutLogfile\" 2>&1";
         }
 
-        exec($command, $dummy, $retval);
+        if ($this->config['output_console']) {
+            echo exec($command_original, $dummy, $retval);
+        } else {
+            exec($command, $dummy, $retval);
+        }
 
         if ($retval !== 0) {
             throw new Exception("Job exited with status '$retval'.");
