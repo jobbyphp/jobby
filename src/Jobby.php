@@ -143,6 +143,11 @@ class Jobby
         $config = array_merge($this->config, $config);
         $this->jobs[] = [$job, $config];
     }
+    
+    
+     private function isProcessRunning($name){
+        return shell_exec('ps aux | grep "'.$name.'" | grep -v grep | awk \'{ print $2 }\' | head -1');
+     }
 
     /**
      * Run all jobs.
@@ -162,6 +167,11 @@ class Jobby
                 continue;
             }
             if ($isUnix) {
+                $lockFile = "/tmp/$job.lck";
+                if(empty($this->isProcessRunning($this->helper->escape($job)))){
+                    unlink($lockFile);
+                }
+
                 $this->runUnix($job, $config);
             } else {
                 $this->runWindows($job, $config);
