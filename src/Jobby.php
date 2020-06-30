@@ -4,13 +4,11 @@ namespace Jobby;
 
 use Closure;
 use DateTimeImmutable;
-use SuperClosure\SerializableClosure;
+use Opis\Closure\SerializableClosure;
 use Symfony\Component\Process\PhpExecutableFinder;
 
 class Jobby
 {
-    use SerializerTrait;
-
     /**
      * @var array
      */
@@ -207,7 +205,8 @@ class Jobby
     protected function getExecutableCommand($job, array $config)
     {
         if (isset($config['closure'])) {
-            $config['closure'] = $this->getSerializer()->serialize($config['closure']);
+            $wrapper = new SerializableClosure($config['closure']);
+            $config['closure'] = serialize($wrapper);
         }
 
         if (strpos(__DIR__, 'phar://') === 0) {
