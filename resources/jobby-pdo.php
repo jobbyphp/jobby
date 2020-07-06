@@ -81,7 +81,7 @@ $insertCronJobConfiguration->execute(
  * Now, fetch all jobbies from PDO-backend and run them.
  */
 
-$jobbiesStmt = $dbh->query("SELECT * FROM `$dbhJobbiesTableName`");
+$jobbiesStmt = $dbh->query("SELECT * FROM `$dbhJobbiesTableName` WHERE enabled = 1");
 $jobbies = $jobbiesStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $jobby = new \Jobby\Jobby();
