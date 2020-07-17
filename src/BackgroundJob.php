@@ -2,10 +2,10 @@
 
 namespace Jobby;
 
+use Opis\Closure\SerializableClosure;
+
 class BackgroundJob
 {
-    use SerializerTrait;
-
     /**
      * @var Helper
      */
@@ -233,7 +233,7 @@ class BackgroundJob
 
     protected function runFunction()
     {
-        $command = $this->getSerializer()->unserialize($this->config['closure']);
+        $command = unserialize($this->config['closure']);
 
         ob_start();
         try {

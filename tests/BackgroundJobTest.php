@@ -4,7 +4,7 @@ namespace Jobby\Tests;
 
 use Jobby\BackgroundJob;
 use Jobby\Helper;
-use Jobby\SerializerTrait;
+use Opis\Closure\SerializableClosure;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -12,8 +12,6 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class BackgroundJobTest extends \PHPUnit_Framework_TestCase
 {
-    use SerializerTrait;
-
     const JOB_NAME = 'name';
 
     /**
@@ -370,7 +368,8 @@ class BackgroundJobTest extends \PHPUnit_Framework_TestCase
         $helper = new Helper();
 
         if (isset($config['closure'])) {
-            $config['closure'] = $this->getSerializer()->serialize($config['closure']);
+            $wrapper = new SerializableClosure($config['closure']);
+            $config['closure'] = serialize($wrapper);
         }
 
         return array_merge(
