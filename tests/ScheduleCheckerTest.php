@@ -61,6 +61,16 @@ class ScheduleCheckerTest extends PHPUnit_Framework_TestCase
     /**
      * @return void
      */
+    public function test_it_can_detect_a_due_job_from_a_non_trivial_cron_expression()
+    {
+        $scheduleChecker = new ScheduleChecker(new DateTimeImmutable("2017-04-01 00:00:00"));
+
+        $this->assertTrue($scheduleChecker->isDue("0 0 1 */3 *"));
+    }
+
+    /**
+     * @return void
+     */
     public function test_it_can_detect_a_non_due_job_from_a_cron_expression()
     {
         $hour = date("H", strtotime('+1 hour'));

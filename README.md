@@ -13,7 +13,7 @@ Jobby can handle logging, locking, error emails and more.
 
 - Maintain one master crontab job.
 - Jobs run via PHP, so you can run them under any programmatic conditions.
-- Use ordinary crontab schedule syntax (powered by the excellent [`cron-expression`](<https://github.com/mtdowling/cron-expression>)).
+- Use ordinary crontab schedule syntax (powered by the excellent [`cron-expression`](<https://github.com/dragonmantank/cron-expression>)).
 - Run only one copy of a job at a given time.
 - Send email whenever a job exits with an error status. 
 - Run job as another user, if crontab user has `sudo` privileges.
