@@ -4,7 +4,7 @@ namespace Jobby\Tests;
 
 use Jobby\Helper;
 use Jobby\Jobby;
-use SuperClosure\SerializableClosure;
+use Opis\Closure\SerializableClosure;
 
 /**
  * @coversDefaultClass Jobby\Jobby
@@ -97,7 +97,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
      * @covers ::add
      * @covers ::run
      */
-    public function testSuperClosure()
+    public function testOpisClosure()
     {
         $fn = static function () {
             echo 'Another function!';
@@ -106,10 +106,15 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         };
 
         $jobby = new Jobby();
+        $wrapper = new SerializableClosure($fn);
+        $serialized = serialize($wrapper);
+        $wrapper = unserialize($serialized);
+        $closure = $wrapper->getClosure();
+
         $jobby->add(
             'HelloWorldClosure',
             [
-                'command'  => new SerializableClosure($fn),
+                'command'  => $closure,
                 'schedule' => '* * * * *',
                 'output'   => $this->logFile,
             ]
