@@ -10,6 +10,10 @@
 // * * * * * cd /path/to/project && php jobby-pdo.php 1>> /dev/null 2>&1
 //
 
+use Jobby\Jobby;
+use Opis\Closure\SerializableClosure;
+use Jobby\Exception;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // The table, which shall contain the cronjob-configuration(s).
@@ -53,24 +57,21 @@ CREATE TABLE IF NOT EXISTS `$dbhJobbiesTableName`
 )
 ");
 
-$insertCronJobConfiguration = $dbh->prepare("
-INSERT INTO `$dbhJobbiesTableName`
- (`name`,`command`,`schedule`,`output`)
- VALUES
- (?,?,?,?)
-");
+$insertCronJobConfiguration = $dbh->prepare(
+    "INSERT INTO `$dbhJobbiesTableName` (`name`,`command`,`schedule`,`output`) VALUES (?,?,?,?)"
+);
 // First demo-job - print "date" to logs/command-pdo.log.
 $insertCronJobConfiguration->execute(
     ['CommandExample', 'date', '* * * * *', 'logs/command-pdo.log']
 );
 // Second demo-job - a Closure which does some php::echo(). The Closure is saved to PDO-backend, too.
-$secondJobFn = function() {
+$secondJobFn = static function () {
     echo "I'm a function (" . date('Y-m-d H:i:s') . ')!' . PHP_EOL;
     return true;
 };
-$serializer = new SuperClosure\Serializer();
 
-$secondJobFnSerialized = $serializer->serialize($secondJobFn);
+$wrapper = new SerializableClosure($secondJobFn);
+$secondJobFnSerialized = serialize($wrapper);
 $insertCronJobConfiguration->execute(
     ['ClosureExample', $secondJobFnSerialized, '* * * * *', 'logs/closure-pdo.log']
 );
@@ -81,24 +82,22 @@ $insertCronJobConfiguration->execute(
  * Now, fetch all jobbies from PDO-backend and run them.
  */
 
-$jobbiesStmt = $dbh->query("SELECT * FROM `$dbhJobbiesTableName`");
+$jobbiesStmt = $dbh->query("SELECT * FROM `$dbhJobbiesTableName` WHERE enabled = 1");
 $jobbies = $jobbiesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$jobby = new \Jobby\Jobby();
+$jobby = new Jobby();
 
 foreach ($jobbies as $job) {
     // Filter out each value, which is not set (for example, "maxRuntime" is not defined in the job).
     $job = array_filter($job);
-
-    try {
-        $job['closure'] = $serializer->unserialize($job['command']);
-        unset($job['command']);
-    } catch (SuperClosure\Exception\ClosureUnserializationException $e) {
-    }
-
+    $job['closure'] = unserialize($job['command']);
     $jobName = $job['name'];
     unset($job['name']);
-    $jobby->add($jobName, $job);
+    try {
+        $jobby->add($jobName, $job);
+    } catch (Exception $e) {
+        die($e->getMessage());
+    }
 }
 
 $jobby->run();
