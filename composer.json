@@ -1,6 +1,6 @@
 {
-  "name": "hellogerard/jobby",
-  "homepage": "https://github.com/jobbyphp/jobby",
+  "name": "hatimox/jobby",
+  "homepage": "https://github.com/hatimox/jobby",
   "license": "MIT",
   "description": "Manage all your cron jobs without modifying crontab. Handles locking, logging, error emails, and more.",
   "authors": [
@@ -12,6 +12,10 @@
     {
       "name": "Michael Contento",
       "homepage": "https://github.com/michaelcontento"
+    },
+    {
+      "name": "Hatim HAFFANE",
+      "homepage": "https://github.com/hatimox"
     }
   ],
   "require": {
