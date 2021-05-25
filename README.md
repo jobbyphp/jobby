@@ -19,6 +19,7 @@ Jobby can handle logging, locking, error emails and more.
 - Run job as another user, if crontab user has `sudo` privileges.
 - Run only on certain hostnames (handy in webfarms).
 - Theoretical Windows support (but not ever tested)
+- Send alerts to Slack or Mattermost whenever a job exits with an error status.
 
 ## Getting Started ##
 
@@ -208,6 +209,7 @@ dateFormat     | string    | Y-m-d H:i:s                         | Format for da
 _**Mailing**_  |           |                                     | _**Options for emailing errors**_
 recipients     | string    | null                                | Comma-separated string of email addresses
 mailer         | string    | sendmail                            | Email method: _sendmail_ or _smtp_ or _mail_
+mailSubject    | string    | null                                | Email subject
 smtpHost       | string    | null                                | SMTP host, if `mailer` is smtp
 smtpPort       | integer   | 25                                  | SMTP port, if `mailer` is smtp
 smtpUsername   | string    | null                                | SMTP user, if `mailer` is smtp
@@ -215,6 +217,11 @@ smtpPassword   | string    | null                                | SMTP password
 smtpSecurity   | string    | null                                | SMTP security option: _ssl_ or _tls_, if `mailer` is smtp
 smtpSender     | string    | jobby@&lt;hostname&gt;              | The sender and from addresses used in SMTP notices
 smtpSenderName | string    | Jobby                               | The name used in the from field for SMTP messages
+_**Notifications**_  |           |                                     | _**Options for sending Alerts when errors**_
+mattermostUrl  | string    | null                                | The webhook url from Mattermost
+slackChannel   | string    | null                                | The name of Slack Channel (#channel)
+slackUrl       | string    | null                                | The webhook url from Slack
+slackSender    | string    | null                                | The name used in the from field for Slack
 
 ## Symfony integration ##
 
