@@ -1,13 +1,11 @@
 # Jobby, a PHP cron job manager #
-[![Total Downloads](https://img.shields.io/packagist/dt/hellogerard/jobby.svg)](https://packagist.org/packages/hellogerard/jobby)
-[![Latest Version](https://img.shields.io/packagist/v/hellogerard/jobby.svg)](https://packagist.org/packages/hellogerard/jobby)
-[![Build Status](https://img.shields.io/travis/jobbyphp/jobby.svg)](https://travis-ci.org/jobbyphp/jobby)
-[![MIT License](https://img.shields.io/packagist/l/hellogerard/jobby.svg)](https://github.com/jobbyphp/jobby/blob/master/LICENSE)
+[![Total Downloads](https://img.shields.io/packagist/dt/hatimox/jobby.svg)](https://packagist.org/packages/hatimox/jobby)
+[![Latest Version](https://img.shields.io/packagist/v/hatimox/jobby.svg)](https://packagist.org/packages/hatimox/jobby)
+[![Build Status](https://img.shields.io/travis/hatimox/jobby.svg)](https://travis-ci.org/hatimox/jobby)
+[![MIT License](https://img.shields.io/packagist/l/hatimox/jobby.svg)](https://github.com/hatimox/jobby/blob/master/LICENSE)
 
 Install the master jobby cron job, and it will manage all your offline tasks. Add jobs without modifying crontab.
 Jobby can handle logging, locking, error emails and more.
-
-**NEW REPO:** We have moved `jobby` to a Github org. Please update your remotes to `https://github.com/jobbyphp/jobby.git`.
 
 ## Features ##
 
@@ -27,7 +25,7 @@ Jobby can handle logging, locking, error emails and more.
 
 The recommended way to install Jobby is through [Composer](http://getcomposer.org):
 ```
-$ composer require hellogerard/jobby
+$ composer require hatimox/jobby
 ```
 
 Then add the following line to your (or whomever's) crontab:
@@ -37,7 +35,7 @@ Then add the following line to your (or whomever's) crontab:
 
 After Jobby installs, you can copy an example file to the project root.
 ```
-$ cp vendor/hellogerard/jobby/resources/jobby.php .
+$ cp vendor/hatimox/jobby/resources/jobby.php .
 ```
 
 ### Running a job ###

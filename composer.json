@@ -5,16 +5,8 @@
   "description": "Manage all your cron jobs without modifying crontab. Handles locking, logging, error emails, and more.",
   "authors": [
     {
-      "name": "Gerard Sychay",
-      "email": "hellogerard@gmail.com",
-      "homepage": "https://github.com/hellogerard"
-    },
-    {
-      "name": "Michael Contento",
-      "homepage": "https://github.com/michaelcontento"
-    },
-    {
       "name": "Hatim HAFFANE",
+      "email": "hatim.haffane@gmail.com",
       "homepage": "https://github.com/hatimox"
     }
   ],
