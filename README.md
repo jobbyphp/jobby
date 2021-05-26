@@ -1,13 +1,11 @@
 # Jobby, a PHP cron job manager #
-[![Total Downloads](https://img.shields.io/packagist/dt/hellogerard/jobby.svg)](https://packagist.org/packages/hellogerard/jobby)
-[![Latest Version](https://img.shields.io/packagist/v/hellogerard/jobby.svg)](https://packagist.org/packages/hellogerard/jobby)
-[![Build Status](https://img.shields.io/travis/jobbyphp/jobby.svg)](https://travis-ci.org/jobbyphp/jobby)
-[![MIT License](https://img.shields.io/packagist/l/hellogerard/jobby.svg)](https://github.com/jobbyphp/jobby/blob/master/LICENSE)
+[![Total Downloads](https://img.shields.io/packagist/dt/hatimox/jobby.svg)](https://packagist.org/packages/hatimox/jobby)
+[![Latest Version](https://img.shields.io/packagist/v/hatimox/jobby.svg)](https://packagist.org/packages/hatimox/jobby)
+[![Build Status](https://img.shields.io/travis/hatimox/jobby.svg)](https://travis-ci.org/hatimox/jobby)
+[![MIT License](https://img.shields.io/packagist/l/hatimox/jobby.svg)](https://github.com/hatimox/jobby/blob/master/LICENSE)
 
 Install the master jobby cron job, and it will manage all your offline tasks. Add jobs without modifying crontab.
 Jobby can handle logging, locking, error emails and more.
-
-**NEW REPO:** We have moved `jobby` to a Github org. Please update your remotes to `https://github.com/jobbyphp/jobby.git`.
 
 ## Features ##
 
@@ -19,6 +17,7 @@ Jobby can handle logging, locking, error emails and more.
 - Run job as another user, if crontab user has `sudo` privileges.
 - Run only on certain hostnames (handy in webfarms).
 - Theoretical Windows support (but not ever tested)
+- Send alerts to Slack or Mattermost whenever a job exits with an error status.
 
 ## Getting Started ##
 
@@ -26,7 +25,7 @@ Jobby can handle logging, locking, error emails and more.
 
 The recommended way to install Jobby is through [Composer](http://getcomposer.org):
 ```
-$ composer require hellogerard/jobby
+$ composer require hatimox/jobby
 ```
 
 Then add the following line to your (or whomever's) crontab:
@@ -36,7 +35,7 @@ Then add the following line to your (or whomever's) crontab:
 
 After Jobby installs, you can copy an example file to the project root.
 ```
-$ cp vendor/hellogerard/jobby/resources/jobby.php .
+$ cp vendor/hatimox/jobby/resources/jobby.php .
 ```
 
 ### Running a job ###
@@ -208,6 +207,7 @@ dateFormat     | string    | Y-m-d H:i:s                         | Format for da
 _**Mailing**_  |           |                                     | _**Options for emailing errors**_
 recipients     | string    | null                                | Comma-separated string of email addresses
 mailer         | string    | sendmail                            | Email method: _sendmail_ or _smtp_ or _mail_
+mailSubject    | string    | null                                | Email subject
 smtpHost       | string    | null                                | SMTP host, if `mailer` is smtp
 smtpPort       | integer   | 25                                  | SMTP port, if `mailer` is smtp
 smtpUsername   | string    | null                                | SMTP user, if `mailer` is smtp
@@ -215,6 +215,11 @@ smtpPassword   | string    | null                                | SMTP password
 smtpSecurity   | string    | null                                | SMTP security option: _ssl_ or _tls_, if `mailer` is smtp
 smtpSender     | string    | jobby@&lt;hostname&gt;              | The sender and from addresses used in SMTP notices
 smtpSenderName | string    | Jobby                               | The name used in the from field for SMTP messages
+_**Notifications**_  |           |                                     | _**Options for sending Alerts when errors**_
+mattermostUrl  | string    | null                                | The webhook url from Mattermost
+slackChannel   | string    | null                                | The name of Slack Channel (#channel)
+slackUrl       | string    | null                                | The webhook url from Slack
+slackSender    | string    | null                                | The name used in the from field for Slack
 
 ## Symfony integration ##
 

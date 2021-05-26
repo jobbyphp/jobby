@@ -1,6 +1,8 @@
 <?php
 namespace Jobby;
 
+use GuzzleHttp\Client as Guzzle;
+
 class Helper
 {
     /**
@@ -24,11 +26,20 @@ class Helper
     private $mailer;
 
     /**
+     * The Guzzle HTTP client instance
+     *
+     * @var \GuzzleHttp\Client
+     */
+    protected $guzzle;
+
+
+    /**
      * @param \Swift_Mailer $mailer
      */
     public function __construct(\Swift_Mailer $mailer = null)
     {
         $this->mailer = $mailer;
+        $this->guzzle = new Guzzle;
     }
 
     /**
@@ -51,7 +62,11 @@ jobby@$host
 EOF;
         $mail = new \Swift_Message();
         $mail->setTo(explode(',', $config['recipients']));
-        $mail->setSubject("[$host] '{$job}' needs some attention!");
+        if(empty($config['mailSubject'])){
+            $mail->setSubject("[$host] '{$job}' needs some attention!");
+        }else{
+            $mail->setSubject($config['mailSubject']);
+        }
         $mail->setBody($body);
         $mail->setFrom([$config['smtpSender'] => $config['smtpSenderName']]);
         $mail->setSender($config['smtpSender']);
@@ -248,5 +263,56 @@ EOF;
             return '/dev/null';
         }
         return 'NUL';
+    }
+
+    /**
+     * @param string $job
+     * @param array  $config
+     * @param string $message
+     *
+     * @return void
+     */
+    public function sendSlackAlert($job, array $config, $message)
+    {
+        $host = $this->getHost();
+        $body = <<<EOF
+$message
+
+You can find its output in {$config['output']} on $host.
+
+Best,
+jobby@$host
+EOF;
+        $client = new \Maknz\Slack\Client($config['slackUrl']);
+        $client->to($config['slackChannel']);
+        if($config['slackSender']){
+            $client->from($config['slackSender']);
+        }
+        $client->send($body);
+
+    }
+
+    /**
+     * @param string $job
+     * @param array  $config
+     * @param string $message
+     *
+     * @return void
+     */
+    public function sendMattermostAlert($job, array $config, $message)
+    {
+        $host = $this->getHost();
+        $body = <<<EOF
+$message
+
+You can find its output in {$config['output']} on $host.
+
+Best,
+jobby@$host
+EOF;
+        $payload = ['text'=>$body];
+        $encoded = json_encode($payload, JSON_UNESCAPED_UNICODE);
+        $this->guzzle->post($config['mattermostUrl'], ['body' => $encoded]);
+
     }
 }

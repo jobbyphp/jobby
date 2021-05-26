@@ -1,22 +1,19 @@
 {
-  "name": "hellogerard/jobby",
-  "homepage": "https://github.com/jobbyphp/jobby",
+  "name": "hatimox/jobby",
+  "homepage": "https://github.com/hatimox/jobby",
   "license": "MIT",
   "description": "Manage all your cron jobs without modifying crontab. Handles locking, logging, error emails, and more.",
   "authors": [
     {
-      "name": "Gerard Sychay",
-      "email": "hellogerard@gmail.com",
-      "homepage": "https://github.com/hellogerard"
-    },
-    {
-      "name": "Michael Contento",
-      "homepage": "https://github.com/michaelcontento"
+      "name": "Hatim HAFFANE",
+      "email": "hatim.haffane@gmail.com",
+      "homepage": "https://github.com/hatimox"
     }
   ],
   "require": {
     "php": ">=5.6",
     "dragonmantank/cron-expression": "^3.0",
+    "maknz/slack": "^1.7",
     "opis/closure": "^3.5",
     "swiftmailer/swiftmailer": "^5.4|^6.0",
     "symfony/process": "^2.7|^3.0|^4.0|^5.0"
