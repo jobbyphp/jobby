@@ -283,7 +283,9 @@ class BackgroundJob
         }
         $content = ob_get_contents();
         if ($logfile = $this->getLogfile()) {
-            file_put_contents($this->getLogfile(), $content, FILE_APPEND);
+            if(strlen($content) > 2){
+                file_put_contents($this->getLogfile(), $content, FILE_APPEND);
+            }
         }
         ob_end_clean();
 
