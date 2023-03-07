@@ -54,7 +54,11 @@ class BackgroundJob
             'dateFormat'     => null,
             'enabled'        => null,
             'haltDir'        => null,
-            'debug'          => null,
+            'mattermostUrl'  => null,
+            'slackChannel'   => null,
+            'slackUrl'       => null,
+            'slackSender'    => null,
+            'mailSubject'    => null,
         ];
 
         $this->config['output_stdout'] = $this->config['output_stdout'] === null ? $this->config['output'] : $this->config['output_stdout'];
@@ -73,7 +77,7 @@ class BackgroundJob
             $this->checkMaxRuntime($lockFile);
         } catch (Exception $e) {
             $this->log('ERROR: ' . $e->getMessage(), 'stderr');
-            $this->mail($e->getMessage());
+            $this->notify($e->getMessage());
 
             return;
         }
@@ -96,7 +100,7 @@ class BackgroundJob
             $this->log('INFO: ' . $e->getMessage(), 'stderr');
         } catch (Exception $e) {
             $this->log('ERROR: ' . $e->getMessage(), 'stderr');
-            $this->mail($e->getMessage());
+            $this->notify($e->getMessage());
         }
 
         if ($lockAcquired) {
@@ -144,6 +148,7 @@ class BackgroundJob
 
     /**
      * @param string $message
+     * Deprecated
      */
     protected function mail($message)
     {
@@ -156,6 +161,38 @@ class BackgroundJob
             $this->config,
             $message
         );
+    }
+
+    /**
+     * @param string $message
+     */
+    protected function notify($message)
+    {
+        if (!empty($this->config['recipients'])) {
+            $this->helper->sendMail(
+                $this->job,
+                $this->config,
+                $message
+            );
+        }
+
+        if (!empty($this->config['mattermostUrl'])) {
+            $this->helper->sendMattermostAlert(
+                $this->job,
+                $this->config,
+                $message
+            );
+        }
+
+        if (!empty($this->config['slackChannel']) && !empty($this->config['slackUrl'])) {
+            $this->helper->sendSlackAlert(
+                $this->job,
+                $this->config,
+                $message
+            );
+        }
+
+
     }
 
     /**
@@ -246,7 +283,9 @@ class BackgroundJob
         }
         $content = ob_get_contents();
         if ($logfile = $this->getLogfile()) {
-            file_put_contents($this->getLogfile(), $content, FILE_APPEND);
+            if(strlen($content) > 2){
+                file_put_contents($this->getLogfile(), $content, FILE_APPEND);
+            }
         }
         ob_end_clean();
 
