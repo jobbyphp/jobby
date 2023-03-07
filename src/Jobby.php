@@ -79,6 +79,11 @@ class Jobby
             'enabled'        => true,
             'haltDir'        => null,
             'debug'          => false,
+            'mattermostUrl'  => null,
+            'slackChannel'   => null,
+            'slackUrl'       => null,
+            'slackSender'    => null,
+            'mailSubject'    => null,
         ];
     }
 
