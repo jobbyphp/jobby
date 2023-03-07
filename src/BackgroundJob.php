@@ -108,7 +108,7 @@ class BackgroundJob
 
             // remove log file if empty
             $logfile = $this->getLogfile();
-            if (is_file($logfile) && filesize($logfile) <= 0) {
+            if (is_file($logfile) && (filesize($logfile) <= 2 || file_get_contents($logfile) == "[]")) {
                 unlink($logfile);
             }
         }
