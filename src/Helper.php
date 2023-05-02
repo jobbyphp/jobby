@@ -1,6 +1,13 @@
 <?php
 namespace Jobby;
 
+use Swift_MailTransport;
+use Swift_SendmailTransport;
+use Swift_Mailer;
+use Swift_SmtpTransport;
+use Swift_Message;
+use Swift;
+
 class Helper
 {
     /**
@@ -26,7 +33,7 @@ class Helper
     /**
      * @param \Swift_Mailer $mailer
      */
-    public function __construct(\Swift_Mailer $mailer = null)
+    public function __construct(Swift_Mailer $mailer = null)
     {
         $this->mailer = $mailer;
     }
@@ -49,7 +56,7 @@ You can find its output in {$config['output']} on $host.
 Best,
 jobby@$host
 EOF;
-        $mail = new \Swift_Message();
+        $mail = new Swift_Message();
         $mail->setTo(explode(',', $config['recipients']));
         $mail->setSubject("[$host] '{$job}' needs some attention!");
         $mail->setBody($body);
@@ -73,10 +80,10 @@ EOF;
             return $this->mailer;
         }
 
-        $swiftVersion = (int) explode('.', \Swift::VERSION)[0];
+        $swiftVersion = (int) explode('.', Swift::VERSION)[0];
 
         if ($config['mailer'] === 'smtp') {
-            $transport = new \Swift_SmtpTransport(
+            $transport = new Swift_SmtpTransport(
                 $config['smtpHost'],
                 $config['smtpPort'],
                 $config['smtpSecurity']
@@ -84,12 +91,12 @@ EOF;
             $transport->setUsername($config['smtpUsername']);
             $transport->setPassword($config['smtpPassword']);
         } elseif ($swiftVersion < 6 && $config['mailer'] === 'mail') {
-            $transport = \Swift_MailTransport::newInstance();
+            $transport = Swift_MailTransport::newInstance();
         } else {
-            $transport = new \Swift_SendmailTransport();
+            $transport = new Swift_SendmailTransport();
         }
 
-        return new \Swift_Mailer($transport);
+        return new Swift_Mailer($transport);
     }
 
     /**
