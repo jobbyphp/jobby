@@ -4,12 +4,13 @@ namespace Jobby\Tests;
 
 use Jobby\Helper;
 use Jobby\Jobby;
-use Opis\Closure\SerializableClosure;
+use Laravel\SerializableClosure\SerializableClosure;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Jobby\Jobby
  */
-class JobbyTest extends \PHPUnit_Framework_TestCase
+class JobbyTest extends TestCase
 {
     /**
      * @var string
@@ -24,7 +25,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->logFile = __DIR__ . '/_files/JobbyTest.log';
         if (file_exists($this->logFile)) {
@@ -37,7 +38,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (file_exists($this->logFile)) {
             unlink($this->logFile);
@@ -188,8 +189,8 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         // Job runs asynchronously, so wait a bit
         sleep($this->getSleepTime());
 
-        $this->assertContains('job-1', $this->getLogContent());
-        $this->assertContains('job-2', $this->getLogContent());
+        $this->assertStringContainsString('job-1', $this->getLogContent());
+        $this->assertStringContainsString('job-2', $this->getLogContent());
     }
 
     /**
@@ -284,6 +285,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
      */
     public function testExceptionOnMissingJobOptionCommand()
     {
+        $this->expectException(\Jobby\Exception::class);
         $jobby = new Jobby();
 
         $jobby->add(
@@ -300,6 +302,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
      */
     public function testExceptionOnMissingJobOptionSchedule()
     {
+        $this->expectException(\Jobby\Exception::class);
         $jobby = new Jobby();
 
         $jobby->add(
@@ -358,7 +361,7 @@ class JobbyTest extends \PHPUnit_Framework_TestCase
         $jobby->run();
         sleep(2);
 
-        $this->assertContains('ERROR: MaxRuntime of 1 secs exceeded!', $this->getLogContent());
+        $this->assertStringContainsString('ERROR: MaxRuntime of 1 secs exceeded!', $this->getLogContent());
     }
 
     /**

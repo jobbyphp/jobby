@@ -4,3 +4,5 @@ logs
 cron.out
 composer.phar
 composer.lock
+.phpunit.result.cache
+.phpunit.cache

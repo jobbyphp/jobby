@@ -4,7 +4,7 @@ namespace Jobby;
 
 use Closure;
 use DateTimeImmutable;
-use Opis\Closure\SerializableClosure;
+use Laravel\SerializableClosure\SerializableClosure;
 use Symfony\Component\Process\PhpExecutableFinder;
 
 class Jobby

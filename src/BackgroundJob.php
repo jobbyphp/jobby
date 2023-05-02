@@ -2,7 +2,7 @@
 
 namespace Jobby;
 
-use Opis\Closure\SerializableClosure;
+use Laravel\SerializableClosure\SerializableClosure;
 
 class BackgroundJob
 {
